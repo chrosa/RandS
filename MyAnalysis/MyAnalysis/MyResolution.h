@@ -12,8 +12,14 @@
 
 class MyResolution : public EL::Algorithm, public ana::Configuration
 {
-        // put your configuration variables here as public variables.
-        // that way they can be set directly from CINT and python.
+	private:
+		double m_VetoCone;
+		double m_MatchingCone;
+		double m_RelGenActivityVeto;
+		double m_RelRecoActivityVeto;
+
+    // put your configuration variables here as public variables.
+    // that way they can be set directly from CINT and python.
     public:
         // float cutValue;
         int m_eventCounter; //!

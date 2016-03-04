@@ -41,6 +41,14 @@ MyResolution :: MyResolution ()
     // initialization code will go into histInitialize() and
     // initialize().
 
+    //
+    // Property declaration
+    //
+    m_VetoCone=0.8;
+    m_MatchingCone=0.1;
+    m_RelGenActivityVeto=0.01;
+    m_RelRecoActivityVeto=0.05;
+
     PtBinEdges.push_back(0);
     PtBinEdges.push_back(20);
     PtBinEdges.push_back(30);
@@ -195,6 +203,9 @@ EL::StatusCode MyResolution :: initialize ()
 
 EL::StatusCode MyResolution :: execute ()
 {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    ANA_CHECK (quickAna->process ());
+
     // Here you do everything that needs to be done on every single
     // events, e.g. read input variables, apply cuts, and fill
     // histograms and trees.  This is where most of your actual analysis
@@ -247,10 +258,10 @@ EL::StatusCode MyResolution :: execute ()
     } // end if the event is data
     m_numCleanEvents++;
 
-    for (auto jet_itr : *quickAna->jets()) {
-        if (jet_itr->auxdata<ana::SelectType> ("ana_select"))
-            std::cout << jet_itr->pt() << std::endl;
-    }
+    //for (auto jet_itr : *quickAna->jets()) {
+    //    if (jet_itr->auxdata<ana::SelectType> ("ana_select"))
+    //        std::cout << jet_itr->pt() << std::endl;
+    //}
 
     // get jet container of interest
     const xAOD::JetContainer* jets = 0;
@@ -271,33 +282,60 @@ EL::StatusCode MyResolution :: execute ()
     // Print out number of jets
     //Info("execute()", "  number of jets = %lu", jets->size());
 
-    // loop over the genjets
-    xAOD::JetContainer::const_iterator genjet_itr = genjets->begin();
-    xAOD::JetContainer::const_iterator genjet_end = genjets->end();
-    for( ; genjet_itr != genjet_end; ++genjet_itr ) {
+    // Loop over all jets in this container
+    for ( const auto* genjet : *genjets ) {
 
+        // check for no additional genJet activity
+        bool noGenActivity = true;
+        for ( const auto* genjet2 : *genjets ) {
+            if (genjet2 == genjet) continue;
+            double dR = genjet->p4().DeltaR(genjet2->p4());
+            if (dR < m_VetoCone && genjet2->pt()/genjet->pt() > m_RelGenActivityVeto) {
+                noGenActivity = false;
+            }
+        }
+        //if (!noGenActivity) continue; // continue with next genJet if another genJet is closeby
+
+        // check for additional recoJet activity
         const xAOD::Jet* matchedJet = new xAOD::Jet; //create a new jet object
-        double dRmin = 999.;
-
-        // loop over the jets
-        xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-        xAOD::JetContainer::const_iterator jet_end = jets->end();
-        for( ; jet_itr != jet_end; ++jet_itr ) {
-            double dR = (*jet_itr)->p4().DeltaR((*genjet_itr)->p4());
-            if (dR < dRmin) {
-                dRmin = dR;
-                matchedJet = *jet_itr;
+        const xAOD::Jet* nextJet = new xAOD::Jet; //create a new jet object
+        TLorentzVector addRecoActivity(0., 0., 0., 0.);
+        double dRmin_matched = 999.;
+        double dRmin_next = 999.;
+        for ( auto jet : *quickAna->jets()) {
+        //for ( const auto* jet : *jets ) {
+            double dR = jet->p4().DeltaR(genjet->p4());
+            if (dR < dRmin_matched && dR < m_VetoCone) {
+                if (dRmin_matched < m_VetoCone ) {
+                    dRmin_next = dRmin_matched;
+                    nextJet = matchedJet;
+                    addRecoActivity += nextJet->p4();
+                }
+                dRmin_matched = dR;
+                matchedJet = jet;
+            } else if (dR < dRmin_next && dR < m_VetoCone) {
+                dRmin_next = dR;
+                nextJet = jet;
+                addRecoActivity += nextJet->p4();
             }
         } // end for loop over jets
 
-        if (dRmin < 0.15) {
-            int i_pt = GetPtBin((*genjet_itr)->pt()/1000.);
-            int i_eta = GetEtaBin((*genjet_itr)->eta());
-            PtResponse.at(i_pt).at(i_eta)->Fill(matchedJet->pt()/(*genjet_itr)->pt(), quickAna->weight());
-            //delete matchedJet;
+        bool noRecoActivity = true;
+        if (dRmin_matched < m_MatchingCone) {
+            if (dRmin_next < m_VetoCone) {
+                if (nextJet->pt()/matchedJet->pt()>m_RelRecoActivityVeto) noRecoActivity = false;
+            }
         }
 
-    } //enf for loop genjets
+        if (dRmin_matched < m_MatchingCone && noRecoActivity && noGenActivity) {
+            int i_pt = GetPtBin(genjet->pt()/1000.);
+            int i_eta = GetEtaBin(genjet->eta());
+            PtResponse.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/genjet->pt(), eventWeight);
+        }
+
+        //delete matchedJet; //why does this not work???
+
+    } // end for loop over genjets
 
     return EL::StatusCode::SUCCESS;
 }
@@ -360,6 +398,8 @@ EL::StatusCode MyResolution :: histFinalize ()
     return EL::StatusCode::SUCCESS;
 }
 
+
+
 std::string MyResolution::GetHistName(unsigned int i_pt, unsigned int i_eta) {
     std::string hname = "h_tot_JetAll_ResponsePt_Pt";
     hname += std::to_string(i_pt);
@@ -367,6 +407,8 @@ std::string MyResolution::GetHistName(unsigned int i_pt, unsigned int i_eta) {
     hname += std::to_string(i_eta);
     return hname;
 }
+
+
 
 unsigned int MyResolution::GetPtBin(double pt) {
     int i_pt = -1;
@@ -383,6 +425,8 @@ unsigned int MyResolution::GetPtBin(double pt) {
     return i_pt;
 }
 
+
+
 unsigned int MyResolution::GetEtaBin(double eta) {
     int i_eta = -1;
     for (std::vector<double>::const_iterator it = EtaBinEdges.begin(); it != EtaBinEdges.end(); ++it) {
@@ -396,6 +440,8 @@ unsigned int MyResolution::GetEtaBin(double eta) {
         i_eta = (int) EtaBinEdges.size() - 2;
     return i_eta;
 }
+
+
 
 void MyResolution::ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVector) {
 
