@@ -178,11 +178,19 @@ EL::StatusCode MyResolution :: initialize ()
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-    const char* GRLFilePath = "~/sonas/GRL/data15_13TeV.periodAllYear_DetStatus-v73-pro19-08_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml";
-    const char* fullGRLFilePath = gSystem->ExpandPathName (GRLFilePath);
-    std::vector<std::string> vecStringGRL;
-    vecStringGRL.push_back(fullGRLFilePath);
-    EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+	//const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+	const char* grlFilePath = "MyAnalysis/share/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+	const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
+	std::vector<std::string> vecStringGRL;
+	vecStringGRL.push_back(fullGRLFilePath);
+	ANA_CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+
+    //m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+    //const char* GRLFilePath = "data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+    //const char* fullGRLFilePath = gSystem->ExpandPathName (GRLFilePath);
+    //std::vector<std::string> vecStringGRL;
+    //vecStringGRL.push_back(fullGRLFilePath);
+    //EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
     EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
     EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
