@@ -1,3 +1,5 @@
+#include <MyAnalysis/RandS.h>
+
 #include <MyAnalysis/MyResolution.h>
 
 #ifdef __CINT__
@@ -11,4 +13,8 @@
 
 #ifdef __CINT__
 #pragma link C++ class MyResolution+;
+#endif
+
+#ifdef __CINT__
+#pragma link C++ class RandS+;
 #endif

@@ -14,6 +14,7 @@ class MyResolution : public EL::Algorithm, public ana::Configuration
 {
 	private:
 		double m_VetoCone;
+		double m_AddActivityCone;
 		double m_MatchingCone;
 		double m_RelGenActivityVeto;
 		double m_RelRecoActivityVeto;
@@ -43,9 +44,25 @@ class MyResolution : public EL::Algorithm, public ana::Configuration
         // Resize histo vectors
         void ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVector);
 
-        std::vector< std::vector<TH1F*> > PtResponse; //!
-        //std::vector< std:vector<TH1F*> > EtaResolution; //!
-        //std::vector< std:vector<TH1F*> > PhiResolutions; //!
+        std::vector< std::vector<TH1F*> > PtResolution_tot; //!
+        std::vector< std::vector<TH1F*> > EtaResolution_tot; //!
+        std::vector< std::vector<TH1F*> > PhiResolution_tot; //!
+
+        std::vector< std::vector<TH1F*> > PtResolution_LF; //!
+        std::vector< std::vector<TH1F*> > EtaResolution_LF; //!
+        std::vector< std::vector<TH1F*> > PhiResolution_LF; //!
+
+        std::vector< std::vector<TH1F*> > PtResolution_HF; //!
+        std::vector< std::vector<TH1F*> > EtaResolution_HF; //!
+        std::vector< std::vector<TH1F*> > PhiResolution_HF; //!
+
+        std::vector< std::vector<TH1F*> > PtResolution_b; //!
+        std::vector< std::vector<TH1F*> > EtaResolution_b; //!
+        std::vector< std::vector<TH1F*> > PhiResolution_b; //!
+
+        std::vector< std::vector<TH1F*> > PtResolution_nob; //!
+        std::vector< std::vector<TH1F*> > EtaResolution_nob; //!
+        std::vector< std::vector<TH1F*> > PhiResolution_nob; //!
 
     public:
         // Tree *myTree; //!
@@ -66,7 +83,7 @@ class MyResolution : public EL::Algorithm, public ana::Configuration
         virtual EL::StatusCode finalize ();
         virtual EL::StatusCode histFinalize ();
 
-        std::string GetHistName(unsigned int i_pt, unsigned int i_eta);
+        std::string GetHistName(unsigned int i_pt, unsigned int i_eta, std::string s1, std::string s2);
         unsigned int GetPtBin(double pt);
         unsigned int GetEtaBin(double eta);
 

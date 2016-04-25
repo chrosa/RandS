@@ -1,0 +1,1 @@
+~/xxl-af-cms/testarea/2.3.41/Run/submitDir_RandS_1/data-RandS/mc15_13TeV.426136.Sherpa_CT10_jets_JZ6.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480677_00.root

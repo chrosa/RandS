@@ -1,0 +1,8 @@
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426133.e4355_s2608_r6869_r6282_p2470_tid07480935_00_RandS.root/user.csander.8259740._000001.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426133.e4355_s2608_r6869_r6282_p2470_tid07480935_00_RandS.root/user.csander.8259740._000002.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426134.e4355_s2608_r6869_r6282_p2470_tid07480766_00_RandS.root/user.csander.8259744._000001.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426134.e4355_s2608_r6869_r6282_p2470_tid07480766_00_RandS.root/user.csander.8259744._000002.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426135.e4355_s2608_r6869_r6282_p2470_tid07480768_00_RandS.root/user.csander.8259749._000001.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426135.e4355_s2608_r6869_r6282_p2470_tid07480768_00_RandS.root/user.csander.8259749._000002.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426136.e4355_s2608_r6869_r6282_p2470_tid07480677_00_RandS.root/user.csander.8259753._000001.RandS.root
+/nfs/dust/atlas/user/csander/RandS/Output/RS_Reb15_Smear0_MHTall_v2/user.csander.RandS_RS_v1.426136.e4355_s2608_r6869_r6282_p2470_tid07480677_00_RandS.root/user.csander.8259753._000002.RandS.root

@@ -10,6 +10,8 @@
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTagging.h"
+#include "xAODTruth/TruthEvent.h"
 
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
@@ -18,6 +20,7 @@
 #include <TSystem.h>
 
 /// Helper macro for checking xAOD::TReturnCode return values
+#ifndef EL_RETURN_CHECK
 #define EL_RETURN_CHECK( CONTEXT, EXP )                     \
 	   do {                                                     \
 	      if( ! EXP.isSuccess() ) {                             \
@@ -27,12 +30,18 @@
 	         return EL::StatusCode::FAILURE;                    \
 	      }                                                     \
 	   } while( false )
+#endif
 
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(MyResolution)
 
-MyResolution :: MyResolution ()
+MyResolution :: MyResolution ():
+    m_VetoCone(1.2),
+    m_AddActivityCone(0.8),
+    m_MatchingCone(0.1),
+    m_RelGenActivityVeto(0.01),
+    m_RelRecoActivityVeto(0.05)
 {
     // Here you put any code for the base initialization of variables,
     // e.g. initialize all pointers to 0.  Note that you should only put
@@ -44,10 +53,6 @@ MyResolution :: MyResolution ()
     //
     // Property declaration
     //
-    m_VetoCone=0.8;
-    m_MatchingCone=0.1;
-    m_RelGenActivityVeto=0.01;
-    m_RelRecoActivityVeto=0.05;
 
     PtBinEdges.push_back(0);
     PtBinEdges.push_back(20);
@@ -74,16 +79,28 @@ MyResolution :: MyResolution ()
     PtBinEdges.push_back(6500);
 
     EtaBinEdges.push_back(0.0);
-    EtaBinEdges.push_back(0.5);
-    EtaBinEdges.push_back(1.0);
-    EtaBinEdges.push_back(1.5);
-    EtaBinEdges.push_back(2.0);
-    EtaBinEdges.push_back(2.5);
-    EtaBinEdges.push_back(3.5);
+    EtaBinEdges.push_back(0.7);
+    EtaBinEdges.push_back(1.3);
+    EtaBinEdges.push_back(1.8);
+    EtaBinEdges.push_back(3.2);
     EtaBinEdges.push_back(5.0);
 
     //// Array of histograms for jet resolutions (all jet multiplicities)
-    ResizeHistoVector(PtResponse);
+    ResizeHistoVector(PtResolution_tot);
+    ResizeHistoVector(EtaResolution_tot);
+    ResizeHistoVector(PhiResolution_tot);
+    ResizeHistoVector(PtResolution_LF);
+    ResizeHistoVector(EtaResolution_LF);
+    ResizeHistoVector(PhiResolution_LF);
+    ResizeHistoVector(PtResolution_HF);
+    ResizeHistoVector(EtaResolution_HF);
+    ResizeHistoVector(PhiResolution_HF);
+    ResizeHistoVector(PtResolution_nob);
+    ResizeHistoVector(EtaResolution_nob);
+    ResizeHistoVector(PhiResolution_nob);
+    ResizeHistoVector(PtResolution_b);
+    ResizeHistoVector(EtaResolution_b);
+    ResizeHistoVector(PhiResolution_b);
 }
 
 
@@ -117,11 +134,68 @@ EL::StatusCode MyResolution :: histInitialize ()
     for (unsigned int i_pt = 0; i_pt < PtBinEdges.size() - 1; ++i_pt) {
         for (unsigned int i_eta = 0; i_eta < EtaBinEdges.size() - 1; ++i_eta) {
 
-            //// Book histograms Pt resolution
-            TH1F* h_jetRes = new TH1F(GetHistName(i_pt, i_eta).c_str(), "p_T^{reco}/p_T^{gen}", 250, 0.0, 5.0);
-            wk()->addOutput(h_jetRes);
-            PtResponse.at(i_pt).at(i_eta) = h_jetRes;
+            //// Book histograms Pt response
+            TH1F* h_jetRes_tot_pt = new TH1F(GetHistName(i_pt, i_eta,"tot","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
+            wk()->addOutput(h_jetRes_tot_pt);
+            PtResolution_tot.at(i_pt).at(i_eta) = h_jetRes_tot_pt;
 
+            TH1F* h_jetRes_LF_pt = new TH1F(GetHistName(i_pt, i_eta,"LF","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
+            wk()->addOutput(h_jetRes_LF_pt);
+            PtResolution_LF.at(i_pt).at(i_eta) = h_jetRes_LF_pt;
+
+            TH1F* h_jetRes_HF_pt = new TH1F(GetHistName(i_pt, i_eta,"HF","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
+            wk()->addOutput(h_jetRes_HF_pt);
+            PtResolution_HF.at(i_pt).at(i_eta) = h_jetRes_HF_pt;
+
+            TH1F* h_jetRes_nob_pt = new TH1F(GetHistName(i_pt, i_eta,"nob","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
+            wk()->addOutput(h_jetRes_nob_pt);
+            PtResolution_nob.at(i_pt).at(i_eta) = h_jetRes_nob_pt;
+
+            TH1F* h_jetRes_b_pt = new TH1F(GetHistName(i_pt, i_eta,"b","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
+            wk()->addOutput(h_jetRes_b_pt);
+            PtResolution_b.at(i_pt).at(i_eta) = h_jetRes_b_pt;
+
+            //// Book histograms Phi resolution
+            TH1F* h_jetRes_tot_phi = new TH1F(GetHistName(i_pt, i_eta,"tot","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_tot_phi);
+            PhiResolution_tot.at(i_pt).at(i_eta) = h_jetRes_tot_phi;
+
+            TH1F* h_jetRes_LF_phi = new TH1F(GetHistName(i_pt, i_eta,"LF","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_LF_phi);
+            PhiResolution_LF.at(i_pt).at(i_eta) = h_jetRes_LF_phi;
+
+            TH1F* h_jetRes_HF_phi = new TH1F(GetHistName(i_pt, i_eta,"HF","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_HF_phi);
+            PhiResolution_HF.at(i_pt).at(i_eta) = h_jetRes_HF_phi;
+
+            TH1F* h_jetRes_nob_phi = new TH1F(GetHistName(i_pt, i_eta,"nob","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_nob_phi);
+            PhiResolution_nob.at(i_pt).at(i_eta) = h_jetRes_nob_phi;
+
+            TH1F* h_jetRes_b_phi = new TH1F(GetHistName(i_pt, i_eta,"b","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_b_phi);
+            PhiResolution_b.at(i_pt).at(i_eta) = h_jetRes_b_phi;
+
+            //// Book histograms Eta resolution
+            TH1F* h_jetRes_tot_eta = new TH1F(GetHistName(i_pt, i_eta,"tot","Eta").c_str(), "#Delta#eta(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_tot_eta);
+            EtaResolution_tot.at(i_pt).at(i_eta) = h_jetRes_tot_eta;
+
+            TH1F* h_jetRes_LF_eta = new TH1F(GetHistName(i_pt, i_eta,"LF","Eta").c_str(), "#Delta#eta(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_LF_eta);
+            EtaResolution_LF.at(i_pt).at(i_eta) = h_jetRes_LF_eta;
+
+            TH1F* h_jetRes_HF_eta = new TH1F(GetHistName(i_pt, i_eta,"HF","Eta").c_str(), "#Delta#eta(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_HF_eta);
+            EtaResolution_HF.at(i_pt).at(i_eta) = h_jetRes_HF_eta;
+
+            TH1F* h_jetRes_nob_eta = new TH1F(GetHistName(i_pt, i_eta,"nob","Eta").c_str(), "#Delta#eta(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_nob_eta);
+            EtaResolution_nob.at(i_pt).at(i_eta) = h_jetRes_nob_eta;
+
+            TH1F* h_jetRes_b_eta = new TH1F(GetHistName(i_pt, i_eta,"b","Eta").c_str(), "#Delta#eta(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
+            wk()->addOutput(h_jetRes_b_eta);
+            EtaResolution_b.at(i_pt).at(i_eta) = h_jetRes_b_eta;
         }
     }
 
@@ -178,19 +252,12 @@ EL::StatusCode MyResolution :: initialize ()
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-	//const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
-	const char* grlFilePath = "MyAnalysis/share/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
-	const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
-	std::vector<std::string> vecStringGRL;
-	vecStringGRL.push_back(fullGRLFilePath);
-	ANA_CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
-
-    //m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-    //const char* GRLFilePath = "data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
-    //const char* fullGRLFilePath = gSystem->ExpandPathName (GRLFilePath);
-    //std::vector<std::string> vecStringGRL;
-    //vecStringGRL.push_back(fullGRLFilePath);
-    //EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+    const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+    //const char* grlFilePath = "MyAnalysis/share/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+    const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
+    std::vector<std::string> vecStringGRL;
+    vecStringGRL.push_back(fullGRLFilePath);
+    ANA_CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
     EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
     EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
@@ -241,7 +308,36 @@ EL::StatusCode MyResolution :: execute ()
         isMC = true; // can do something with this later
         //  extra event-level information you might need:
         datasetID =  eventInfo->mcChannelNumber();
-        eventWeight = eventInfo->mcEventWeight() ;
+        //const std::vector< float > weights = eventInfo->mcEventWeights();
+        //if( weights.size() > 0 ) eventWeight = weights[0];
+        eventWeight = quickAna->eventWeight();
+        //std::cout << "datasetID = " << datasetID << std::endl;
+        double lumi = 10000;
+        if (datasetID == 426133) {
+            double XS = 13075;
+            int events = 1968000;
+            double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 426134) {
+            double XS = 96.076;
+            int events = 1984000;
+            double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 426135) {
+            double XS = 2.725;
+            int events = 1961500;
+            double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 426136) {
+            double XS = 0.20862;
+            int events = 1967800;
+            double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        //std::cout << "eventWeight = " << eventWeight << std::endl;
     }
 
     // if data check if event passes GRL
@@ -276,6 +372,8 @@ EL::StatusCode MyResolution :: execute ()
     EL_RETURN_CHECK("execute()", event->retrieve( jets, "AntiKt4EMTopoJets" ));
     const xAOD::JetContainer* genjets = 0;
     EL_RETURN_CHECK("execute()", event->retrieve( genjets, "AntiKt4TruthJets"));
+    const xAOD::TruthParticleContainer* genparticles = 0;
+    EL_RETURN_CHECK("execute()", event->retrieve( genparticles, "TruthParticles"));
 
     // loop over the emjets and reject events with at least one bad jet
     xAOD::JetContainer::const_iterator jet_itr = jets->begin();
@@ -292,39 +390,50 @@ EL::StatusCode MyResolution :: execute ()
 
     // Loop over all jets in this container
     for ( const auto* genjet : *genjets ) {
+		
+		TLorentzVector numuActivity(0., 0., 0., 0.);
+        for ( const auto* it : *genparticles ) {
+            if (abs(it->pdgId()) == 13 || abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 ) {
+				double dR = genjet->p4().DeltaR(it->p4());
+				if (dR < 0.4) {
+					numuActivity += it->p4();
+				}
+                //std::cout << "id, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", "<< it->eta()<< ", " << it->phi()<< std::endl;
+            }
+        }
+        //if (numuActivity.Pt() > 0) std::cout << "Old, new pt: " <<  genjet->pt() << ", " << (genjet->p4() + numuActivity).Pt() << std::endl;
 
         // check for no additional genJet activity
         bool noGenActivity = true;
         for ( const auto* genjet2 : *genjets ) {
             if (genjet2 == genjet) continue;
             double dR = genjet->p4().DeltaR(genjet2->p4());
-            if (dR < m_VetoCone && genjet2->pt()/genjet->pt() > m_RelGenActivityVeto) {
+            if (dR < m_VetoCone && genjet2->pt()/genjet->pt() > m_RelGenActivityVeto ) {
                 noGenActivity = false;
             }
         }
-        //if (!noGenActivity) continue; // continue with next genJet if another genJet is closeby
+        if (!noGenActivity) continue; // continue with next genJet if another genJet is closeby
 
         // check for additional recoJet activity
-        const xAOD::Jet* matchedJet = new xAOD::Jet; //create a new jet object
-        const xAOD::Jet* nextJet = new xAOD::Jet; //create a new jet object
+        const xAOD::Jet* matchedJet; //create a new jet object
+        const xAOD::Jet* nextJet; //create a new jet object
         TLorentzVector addRecoActivity(0., 0., 0., 0.);
         double dRmin_matched = 999.;
         double dRmin_next = 999.;
         for ( auto jet : *quickAna->jets()) {
-        //for ( const auto* jet : *jets ) {
             double dR = jet->p4().DeltaR(genjet->p4());
             if (dR < dRmin_matched && dR < m_VetoCone) {
                 if (dRmin_matched < m_VetoCone ) {
                     dRmin_next = dRmin_matched;
                     nextJet = matchedJet;
-                    addRecoActivity += nextJet->p4();
+                    if (dR < m_AddActivityCone) addRecoActivity += nextJet->p4();
                 }
                 dRmin_matched = dR;
                 matchedJet = jet;
             } else if (dR < dRmin_next && dR < m_VetoCone) {
                 dRmin_next = dR;
                 nextJet = jet;
-                addRecoActivity += nextJet->p4();
+                if (dR < m_AddActivityCone) addRecoActivity += nextJet->p4();
             }
         } // end for loop over jets
 
@@ -336,12 +445,36 @@ EL::StatusCode MyResolution :: execute ()
         }
 
         if (dRmin_matched < m_MatchingCone && noRecoActivity && noGenActivity) {
-            int i_pt = GetPtBin(genjet->pt()/1000.);
+            int i_pt = GetPtBin((genjet->p4()+numuActivity).Pt()/1000.);
             int i_eta = GetEtaBin(genjet->eta());
-            PtResponse.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/genjet->pt(), eventWeight);
+            PtResolution_tot.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+            PhiResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+            EtaResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            const xAOD::BTagging * myBTag = matchedJet->btagging();
+            double mv2val=-999.;
+            myBTag->MVx_discriminant("MV2c20", mv2val);
+            if (mv2val > -0.7887) {
+                PtResolution_HF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            } else {
+                PtResolution_LF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            }
+            if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+                PtResolution_b.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            } else {
+                PtResolution_nob.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            }
         }
 
-        //delete matchedJet; //why does this not work???
+        //delete matchedJet;
+        //delete nextJet;
 
     } // end for loop over genjets
 
@@ -408,8 +541,8 @@ EL::StatusCode MyResolution :: histFinalize ()
 
 
 
-std::string MyResolution::GetHistName(unsigned int i_pt, unsigned int i_eta) {
-    std::string hname = "h_tot_JetAll_ResponsePt_Pt";
+std::string MyResolution::GetHistName(unsigned int i_pt, unsigned int i_eta, std::string s1, std::string s2) {
+    std::string hname = "h_"+s1+"_JetAll_Res"+s2+"_Pt";
     hname += std::to_string(i_pt);
     hname += "_Eta";
     hname += std::to_string(i_eta);
