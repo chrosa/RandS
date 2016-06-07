@@ -1,0 +1,5 @@
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480935_00/DAOD_SUSY1.07480935._000001.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480935_00/DAOD_SUSY1.07480935._000002.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480935_00/DAOD_SUSY1.07480935._000003.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480935_00/DAOD_SUSY1.07480935._000004.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV.426133.Sherpa_CT10_jets_JZ3.merge.DAOD_SUSY1.e4355_s2608_r6869_r6282_p2470_tid07480935_00/DAOD_SUSY1.07480935._000005.pool.root.1

@@ -1,0 +1,4 @@
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV/AOD.06382211._000001.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV/AOD.06382216._000001.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV/AOD.06382222._000001.pool.root.1
+/nfs/dust/atlas/user/csander/xAOD/mc15_13TeV/AOD.06382227._000001.pool.root.1
