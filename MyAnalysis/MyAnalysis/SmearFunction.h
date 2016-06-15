@@ -29,6 +29,11 @@ class SmearFunction {
 
         std::vector<std::vector<std::vector<double> > > SigmaEta;
         std::vector<std::vector<std::vector<double> > > SigmaPhi;
+        
+		std::vector<TH1F*> RecoEff_tot;
+        std::vector<TH1F*> RecoEff_b;
+        std::vector<TH1F*> RecoEff_nob;
+
 
     private:
         typedef std::vector<std::string>::const_iterator StrIter;
@@ -84,7 +89,15 @@ class SmearFunction {
 
         std::vector<std::vector<TF1*> > SigmaPt;
         std::vector<std::vector<TF1*> > SigmaPt_scaled;
+        
+        std::vector<TH1F*> NReco_tot;
+        std::vector<TH1F*> NReco_b;
+        std::vector<TH1F*> NReco_nob;
 
+        std::vector<TH1F*> NGen_tot;
+        std::vector<TH1F*> NGen_b;
+        std::vector<TH1F*> NGen_nob;
+        
 };
 
 #endif

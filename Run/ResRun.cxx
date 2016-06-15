@@ -1,4 +1,4 @@
-void RandSRun( const std::string& submitDir ) {
+void ResRun( const std::string& submitDir ) {
 
     // Set up the job for xAOD access:
     xAOD::Init().ignore();
@@ -21,16 +21,8 @@ void RandSRun( const std::string& submitDir ) {
     job.options()->setDouble (EL::Job::optMaxEvents, -1);
 
     // Add our analysis to the job:
-    RandS* alg = new RandS();
-
-    // define an output and an ntuple associated to that output
-    EL::OutputStream output("RandS");
-    job.outputAdd (output);
-    EL::NTupleSvc *ntuple = new EL::NTupleSvc("RandS");
-    job.algsAdd(ntuple);
-
+    MyResolution* alg = new MyResolution();
     job.algsAdd( alg );
-    alg->outputfile_ = "RandS"; // give the name of the output to our algorithm
 
     // Run the job using the local/direct driver:
     EL::DirectDriver driver;

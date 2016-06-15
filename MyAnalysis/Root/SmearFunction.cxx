@@ -6,6 +6,9 @@
 #include <TMath.h>
 #include <TArray.h>
 
+#include <TStyle.h>
+#include <TCanvas.h>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -80,6 +83,41 @@ void SmearFunction::CalculateSmearFunctions() {
     cout << "Open file with templates" << endl;
     TFile *f1 = new TFile(smearingfile_.c_str(), "READ", "", 0);
 
+    cout << "Fetch counts for efficiency calculation" << endl;
+    for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+        char hname[100];
+        sprintf(hname, "h_NjetGen_tot_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* gen_tot = (TH1F*) f1->FindObjectAny(hname);
+        sprintf(hname, "h_NjetGen_b_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* gen_b = (TH1F*) f1->FindObjectAny(hname);
+        sprintf(hname, "h_NjetGen_nob_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* gen_nob = (TH1F*) f1->FindObjectAny(hname);
+
+        sprintf(hname, "h_NjetReco_tot_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* reco_tot = (TH1F*) f1->FindObjectAny(hname);
+        sprintf(hname, "h_NjetReco_b_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* reco_b = (TH1F*) f1->FindObjectAny(hname);
+        sprintf(hname, "h_NjetReco_nob_Eta%i", i_eta);
+        cout << hname << endl;
+        TH1F* reco_nob = (TH1F*) f1->FindObjectAny(hname);
+
+        TH1F* eff_tot = new TH1F(*reco_tot);
+        eff_tot->Divide(gen_tot);
+        TH1F* eff_b = new TH1F(*reco_b);
+        eff_b->Divide(gen_b);
+        TH1F* eff_nob = new TH1F(*reco_nob);
+        eff_nob->Divide(gen_nob);
+
+        RecoEff_tot.push_back(eff_tot);
+        RecoEff_b.push_back(eff_b);
+        RecoEff_nob.push_back(eff_nob);
+    }
+
     //// Fetch histos and fit gaussian core
     cout << "Fetch templates" << endl;
     for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
@@ -119,7 +157,7 @@ void SmearFunction::CalculateSmearFunctions() {
             //// Eta resolution
 
             for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
-                if (smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 10) {
+                if (smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     double RMS = smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     SigmaEta.at(i_flav).at(i_eta).at(i_Pt) = RMS;
                 } else {
@@ -136,7 +174,8 @@ void SmearFunction::CalculateSmearFunctions() {
                     smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(1, p);
                 }
                 //// Get width of gaussian core
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && i_Pt != 0) {
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && i_Pt != 0) {
+                    //if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     double MEAN = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetMean();
                     TF1* fitfunction = new TF1("f", "gaus(0)", MEAN - 1 * RMS, MEAN + 1 * RMS);
@@ -283,7 +322,8 @@ void SmearFunction::CalculateSmearFunctions() {
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmin(),
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmax());
 
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && i_Pt != 0) {
+                //if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && i_Pt != 0) {
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     //// fold core and tail with additional gaussian
                     TH1F smearFunc_Core_tmp(*smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt));
                     TH1F smearFunc_LowerTail_tmp(*smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt));
@@ -356,6 +396,110 @@ void SmearFunction::CalculateSmearFunctions() {
             }
         }
     }
+
+    gROOT->Reset();
+    gROOT->SetStyle("Plain");
+    gStyle->SetStatColor(0);
+    gStyle->SetCanvasColor(0);
+    gStyle->SetPadColor(0);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetFrameBorderMode(0);
+    gStyle->SetOptStat(0);
+    gStyle->SetStatBorderSize(2);
+    gStyle->SetOptTitle(1);
+    gStyle->SetPadTickX(1);
+    gStyle->SetPadTickY(1);
+    gStyle->SetPadBorderSize(2);
+    gStyle->SetPalette(51, 0);
+    gStyle->SetPadBottomMargin(0.25);
+    gStyle->SetPadTopMargin(0.10);
+    gStyle->SetPadLeftMargin(0.2);
+    gStyle->SetPadRightMargin(0.05);
+    gStyle->SetTitleOffset(1.2, "X");
+    gStyle->SetTitleOffset(1.6, "Y");
+    gStyle->SetTitleOffset(1.0, "Z");
+    gStyle->SetLabelSize(0.05, "X");
+    gStyle->SetLabelSize(0.05, "Y");
+    gStyle->SetLabelSize(0.05, "Z");
+    gStyle->SetLabelOffset(0.02, "X");
+    gStyle->SetLabelOffset(0.02, "Y");
+    gStyle->SetLabelOffset(0.02, "Z");
+    gStyle->SetTitleSize(0.05, "X");
+    gStyle->SetTitleSize(0.05, "Y");
+    gStyle->SetTitleSize(0.05, "Z");
+    gStyle->SetTitleColor(1);
+    gStyle->SetTitleFillColor(0);
+    gStyle->SetTitleFontSize(0.06);
+    gStyle->SetTitleY(0.99);
+    gStyle->SetTitleX(0.15);
+    gStyle->SetTitleBorderSize(0);
+    gStyle->SetLineWidth(2);
+    gStyle->SetHistLineWidth(2);
+    gStyle->SetLegendBorderSize(0);
+    gStyle->SetNdivisions(505, "X");
+    gStyle->SetMarkerSize(0.8);
+    gStyle->SetTickLength(0.03);
+    gROOT->ForceStyle();
+    TString psfile = "SmearFunctions";
+    TCanvas *c = new TCanvas("", "", 800, 800);
+    c->cd();
+    c->Print(psfile + ".ps(");
+    for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
+        for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
+            for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+                char cname[100];
+                sprintf(cname, "c_Pt%i_Eta%i_JetFlavor%i", i_Pt, i_eta, i_flav);
+                c->SetName(cname);
+                c->SetLogy();
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitle(cname);
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kBlack);
+                smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kGreen);
+                smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kRed);
+                smearFunc_UpperTail.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kMagenta);
+                smearFunc_scaled.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kBlue);
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->Draw("hist");
+                smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt)->Draw("hist same");
+                smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt)->Draw("hist same");
+                smearFunc_UpperTail.at(i_flav).at(i_eta).at(i_Pt)->Draw("hist same");
+                smearFunc_scaled.at(i_flav).at(i_eta).at(i_Pt)->Draw("hist same");
+                c->Print(psfile + ".ps");
+            }
+        }
+    }
+    for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+        char cname[100];
+        sprintf(cname, "c_Eff_Eta%i", i_eta);
+        c->SetName(cname);
+        RecoEff_nob.at(i_eta)->SetTitle(cname);
+        RecoEff_nob.at(i_eta)->SetLineColor(kBlue);
+        RecoEff_nob.at(i_eta)->Draw("hist");
+        //RecoEff_b.at(i_eta)->SetTitle(cname);
+        //RecoEff_b.at(i_eta)->SetLineColor(kRed);
+        //RecoEff_b.at(i_eta)->Draw("hist same");
+        c->Print(psfile + ".ps");
+
+        sprintf(cname, "c_sigmaPt_Eta%i", i_eta);
+        c->SetName(cname);
+        SigmaPtHist.at(0).at(i_eta)->SetTitle(cname);
+        SigmaPtHist.at(0).at(i_eta)->SetLineColor(kBlue);
+        SigmaPtHist.at(0).at(i_eta)->Draw("hist");
+        //SigmaPtHist.at(1).at(i_eta)->SetTitle(cname);
+        //SigmaPtHist.at(1).at(i_eta)->SetLineColor(kRed);
+        //SigmaPtHist.at(1).at(i_eta)->Draw("hist same");
+        c->Print(psfile + ".ps");
+
+        sprintf(cname, "c_sigmaPtscaled_Eta%i", i_eta);
+        c->SetName(cname);
+        SigmaPtHist_scaled.at(0).at(i_eta)->SetTitle(cname);
+        SigmaPtHist_scaled.at(0).at(i_eta)->SetLineColor(kBlue);
+        SigmaPtHist_scaled.at(0).at(i_eta)->Draw("hist");
+        //SigmaPtHist_scaled.at(1).at(i_eta)->SetTitle(cname);
+        //SigmaPtHist_scaled.at(1).at(i_eta)->SetLineColor(kRed);
+        //SigmaPtHist_scaled.at(1).at(i_eta)->Draw("hist same");
+        c->Print(psfile + ".ps");
+    }
+    c->Print(psfile + ".ps)");
 
 }
 //--------------------------------------------------------------------------

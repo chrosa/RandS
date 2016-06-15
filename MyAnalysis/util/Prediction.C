@@ -331,6 +331,9 @@ Prediction::Prediction(TChain& QCDPrediction)
     // get tree with predictions
     cout << "entries prediction tree:" << QCDPrediction.GetEntries() << endl;
 
+	JetPt = new std::vector<Float_t>;
+	JetEta = new std::vector<Float_t>;
+	DeltaPhi = new std::vector<Float_t>;
     QCDPrediction.SetBranchAddress("Ntries",&Ntries);
     QCDPrediction.SetBranchAddress("NJets",&NJets);
     QCDPrediction.SetBranchAddress("BTags",&BTags);
@@ -350,6 +353,7 @@ Prediction::Prediction(TChain& QCDPrediction)
 
         if (i == 0 ) cout << "load first event!" << endl;
         QCDPrediction.GetEntry(i);
+        if (i == 0 ) cout << "loaded first event successfully!" << endl;
 
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << '\n';
 

@@ -30,9 +30,9 @@ class Prediction {
         Float_t weight;
         Float_t HT;
         Float_t MHT;
-        std::vector<float> *JetPt;
-        std::vector<float> *JetEta;
-        std::vector<float> *DeltaPhi;
+        std::vector<Float_t> *JetPt;
+        std::vector<Float_t> *JetEta;
+        std::vector<Float_t> *DeltaPhi;
 
         // store deltaPhi cut
         vector<bool> MinDeltaPhiCut;

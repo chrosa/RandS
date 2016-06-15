@@ -7,6 +7,7 @@
 #include "TRandom3.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TLorentzVector.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -15,14 +16,15 @@
 
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 #include "JetSelectorTools/JetCleaningTool.h"
+#include "SUSYTools/SUSYToolsDict.h"
+#include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
-#include <QuickAna/Configuration.h>
-#include <QuickAna/QuickAna.h>
+
 #include <memory>
 
 
 
-class RandS : public EL::Algorithm, public ana::Configuration
+class RandS : public EL::Algorithm
 {
     // put your configuration variables here as public variables.
     // that way they can be set directly from CINT and python.
@@ -33,12 +35,8 @@ class RandS : public EL::Algorithm, public ana::Configuration
         int m_numCleanEvents; //!
         GoodRunsListSelectionTool *m_grl; //!
         JetCleaningTool *m_jetCleaning; //!
-
-        // the quickAna tool.
-        // the unique_ptr is used to ensure the tool gets destroyed and recreated
-        // when running over multiple samples
-        // the //! is important to indicate that the tool is not going to be streamed
-        std::unique_ptr<ana::IQuickAna> quickAna; //!
+   		ST::SUSYObjDef_xAOD *objTool; //!
+		std::string prw_file_;
 
         std::vector<double> PtBinEdges_;
         std::vector<double> EtaBinEdges_;
@@ -49,6 +47,7 @@ class RandS : public EL::Algorithm, public ana::Configuration
         bool controlPlots_;
         int debug_;
 
+        bool JetEffEmulation_;
         double smearedJetPt_;
         std::vector<double> PtBinEdges_scaling_;
         std::vector<double> EtaBinEdges_scaling_;
@@ -84,8 +83,10 @@ class RandS : public EL::Algorithm, public ana::Configuration
         double rebalancedJetPt_;
         std::string rebalanceMode_; // "MHTall", "MHThigh" or "MET" only for smearCollection = "Reco"
         std::string RebalanceCorrectionFile_;
+        std::string genMHTprobFile_;
         bool useRebalanceCorrectionFactors_;
         bool useCleverRebalanceCorrectionFactors_;
+        bool useGenMHTprob_;
 
         double JetsHTPt_, JetsHTEta_;
         double JetsMHTPt_, JetsMHTEta_;
@@ -100,6 +101,8 @@ class RandS : public EL::Algorithm, public ana::Configuration
         bool doSmearing_;
 
         std::string outputfile_;
+        bool storeMHTtree_;
+        std::string outputfileMHT_;
         int NJetsStored_;
         int Ntries_;
         int NJetsSave_;
@@ -127,10 +130,11 @@ class RandS : public EL::Algorithm, public ana::Configuration
         TRandom3 *rand_; //!
         SmearFunction *smearFunc_; //!
 
+		bool IsReconstructed(const double&, const double&);
         double JetResolution_Pt2(const double&, const double&);
         double JetResolution_Ptrel(const double&, const double&);
-        double JetResolution_Eta(const double&, const double&, const int&);
-        double JetResolution_Phi(const double&, const double&, const int&);
+        double JetResolution_Eta(const double&, const double&);
+        double JetResolution_Phi(const double&, const double&);
         double JetResolutionHist_Pt_Smear(const double&, const double&, const int&);
         int GetIndex(const double&, const std::vector<double>*);
 
@@ -174,15 +178,36 @@ class RandS : public EL::Algorithm, public ana::Configuration
 		std::vector<Float_t> * DeltaPhi_pred = &DeltaPhi_p; //!
         Float_t weight; //!
 
+        TTree *MHTTree; //!
+        Float_t HTreco; //!
+        Float_t MHTreco_pt; //!
+        Float_t MHTreco_phi; //!
+        Float_t MHTrecolow_pt; //!
+        Float_t MHTrecolow_phi; //!
+        Float_t MHTreb_pt; //!
+        Float_t MHTreb_phi; //!
+        Float_t MHTreblow_pt; //!
+        Float_t MHTreblow_phi; //!
+        Float_t HTgen; //!
+        Float_t METgen_pt; //!
+        Float_t METgen_phi; //!
+        Float_t MHTgen_pt; //!
+        Float_t MHTgen_phi; //!
+        Float_t MHTgenreb_pt; //!
+        Float_t MHTgenreb_phi; //!
+        Float_t MHTtruereb_pt; //!
+        Float_t MHTtruereb_phi; //!
+        Float_t MET_pt; //!
+        Float_t MET_phi; //!
+
         std::map <const myJet*, bool> genJet_btag; //!
 
         TH2F* h_RebCorrection_vsReco, *h_RebCorrection_vsReco_b; //!
         TH1F* h_RebCorrectionFactor, *h_RebCorrectionFactor_b; //!
         TH2F* h_2DRebCorrectionFactor, *h_2DRebCorrectionFactor_b; //!
         vector <TH1D*> h_2DRebCorrectionFactor_py, h_2DRebCorrectionFactor_b_py;  //!
-
-        TH1F *h_fitProb; //!
-        TH1F *h_weight; //!
+        TH3F* h_MHTtrueProb, *h_MHTtrueProb_input; //!
+        vector < vector <TH1D*> > h_MHTtrueProb_pz; //!
 
         // this is needed to distribute the algorithm to the workers
         ClassDef(RandS, 1);

@@ -18,8 +18,16 @@
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronAuxContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
+#include "xAODMuon/Muon.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODTruth/TruthEvent.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETAuxContainer.h"
 
 #include <TSystem.h>
 
@@ -43,13 +51,13 @@ ClassImp(RandS)
 
 RandS :: RandS ()
 {
-    jetTag_ = "AntiKt4EMTopoJets";
-    genJetTag_ ="AntiKt4TruthJets";
-    btagTag_ = "MV2c20";
-    btagCut_ = -0.7887;
-    electronTag_ = "";
-    muonTag_ = "";
-    smearingfile_ = "$ROOTCOREBIN/data/MyAnalysis/resolutions_v3.root";
+    jetTag_ = "AntiKt4EMTopoJets"; // not used since moving to SUSYTOOLS
+    genJetTag_ ="AntiKt4TruthJets"; // not used since moving to SUSYTOOLS
+    btagTag_ = "MV2c20"; // not used since moving to SUSYTOOLS
+    btagCut_ = -0.7887; // not used since moving to SUSYTOOLS
+    electronTag_ = ""; // not used since moving to SUSYTOOLS
+    muonTag_ = ""; // not used since moving to SUSYTOOLS
+    smearingfile_ = "$ROOTCOREBIN/data/MyAnalysis/resolutions_E_withNuMu_v1.root";
     //inputhistPtHF_ = "h_b_JetAll_ResPt";
     //inputhistEtaHF_ = "h_b_JetAll_ResEta";
     //inputhistPhiHF_ = "h_b_JetAll_ResPhi";
@@ -62,12 +70,14 @@ RandS :: RandS ()
     inputhistPtLF_ = "h_LF_JetAll_ResPt";
     inputhistEtaLF_ = "h_LF_JetAll_ResEta";
     inputhistPhiLF_ = "h_LF_JetAll_ResPhi";
+    //// Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
     PtBinEdges_ = {0,20,30,50,80,120,170,230,300,380,470,570,680,800,1000,1300,1700,2200,2800,3500,4300,5200,6500};
     EtaBinEdges_ = {0.0,0.7,1.3,1.8,3.2,5.0};
-    rebalancedJetPt_ = 15000.;
-    rebalanceMode_ = "MHTall";
+    rebalancedJetPt_ = 20000.;
+    rebalanceMode_ = "MHThigh";
     smearCollection_ = "Reco";
     smearedJetPt_ = 0.;
+    JetEffEmulation_ = true;
     PtBinEdges_scaling_ = {0.,7000.};
     EtaBinEdges_scaling_ = {0.,5.};
     AdditionalSmearing_ = {1.0};
@@ -84,8 +94,12 @@ RandS :: RandS ()
     useRebalanceCorrectionFactors_ = false;
     useCleverRebalanceCorrectionFactors_ = false;
     RebalanceCorrectionFile_ = "RebalanceCorrection.root";
+    useGenMHTprob_ = false;
+    genMHTprobFile_ = "$ROOTCOREBIN/data/MyAnalysis/genMHTprob_noNuMu_v1.root";
     controlPlots_ = false;
     outputfile_ = "RandS.root";
+    outputfileMHT_ = "MHT.root";
+    storeMHTtree_ = false;
     cleverPrescaleTreating_ = true;
     HTSeedMin_ = 350.;
     NJetsSeedMin_ = 2;
@@ -184,6 +198,24 @@ EL::StatusCode RandS :: histInitialize ()
         }
     }
 
+    if( useGenMHTprob_ ) {
+        TFile *f_rebCorr = new TFile(genMHTprobFile_.c_str(), "READ", "", 0);
+        h_MHTtrueProb_input = (TH3F*) f_rebCorr->FindObjectAny("h_MHTtrueProb");
+        //// Do projections for each x-bin and y-bin (doing an average of neighbouring HT bins)
+        h_MHTtrueProb_pz.resize(h_MHTtrueProb_input->GetXaxis()->GetNbins());
+        for (int ii = 1; ii <= h_MHTtrueProb_input->GetXaxis()->GetNbins(); ++ii) {
+            h_MHTtrueProb_pz.at(ii-1).resize(h_MHTtrueProb_input->GetYaxis()->GetNbins());
+            for (int jj = 1; jj <= h_MHTtrueProb_input->GetYaxis()->GetNbins(); ++jj) {
+                cout << "ii, jj: " << ii << ", " << jj << endl;
+                TH1D* tmp = new TH1D(*h_MHTtrueProb_input->ProjectionZ("pz", ii-1, ii+1, jj, jj));
+                h_MHTtrueProb_pz.at(ii-1).at(jj-1) = tmp;
+            }
+        }
+    }
+
+    h_MHTtrueProb = new TH3F("h_MHTtrueProb","h_MHTtrueProb", 100, 0., 10000000, 5, -0.5, 4.5, 100, -100000., 400000.);
+    wk()->addOutput(h_MHTtrueProb);
+
     // define output tree
     cout << "outputfile_: " << outputfile_ << endl;
     TFile *outputFile = wk()->getOutputFile(outputfile_);
@@ -205,6 +237,39 @@ EL::StatusCode RandS :: histInitialize ()
     PredictionTree->Branch("JetPt", "std::vector<Float_t>", &JetPt_pred);
     PredictionTree->Branch("JetEta", "std::vector<Float_t>", &JetEta_pred);
     PredictionTree->Branch("DeltaPhi", "std::vector<Float_t>", &DeltaPhi_pred);
+
+    // define output tree
+    cout << "outputfileMHT_: " << outputfileMHT_ << endl;
+    //TFile *outputFileMHT = wk()->getOutputFile(outputfileMHT_);
+    MHTTree = new TTree("MHTTree", "MHTTree");
+    MHTTree->SetDirectory(outputFile);
+
+    cout << MHTTree << endl;
+    MHTTree->SetAutoSave(10000000000);
+    MHTTree->SetAutoFlush(1000000);
+
+    // set branches for output tree
+    MHTTree->Branch("HTreco",&HTreco);
+    MHTTree->Branch("MHTreco_pt",&MHTreco_pt);
+    MHTTree->Branch("MHTreco_phi",&MHTreco_phi);
+    MHTTree->Branch("MHTrecolow_pt",&MHTrecolow_pt);
+    MHTTree->Branch("MHTrecolow_phi",&MHTrecolow_phi);
+    MHTTree->Branch("MHTreb_pt",&MHTreb_pt);
+    MHTTree->Branch("MHTreb_phi",&MHTreb_phi);
+    MHTTree->Branch("MHTreblow_pt",&MHTreblow_pt);
+    MHTTree->Branch("MHTreblow_phi",&MHTreblow_phi);
+    MHTTree->Branch("HTgen", &HTgen);
+    MHTTree->Branch("METgen_pt", &METgen_pt);
+    MHTTree->Branch("METgen_phi", &METgen_phi);
+    MHTTree->Branch("MHTgen_pt", &MHTgen_pt);
+    MHTTree->Branch("MHTgen_phi", &MHTgen_phi);
+    MHTTree->Branch("MHTgenreb_pt", &MHTgenreb_pt);
+    MHTTree->Branch("MHTgenreb_phi", &MHTgenreb_phi);
+    MHTTree->Branch("MHTtruereb_pt", &MHTtruereb_pt);
+    MHTTree->Branch("MHTtruereb_phi", &MHTtruereb_phi);
+    MHTTree->Branch("MET_pt",&MET_pt);
+    MHTTree->Branch("MET_phi",&MET_phi);
+    MHTTree->Branch("Weight",&weight);
 
     return EL::StatusCode::SUCCESS;
 }
@@ -251,14 +316,38 @@ EL::StatusCode RandS :: initialize ()
 
     xAOD::TEvent* event = wk()->xaodEvent();
 
-    // tell ANA_CHECK to return an EL::StatusCode
-    ANA_CHECK_SET_TYPE (EL::StatusCode);
 
-    // make and initialize the QuickAna tool
-    std::unique_ptr<ana::QuickAna> myQuickAna (new ana::QuickAna ("quickana"));
-    myQuickAna->setConfig (*this);
-    quickAna = std::move (myQuickAna);
-    ANA_CHECK (quickAna->initialize());
+    ST::ISUSYObjDef_xAODTool::DataSource datasource = ST::ISUSYObjDef_xAODTool::FullSim;
+    
+	//const xAOD::EventInfo* eventInfo = 0;
+    //EL_RETURN_CHECK("initialize",event->retrieve( eventInfo, "EventInfo"));
+    //if (eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+    //    datasource = 1;
+	//}
+
+    objTool = new ST::SUSYObjDef_xAOD("SUSYObjDef_xAOD");
+
+	prw_file_ = "DUMMY";
+	std::vector<std::string> prw_conf;
+	if (prw_file_ == "DUMMY") {
+	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+	  }
+	  else {
+	    prw_conf.push_back(prw_file_);     
+	  }
+
+   ///////////////////////////////////////////////////////////////////////////////////////////
+    // Configure the SUSYObjDef instance
+	EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
+    EL_RETURN_CHECK("initialize", objTool->setProperty("DataSource", datasource) ) ;
+    EL_RETURN_CHECK("initialize", objTool->setProperty("ConfigFile", "SUSYTools/SUSYTools_Default.conf") );
+
+	//Manually setting additional properties will override what's in the configuration file
+	EL_RETURN_CHECK("initialize", objTool->setProperty("EleId", "TightLLH") );
+	EL_RETURN_CHECK("initialize", objTool->setProperty("EleBaselineId", "LooseLLH") );
+
+	EL_RETURN_CHECK("initialize", objTool->initialize() );
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
@@ -266,7 +355,7 @@ EL::StatusCode RandS :: initialize ()
     const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
     std::vector<std::string> vecStringGRL;
     vecStringGRL.push_back(fullGRLFilePath);
-    ANA_CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+    EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
     EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
     EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
@@ -288,26 +377,18 @@ EL::StatusCode RandS :: initialize ()
 EL::StatusCode RandS :: execute ()
 {
 
+    // Here you do everything that needs to be done on every single
+    // events, e.g. read input variables, apply cuts, and fill
+    // histograms and trees.  This is where most of your actual analysis
+    // code will go.
+
     // Some debug level for detailed root output
     //gDebug = 2;
-
-    // Here you do everything that needs to be done on every single
-    // events, e.g. read input variables, apply cuts, and fill
-    // histograms and trees.  This is where most of your actual analysis
-    // code will go.
-
-    ANA_CHECK_SET_TYPE (EL::StatusCode);
-    ANA_CHECK (quickAna->process ());
-
-    // Here you do everything that needs to be done on every single
-    // events, e.g. read input variables, apply cuts, and fill
-    // histograms and trees.  This is where most of your actual analysis
-    // code will go.
 
     xAOD::TEvent* event = wk()->xaodEvent();
 
     // print every 100 events, so we know where we are:
-    if( (m_eventCounter % 1000) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
+    if( (m_eventCounter % 100) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
     m_eventCounter++;
 
     //----------------------------
@@ -321,15 +402,16 @@ EL::StatusCode RandS :: execute ()
     bool isMC = false;
     // check if the event is MC
     int datasetID = 0;
-
     double eventWeight = 1;
+
     if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+
         isMC = true; // can do something with this later
-        //  extra event-level information you might need:
+        //extra event-level information you might need:
         datasetID =  eventInfo->mcChannelNumber();
-        //const std::vector< float > weights = eventInfo->mcEventWeights();
-        //if( weights.size() > 0 ) eventWeight = weights[0];
-        eventWeight = quickAna->eventWeight();
+        const std::vector< float > weights = eventInfo->mcEventWeights();
+        if( weights.size() > 0 ) eventWeight = weights[0];
+        //std::cout << "eventWeight = " << eventWeight << std::endl;
         //std::cout << "datasetID = " << datasetID << std::endl;
         double lumi = 10000;
         if (datasetID == 426133) {
@@ -354,6 +436,41 @@ EL::StatusCode RandS :: execute ()
             double XS = 0.20862;
             int events = 1967800;
             double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361022) {
+            double XS = 2433200;
+            int events = 1992912;
+            double eff = 0.00033264;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361023) {
+            double XS = 26454;
+            int events = 7882487;
+            double eff = 0.00031953;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361024) {
+            double XS = 254.63;
+            int events = 7979799;
+            double eff = 0.00053009;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361025) {
+            double XS = 4.5535;
+            int events = 7981600;
+            double eff = 0.00092325;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361026) {
+            double XS = 0.25753;
+            int events = 1893400;
+            double eff = 0.00094016;
+            double weight = XS * lumi * eff / events;
             eventWeight *= weight;
         }
         //std::cout << "eventWeight = " << eventWeight << std::endl;
@@ -381,27 +498,62 @@ EL::StatusCode RandS :: execute ()
     } // end if the event is data
     m_numCleanEvents++;
 
+    // Electrons
+    //xAOD::ElectronContainer* electrons_nominal(0);
+    //xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetElectrons(electrons_nominal, electrons_nominal_aux) );
+
+    // Photons
+    //xAOD::PhotonContainer* photons_nominal(0);
+    //xAOD::ShallowAuxContainer* photons_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetPhotons(photons_nominal,photons_nominal_aux) );
+
+    // Muons
+    //xAOD::MuonContainer* muons_nominal(0);
+    //xAOD::ShallowAuxContainer* muons_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetMuons(muons_nominal, muons_nominal_aux) );
+
+    // Jets
+    xAOD::JetContainer* jets_nominal(0);
+    xAOD::ShallowAuxContainer* jets_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetJets(jets_nominal, jets_nominal_aux) );
+
+    // Taus
+    //xAOD::TauJetContainer* taus_nominal(0);
+    //xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal,taus_nominal_aux) );
+
+    // MET
+    xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
+    xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
+    mettst_nominal->setStore(mettst_nominal_aux);
+    mettst_nominal->reserve(10);
+    
+    //Call Overlap Removal
+    //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons_nominal, muons_nominal, jets) );
+    //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets,electrons_nominal,muons_nominal,0,0,true) );
+    EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,0,0,0,0,true) );
+
     // get jet container of interest
-    const xAOD::JetContainer* jets = 0;
-    EL_RETURN_CHECK("execute()", event->retrieve( jets, jetTag_ ));
+    //const xAOD::JetContainer* jets = 0;
+    //EL_RETURN_CHECK("execute()", event->retrieve( jets, "AntiKt4EMTopoJets" ));
     const xAOD::JetContainer* genjets = 0;
-    EL_RETURN_CHECK("execute()", event->retrieve( genjets, genJetTag_ ));
+    EL_RETURN_CHECK("execute()", event->retrieve( genjets, "AntiKt4TruthJets"));
     const xAOD::TruthParticleContainer* genparticles = 0;
     EL_RETURN_CHECK("execute()", event->retrieve( genparticles, "TruthParticles"));
 
     // loop over the emjets and reject events with at least one bad jet
-    xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-    xAOD::JetContainer::const_iterator jet_end = jets->end();
+    xAOD::JetContainer::const_iterator jet_itr = jets_nominal->begin();
+    xAOD::JetContainer::const_iterator jet_end = jets_nominal->end();
     for( ; jet_itr != jet_end; ++jet_itr ) {
-        //cout << (*jet_itr)->pt() << endl;
-        if( !m_jetCleaning->accept( **jet_itr ) && (*jet_itr)->pt() > 20.) {
+        if( !m_jetCleaning->accept( **jet_itr ) && (*jet_itr)->pt() > 20000.) {
             Info("execute()", "Reject event because of a bad jet");
             return EL::StatusCode::SUCCESS;
         }
     }
 
     std::vector<myJet> Jets_gen;
-    for ( const auto* genjet : *genjets ) {
+    for ( const auto& genjet : *genjets ) {
         myJet newJet;
         TLorentzVector numuActivity(0., 0., 0., 0.);
         for ( const auto* it : *genparticles ) {
@@ -419,14 +571,11 @@ EL::StatusCode RandS :: execute ()
     }
 
     std::vector<myJet> Jets_rec;
-    for ( auto jet : *quickAna->jets()) {
-        const xAOD::BTagging * myBTag = jet->btagging();
-        double mv2val=-999.;
-        myBTag->MVx_discriminant(btagTag_, mv2val);
+    for ( const auto& jet : *jets_nominal) {
         myJet newJet;
         newJet.momentum = jet->p4();
         newJet.btag = false;
-        if (mv2val > btagCut_) newJet.btag = true;
+        if (objTool->IsBJet(*jet)) newJet.btag = true;
         Jets_rec.push_back(newJet);
     }
 
@@ -441,6 +590,116 @@ EL::StatusCode RandS :: execute ()
     bool isRebalanced = false;
 
     FillPredictions(Jets_rec, -2, eventWeight);
+
+    //// Fill 3D plots for true MHT hypothesis used in rebalancing
+    if (controlPlots_) {
+        LorentzVector vgenMHT(0, 0, 0, 0);
+        for (vector<myJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
+            if (it->momentum.Pt() > rebalancedJetPt_ ) {
+                vgenMHT -= it->momentum;
+            }
+        }
+        vgenMHT.SetPtEtaPhiM(vgenMHT.Pt(), 0., vgenMHT.Phi(), 0.);
+        LorentzVector vrecoMHT = calcMHT(Jets_rec);
+        vrecoMHT.SetPtEtaPhiM(vrecoMHT.Pt(), 0., vrecoMHT.Phi(), 0.);
+        double genMHTp = (vgenMHT.Vect() * vrecoMHT.Vect()) / sqrt(vrecoMHT.Vect() * vrecoMHT.Vect());
+        h_MHTtrueProb->Fill(HT_pred*1000, BTags_pred, genMHTp, eventWeight);
+        if (vrecoMHT.Pt() > 200000.) {
+            cout << "HT (reco): " << HT_pred << endl;
+            cout << "BTags (reco): " << BTags_pred << endl;
+            cout << "MHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
+            cout << "MHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
+            cout << "genMHTp, factor: " <<  genMHTp << ", " << genMHTp << endl;
+        }
+    }
+
+    if (storeMHTtree_) {
+
+        //cout << "New event" << endl;
+
+        // reco HT
+        HTreco = calcHT(Jets_rec);
+
+        // reco MHT
+        LorentzVector vrecoMHT = calcMHT(Jets_rec);
+        MHTreco_pt = vrecoMHT.Pt();
+        MHTreco_phi = vrecoMHT.Phi();
+        LorentzVector vrecoMHTlow(0, 0, 0, 0);
+        for (vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            if (it->momentum.Pt() <= JetsMHTPt_ ) {
+                vrecoMHTlow += it->momentum;
+            }
+        }
+        MHTrecolow_pt = vrecoMHTlow.Pt();
+        MHTrecolow_phi = vrecoMHTlow.Phi();
+
+        // reco MHT with rebalancing threshold
+        LorentzVector vrecoMHTreb(0, 0, 0, 0);
+        LorentzVector vrecoMHTreblow(0, 0, 0, 0);
+        for (vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            if (it->momentum.Pt() > rebalancedJetPt_ ) {
+                vrecoMHTreb -= it->momentum;
+            } else {
+                vrecoMHTreblow += it->momentum;
+            }
+        }
+        MHTreb_pt = vrecoMHTreb.Pt();
+        MHTreb_phi = vrecoMHTreb.Phi();
+        MHTreblow_pt = vrecoMHTreblow.Pt();
+        MHTreblow_phi = vrecoMHTreblow.Phi();
+
+        // gen HT
+        HTgen = calcHT(Jets_gen);
+
+        // gen MHT
+        LorentzVector vgenMHT = calcMHT(Jets_gen);
+        MHTgen_pt = vgenMHT.Pt();
+        MHTgen_phi = vgenMHT.Phi();
+
+        // gen MHT with rebalancing threshold
+        LorentzVector vgenMHTreb(0, 0, 0, 0);
+        for (vector<myJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
+            if (it->momentum.Pt() > rebalancedJetPt_ ) {
+                vgenMHTreb -= it->momentum;
+            }
+        }
+        MHTgenreb_pt = vgenMHTreb.Pt();
+        MHTgenreb_phi = vgenMHTreb.Phi();
+
+        // gen MET from all status==1 gen particles
+        // true MHT from all status==1 gen particles matched (dR < 0.4) to jets above rebalancing threshold
+        LorentzVector vgenMET(0, 0, 0, 0);
+        LorentzVector vtrueMHTreb(0, 0, 0, 0);
+        for ( const auto* it : *genparticles ) {
+            if (it->pt() < 1. || it->status() != 1 || it->hasDecayVtx()) {
+                //cout << "Pid, status, pt, eta: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << endl;
+                continue;
+            }
+            vgenMET -= it->p4();
+            //cout << "MET (pt, phi): " << vgenMET.Pt() << ", " << vgenMET.Phi() << endl;
+            //cout << "Pid, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << ", " << it->phi() << endl;
+            bool particleAdded = false;
+            for (vector<myJet>::iterator jt = Jets_rec.begin(); (jt != Jets_rec.end() && !particleAdded) ; ++jt) {
+                if (jt->momentum.Pt() > rebalancedJetPt_ ) {
+                    double dR = jt->momentum.DeltaR(it->p4());
+                    if (dR < 0.4) {
+                        vtrueMHTreb -= it->p4();
+                        particleAdded = true;
+                    }
+                }
+            }
+        }
+        METgen_pt = vgenMET.Pt();
+        METgen_phi = vgenMET.Phi();
+        MHTtruereb_pt = vtrueMHTreb.Pt();
+        MHTtruereb_phi = vtrueMHTreb.Phi();
+
+        // MET
+        MET_pt = (*mettst_nominal)["Final"]->met();
+        MET_phi = (*mettst_nominal)["Final"]->phi();
+
+        MHTTree->Fill();
+    }
 
     if (HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_) {
 
@@ -489,6 +748,22 @@ EL::StatusCode RandS :: execute ()
 
     }
 
+    // The containers created by the shallow copy are owned by you. Remember to delete them
+    delete jets_nominal; // not these, we put them in the store!
+    delete jets_nominal_aux;
+    // delete taus_nominal;
+    // delete taus_nominal_aux;
+    // delete muons_nominal;
+    // delete muons_nominal_aux;
+    // delete electrons_nominal;
+    // delete electrons_nominal_aux;
+	// delete photons_nominal;
+    // delete photons_nominal_aux;
+	// delete metcst_nominal;
+    // delete metcst_nominal_aux;
+    delete mettst_nominal;
+    delete mettst_nominal_aux;
+
     return EL::StatusCode::SUCCESS;
 }
 
@@ -516,7 +791,7 @@ EL::StatusCode RandS :: finalize ()
     // merged.  This is different from histFinalize() in that it only
     // gets called on worker nodes that processed input events.
 
-    xAOD::TEvent* event = wk()->xaodEvent();
+    //xAOD::TEvent* event = wk()->xaodEvent();
 
     Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
 
@@ -568,6 +843,21 @@ int RandS::GetIndex(const double& x, const std::vector<double>* vec) {
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
+// dice if gen (or rebalanced jet) is reconstructed
+bool RandS::IsReconstructed(const double& pt, const double& eta) {
+    int i_Eta = GetIndex(eta, &EtaBinEdges_);
+    int i_bin = smearFunc_->RecoEff_b.at(i_Eta)->GetXaxis()->FindBin(pt);
+    double eff = 1.;
+    if (pt < 20.) {
+        eff = smearFunc_->RecoEff_nob.at(i_Eta)->GetBinContent(i_bin);
+    }
+    double random = rand_->Rndm();
+    //cout << pt << ", " << eff << ", " << (random < eff) << endl;
+    return (random < eff);
+}
+//--------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------
 // pt resolution for KinFitter
 double RandS::JetResolution_Pt2(const double& pt, const double& eta) {
     int i_eta = GetIndex(eta, &EtaBinEdges_);
@@ -585,19 +875,19 @@ double RandS::JetResolution_Ptrel(const double& pt, const double& eta) {
 
 //--------------------------------------------------------------------------
 // eta resolution for KinFitter
-double RandS::JetResolution_Eta(const double& pt, const double& eta, const int& i_flav) {
+double RandS::JetResolution_Eta(const double& pt, const double& eta) {
     int i_eta = GetIndex(eta, &EtaBinEdges_);
     int i_Pt = GetIndex(pt, &PtBinEdges_);
-    return smearFunc_->SigmaEta.at(i_flav).at(i_eta).at(i_Pt);
+    return smearFunc_->SigmaEta.at(0).at(i_eta).at(i_Pt);
 }
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
 // phi resolution for KinFitter
-double RandS::JetResolution_Phi(const double& pt, const double& eta, const int& i_flav) {
+double RandS::JetResolution_Phi(const double& pt, const double& eta) {
     int i_eta = GetIndex(eta, &EtaBinEdges_);
     int i_Pt = GetIndex(pt, &PtBinEdges_);
-    return smearFunc_->SigmaPhi.at(i_flav).at(i_eta).at(i_Pt);
+    return smearFunc_->SigmaPhi.at(0).at(i_eta).at(i_Pt);
 }
 //--------------------------------------------------------------------------
 
@@ -706,7 +996,7 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
 
         if (it->momentum.Pt() < rebalancedJetPt_) {
 
-            if (rebalanceMode_ == "MHTall") {
+            if (rebalanceMode_ == "MHTall" && !useGenMHTprob_) {
                 MHTx_low -= it->momentum.Px();
                 MHTy_low -= it->momentum.Py();
                 myJet rebalancedJet = (*it);
@@ -737,9 +1027,9 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
             TLorentzVector* lv = new TLorentzVector(tmppx, tmppy, tmppz, tmpe);
             lvec_m.push_back(lv);
             TMatrixD* cM = new TMatrixD(3, 3);
-            (*cM)(0, 0) = JetResolution_Pt2(it->momentum.Pt(), it->momentum.Eta());
-            (*cM)(1, 1) = pow(JetResolution_Eta(it->momentum.Pt()/1000, it->momentum.Eta(), 0), 2);
-            (*cM)(2, 2) = pow(JetResolution_Phi(it->momentum.Pt()/1000, it->momentum.Eta(), 0), 2);
+            (*cM)(0, 0) = JetResolution_Pt2(it->momentum.E(), it->momentum.Eta());
+            (*cM)(1, 1) = pow(JetResolution_Eta(it->momentum.E()/1000, it->momentum.Eta()), 2);
+            (*cM)(2, 2) = pow(JetResolution_Phi(it->momentum.E()/1000, it->momentum.Eta()), 2);
             covMat_m.push_back(cM);
             char name[10];
             sprintf(name, "jet%i", i);
@@ -755,14 +1045,43 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
     //// Add momentum constraints
     double MET_constraint_x = 0.;
     double MET_constraint_y = 0.;
-    if (rebalanceMode_ == "MHTall") {
-        //// rebalance MHT of all jets
+
+    if (!useGenMHTprob_) {
         MET_constraint_x = MHTx_low;
         MET_constraint_y = MHTy_low;
+    } else {
+        //// Now get from simulation the expected true MHT for a given reco HT and reco MHT
+        LorentzVector vrecoMHT = calcMHT(Jets_rec);
+        double recoHT = calcHT(Jets_rec);
+        int NBJets = calcNBJets(Jets_rec);
+        //// Do projections for the given HT and MHT bin (including neighbouring bins)
+        int ii = h_MHTtrueProb_input->GetXaxis()->FindBin(recoHT);
+        if (ii > h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1) ii = h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1;
+        int jj = h_MHTtrueProb_input->GetYaxis()->FindBin((double) NBJets);
+        if (jj > h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1) jj = h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1;
+        double genMHTp = h_MHTtrueProb_pz.at(ii-1).at(jj-1)->GetRandom();
+        LorentzVector vgenMHT = vrecoMHT;
+        double px = vrecoMHT.Px() * genMHTp / vrecoMHT.Pt();
+        double py = vrecoMHT.Py() * genMHTp / vrecoMHT.Pt();
+        vgenMHT.SetPx(px);
+        vgenMHT.SetPy(py);
+        if (vrecoMHT.Pt() > 200000.) {
+            cout << "vrecoMHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
+            cout << "vrecoMHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
+            cout << "genMHTp: " << genMHTp << endl;
+        }
+        MET_constraint_x = vgenMHT.Px();
+        MET_constraint_y = vgenMHT.Py();
+    }
+
+    if (rebalanceMode_ == "MHTall") {
+        //// rebalance MHT of all jets
+        MET_constraint_x += MHTx_low;
+        MET_constraint_y += MHTy_low;
     } else if (rebalanceMode_ == "MHThigh") {
         //// rebalance MHT of fitted jets
-        MET_constraint_x = 0.;
-        MET_constraint_y = 0.;
+        MET_constraint_x += 0.;
+        MET_constraint_y += 0.;
     } else {
         //// default: rebalance MHT of fitted jets
         MET_constraint_x = 0.;
@@ -786,21 +1105,18 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
 
     int status = myFit->getStatus();
 
-    double chi2 = 0;
-    double prob = 0;
+    //double chi2 = 0;
+    //double prob = 0;
     if (status == 0) {
-        chi2 = myFit->getS();
-        int dof = myFit->getNDF();
-        prob = TMath::Prob(chi2, dof);
+        //chi2 = myFit->getS();
+        //int dof = myFit->getNDF();
+        //prob = TMath::Prob(chi2, dof);
     } else {
-        chi2 = 99999;
-        prob = 0;
+        //chi2 = 99999;
+        //prob = 0;
         result = false;
     }
     //cout << "status, chi2, prob: " << status << ", " << chi2 << ", " << prob << endl;
-    if (controlPlots_) {
-        //h_fitProb->Fill(prob)
-    };
 
     //// Get the output of KinFitter
     for (unsigned int i = 0; i < measured.size(); ++i) {
@@ -883,33 +1199,35 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, const double& w) {
             Jets_smeared.clear();
             int i_jet = 0;
             for (std::vector<myJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
-                if (it->momentum.Pt() > smearedJetPt_) {
-                    int i_flav = 0;
-                    if (it->btag) {
-                        i_flav = 1;
+                int i_flav = 0;
+                if (it->btag) {
+                    i_flav = 1;
+                }
+                if (IsReconstructed(it->momentum.Pt(), it->momentum.Eta()) || !JetEffEmulation_) {
+                    if (it->momentum.Pt() > smearedJetPt_) {
+                        //cout << "Original pT, eta, phi: " << it->momentum.Pt() << "," << it->momentum.Eta() << "," << it->momentum.Phi() << endl;
+                        double scale = JetResolutionHist_Pt_Smear(it->momentum.E()/1000., it->momentum.Eta(), i_flav);
+                        double newE = it->momentum.Energy() * scale;
+                        double newMass = it->momentum.M() * scale;
+                        //double newEta = it->momentum.Eta();
+                        //double newPhi = it->momentum.Phi();
+                        double newEta = rand_->Gaus(it->momentum.Eta(), JetResolution_Eta(it->momentum.E()/1000., it->momentum.Eta()));
+                        double newPhi = rand_->Gaus(it->momentum.Phi(), JetResolution_Phi(it->momentum.E()/1000., it->momentum.Eta()));
+                        double newPt = sqrt(newE*newE-newMass*newMass)/cosh(newEta);
+                        //cout << "New pT, eta, phi: " << newPt << "," << newEta << "," << newPhi << endl;
+                        LorentzVector newP4(0.,0.,0.,0.);
+                        newP4.SetPtEtaPhiM(newPt, newEta, newPhi, it->momentum.M());
+                        myJet smearedJet;
+                        smearedJet.momentum = newP4;
+                        smearedJet.btag = it->btag;
+                        Jets_smeared.push_back(smearedJet);
+                        dPx -= newP4.Px() - it->momentum.Px();
+                        dPy -= newP4.Py() - it->momentum.Py();
+                        ++i_jet;
+                    } else {
+                        myJet smearedJet = (*it);
+                        Jets_smeared.push_back(smearedJet);
                     }
-                    //cout << "Original pT, eta, phi: " << it->momentum.Pt() << "," << it->momentum.Eta() << "," << it->momentum.Phi() << endl;
-                    double scale = JetResolutionHist_Pt_Smear(it->momentum.Pt()/1000., it->momentum.Eta(), i_flav);
-                    double newE = it->momentum.Energy() * scale;
-                    double newMass = it->momentum.M() * scale;
-                    //double newEta = it->momentum.Eta();
-                    //double newPhi = it->momentum.Phi();
-                    double newEta = rand_->Gaus(it->momentum.Eta(), JetResolution_Eta(it->momentum.Pt()/1000., it->momentum.Eta(), i_flav));
-                    double newPhi = rand_->Gaus(it->momentum.Phi(), JetResolution_Phi(it->momentum.Pt()/1000., it->momentum.Eta(), i_flav));
-                    double newPt = sqrt(newE*newE-newMass*newMass)/cosh(newEta);
-                    //cout << "New pT, eta, phi: " << newPt << "," << newEta << "," << newPhi << endl;
-                    LorentzVector newP4(0.,0.,0.,0.);
-                    newP4.SetPtEtaPhiM(newPt, newEta, newPhi, it->momentum.M());
-                    myJet smearedJet;
-                    smearedJet.momentum = newP4;
-                    smearedJet.btag = it->btag;
-                    Jets_smeared.push_back(smearedJet);
-                    dPx -= newP4.Px() - it->momentum.Px();
-                    dPy -= newP4.Py() - it->momentum.Py();
-                    ++i_jet;
-                } else {
-                    myJet smearedJet = (*it);
-                    Jets_smeared.push_back(smearedJet);
                 }
             }
             GreaterByPt<myJet> ptComparator_;

@@ -219,7 +219,7 @@ int main()
     string root_file;
     TChain* prediction = new TChain("PredictionTree");
 
-    ifstream myfile1 ("filelist.txt");
+    ifstream myfile1 ("filelist_all.txt");
 
     if (myfile1.is_open()) {
         while( myfile1.good() ) {
@@ -248,7 +248,7 @@ int main()
     if( isData ) LumiTitle = "ATLAS preliminary, L = x.yz fb^{  -1}, #sqrt{s} = 13 TeV";
     else LumiTitle = "Simulation, L = 10 fb^{  -1}, #sqrt{s} = 13 TeV";
 
-    TString postfix = "_testRS_MHT30eta5_Reb15_Smear0_JZ4_v3";
+    TString postfix = "_RandS_Reb20_Smear0_EffEmuTrue_noRebCorr_v1";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");

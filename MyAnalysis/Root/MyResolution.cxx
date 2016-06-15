@@ -199,6 +199,33 @@ EL::StatusCode MyResolution :: histInitialize ()
         }
     }
 
+    for (unsigned int i_eta = 0; i_eta < EtaBinEdges.size() - 1; ++i_eta) {
+
+        //// Book histograms for jet counts (needed for reconstruction efficiency)
+        TH1F* h_NjetReco_tot_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetReco_tot").c_str(), "N(jet^{reco})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetReco_tot_pt);
+        NReco_tot.push_back(h_NjetReco_tot_pt);
+
+        TH1F* h_NjetReco_b_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetReco_b").c_str(), "N(jet^{reco})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetReco_b_pt);
+        NReco_b.push_back(h_NjetReco_b_pt);
+
+        TH1F* h_NjetReco_nob_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetReco_nob").c_str(), "N(jet^{reco})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetReco_nob_pt);
+        NReco_nob.push_back(h_NjetReco_nob_pt);
+
+        TH1F* h_NjetGen_tot_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetGen_tot").c_str(), "N(jet^{gen})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetGen_tot_pt);
+        NGen_tot.push_back(h_NjetGen_tot_pt);
+
+        TH1F* h_NjetGen_b_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetGen_b").c_str(), "N(jet^{gen})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetGen_b_pt);
+        NGen_b.push_back(h_NjetGen_b_pt);
+
+        TH1F* h_NjetGen_nob_pt = new TH1F(GetHistNameEta(i_eta,"h_NjetGen_nob").c_str(), "N(jet^{gen})", 100, 0., 500000.);
+        wk()->addOutput(h_NjetGen_nob_pt);
+        NGen_nob.push_back(h_NjetGen_nob_pt);
+    }
 
     return EL::StatusCode::SUCCESS;
 }
@@ -241,14 +268,33 @@ EL::StatusCode MyResolution :: initialize ()
 
     xAOD::TEvent* event = wk()->xaodEvent();
 
-    // tell ANA_CHECK to return an EL::StatusCode
-    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    ST::ISUSYObjDef_xAODTool::DataSource datasource = ST::ISUSYObjDef_xAODTool::FullSim;
+    
+	//const xAOD::EventInfo* eventInfo = 0;
+    //EL_RETURN_CHECK("initialize",event->retrieve( eventInfo, "EventInfo"));
+    //if (eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+    //    datasource = 1;
+	//}
 
-    // make and initialize the QuickAna tool
-    std::unique_ptr<ana::QuickAna> myQuickAna (new ana::QuickAna ("quickana"));
-    myQuickAna->setConfig (*this);
-    quickAna = std::move (myQuickAna);
-    ANA_CHECK (quickAna->initialize());
+    objTool = new ST::SUSYObjDef_xAOD("SUSYObjDef_xAOD");
+
+	prw_file_ = "DUMMY";
+	std::vector<std::string> prw_conf;
+	if (prw_file_ == "DUMMY") {
+	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+	  }
+	  else {
+	    prw_conf.push_back(prw_file_);     
+	  }
+
+   ///////////////////////////////////////////////////////////////////////////////////////////
+    // Configure the SUSYObjDef instance
+	EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
+    EL_RETURN_CHECK("initialize", objTool->setProperty("DataSource", datasource) ) ;
+    EL_RETURN_CHECK("initialize", objTool->setProperty("ConfigFile", "SUSYTools/SUSYTools_Default.conf") );
+	EL_RETURN_CHECK("initialize", objTool->initialize() );
+
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
@@ -257,9 +303,9 @@ EL::StatusCode MyResolution :: initialize ()
     const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
     std::vector<std::string> vecStringGRL;
     vecStringGRL.push_back(fullGRLFilePath);
-    ANA_CHECK(m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
-    EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
-    EL_RETURN_CHECK("initialize()",m_grl->initialize());
+    EL_RETURN_CHECK("initialize",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+    EL_RETURN_CHECK("initialize",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
+    EL_RETURN_CHECK("initialize",m_grl->initialize());
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -267,9 +313,9 @@ EL::StatusCode MyResolution :: initialize ()
     // initialize and configure the jet cleaning tool
     m_jetCleaning = new JetCleaningTool("JetCleaning");
     m_jetCleaning->msg().setLevel( MSG::DEBUG );
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty("DoUgly", false));
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->initialize());
+    EL_RETURN_CHECK("initialize",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
+    EL_RETURN_CHECK("initialize",m_jetCleaning->setProperty("DoUgly", false));
+    EL_RETURN_CHECK("initialize",m_jetCleaning->initialize());
 
     return EL::StatusCode::SUCCESS;
 }
@@ -278,9 +324,6 @@ EL::StatusCode MyResolution :: initialize ()
 
 EL::StatusCode MyResolution :: execute ()
 {
-    ANA_CHECK_SET_TYPE (EL::StatusCode);
-    ANA_CHECK (quickAna->process ());
-
     // Here you do everything that needs to be done on every single
     // events, e.g. read input variables, apply cuts, and fill
     // histograms and trees.  This is where most of your actual analysis
@@ -304,13 +347,15 @@ EL::StatusCode MyResolution :: execute ()
     // check if the event is MC
     int datasetID = 0;
     double eventWeight = 1;
+
     if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
+
         isMC = true; // can do something with this later
-        //  extra event-level information you might need:
+        //extra event-level information you might need:
         datasetID =  eventInfo->mcChannelNumber();
-        //const std::vector< float > weights = eventInfo->mcEventWeights();
-        //if( weights.size() > 0 ) eventWeight = weights[0];
-        eventWeight = quickAna->eventWeight();
+        const std::vector< float > weights = eventInfo->mcEventWeights();
+        if( weights.size() > 0 ) eventWeight = weights[0];
+        //std::cout << "eventWeight = " << eventWeight << std::endl;
         //std::cout << "datasetID = " << datasetID << std::endl;
         double lumi = 10000;
         if (datasetID == 426133) {
@@ -335,6 +380,41 @@ EL::StatusCode MyResolution :: execute ()
             double XS = 0.20862;
             int events = 1967800;
             double weight = XS * lumi / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361022) {
+            double XS = 2433200;
+            int events = 1992912;
+            double eff = 0.00033264;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361023) {
+            double XS = 26454;
+            int events = 7882487;
+            double eff = 0.00031953;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361024) {
+            double XS = 254.63;
+            int events = 7979799;
+            double eff = 0.00053009;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361025) {
+            double XS = 4.5535;
+            int events = 7981600;
+            double eff = 0.00092325;
+            double weight = XS * lumi * eff / events;
+            eventWeight *= weight;
+        }
+        if (datasetID == 361026) {
+            double XS = 0.25753;
+            int events = 1893400;
+            double eff = 0.00094016;
+            double weight = XS * lumi * eff / events;
             eventWeight *= weight;
         }
         //std::cout << "eventWeight = " << eventWeight << std::endl;
@@ -362,14 +442,15 @@ EL::StatusCode MyResolution :: execute ()
     } // end if the event is data
     m_numCleanEvents++;
 
-    //for (auto jet_itr : *quickAna->jets()) {
-    //    if (jet_itr->auxdata<ana::SelectType> ("ana_select"))
-    //        std::cout << jet_itr->pt() << std::endl;
-    //}
+    // Jets
+    xAOD::JetContainer* jets(0);
+    xAOD::ShallowAuxContainer* jets_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetJets(jets, jets_aux, true) );
+
 
     // get jet container of interest
-    const xAOD::JetContainer* jets = 0;
-    EL_RETURN_CHECK("execute()", event->retrieve( jets, "AntiKt4EMTopoJets" ));
+    //const xAOD::JetContainer* jets = 0;
+    //EL_RETURN_CHECK("execute()", event->retrieve( jets, "AntiKt4EMTopoJets" ));
     const xAOD::JetContainer* genjets = 0;
     EL_RETURN_CHECK("execute()", event->retrieve( genjets, "AntiKt4TruthJets"));
     const xAOD::TruthParticleContainer* genparticles = 0;
@@ -379,7 +460,7 @@ EL::StatusCode MyResolution :: execute ()
     xAOD::JetContainer::const_iterator jet_itr = jets->begin();
     xAOD::JetContainer::const_iterator jet_end = jets->end();
     for( ; jet_itr != jet_end; ++jet_itr ) {
-        if( !m_jetCleaning->accept( **jet_itr ) && (*jet_itr)->pt() > 20.) {
+        if( !m_jetCleaning->accept( **jet_itr ) && (*jet_itr)->pt() > 20000.) {
             Info("execute()", "Reject event because of a bad jet");
             return EL::StatusCode::SUCCESS;
         }
@@ -389,38 +470,40 @@ EL::StatusCode MyResolution :: execute ()
     //Info("execute()", "  number of jets = %lu", jets->size());
 
     // Loop over all jets in this container
-    for ( const auto* genjet : *genjets ) {
-		
-		TLorentzVector numuActivity(0., 0., 0., 0.);
-        for ( const auto* it : *genparticles ) {
+    for ( const auto& genjet : *genjets ) {
+
+        TLorentzVector numuActivity(0., 0., 0., 0.);
+
+        for ( const auto& it : *genparticles ) {
             if (abs(it->pdgId()) == 13 || abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 ) {
-				double dR = genjet->p4().DeltaR(it->p4());
-				if (dR < 0.4) {
-					numuActivity += it->p4();
-				}
                 //std::cout << "id, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", "<< it->eta()<< ", " << it->phi()<< std::endl;
+                double dR = genjet->p4().DeltaR(it->p4());
+                if (dR < 0.4) {
+                    numuActivity += it->p4();
+                }
             }
         }
         //if (numuActivity.Pt() > 0) std::cout << "Old, new pt: " <<  genjet->pt() << ", " << (genjet->p4() + numuActivity).Pt() << std::endl;
 
         // check for no additional genJet activity
         bool noGenActivity = true;
-        for ( const auto* genjet2 : *genjets ) {
+        for ( const auto& genjet2 : *genjets ) {
             if (genjet2 == genjet) continue;
             double dR = genjet->p4().DeltaR(genjet2->p4());
             if (dR < m_VetoCone && genjet2->pt()/genjet->pt() > m_RelGenActivityVeto ) {
                 noGenActivity = false;
             }
         }
-        if (!noGenActivity) continue; // continue with next genJet if another genJet is closeby
+
+        //if (!noGenActivity) continue; // continue with next genJet if another genJet is closeby
 
         // check for additional recoJet activity
-        const xAOD::Jet* matchedJet; //create a new jet object
-        const xAOD::Jet* nextJet; //create a new jet object
+        const xAOD::Jet* matchedJet = 0; //create a new jet object
+        const xAOD::Jet* nextJet = 0; //create a new jet object
         TLorentzVector addRecoActivity(0., 0., 0., 0.);
         double dRmin_matched = 999.;
         double dRmin_next = 999.;
-        for ( auto jet : *quickAna->jets()) {
+        for ( const auto& jet : *jets) {
             double dR = jet->p4().DeltaR(genjet->p4());
             if (dR < dRmin_matched && dR < m_VetoCone) {
                 if (dRmin_matched < m_VetoCone ) {
@@ -444,16 +527,36 @@ EL::StatusCode MyResolution :: execute ()
             }
         }
 
+        if (noGenActivity) {
+            int ii_eta = GetEtaBin(genjet->eta());
+            NGen_tot.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            //if (objTool->IsTruthBJet(*genjet)) {
+			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+                NGen_b.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            } else {
+                NGen_nob.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            }
+        }
+
+        if (noGenActivity && dRmin_matched < 0.2) {
+            int ii_eta = GetEtaBin(genjet->eta());
+            NReco_tot.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            //if (objTool->IsTruthBJet(*genjet)) {
+			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+                NReco_b.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            } else {
+                NReco_nob.at(ii_eta)->Fill(genjet->pt(), eventWeight);
+            }
+        }
+
         if (dRmin_matched < m_MatchingCone && noRecoActivity && noGenActivity) {
-            int i_pt = GetPtBin((genjet->p4()+numuActivity).Pt()/1000.);
+            //if (dRmin_matched < m_MatchingCone && noGenActivity) {
+            int i_pt = GetPtBin((genjet->p4()+numuActivity).E()/1000.); // Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
             int i_eta = GetEtaBin(genjet->eta());
             PtResolution_tot.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
             PhiResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
             EtaResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
-            const xAOD::BTagging * myBTag = matchedJet->btagging();
-            double mv2val=-999.;
-            myBTag->MVx_discriminant("MV2c20", mv2val);
-            if (mv2val > -0.7887) {
+            if (objTool->IsBJet(*matchedJet)) {
                 PtResolution_HF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
                 PhiResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
                 EtaResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
@@ -462,7 +565,8 @@ EL::StatusCode MyResolution :: execute ()
                 PhiResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
                 EtaResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
             }
-            if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+            //if (objTool->IsTruthBJet(*genjet)) {
+			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
                 PtResolution_b.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
                 PhiResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
                 EtaResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
@@ -505,7 +609,7 @@ EL::StatusCode MyResolution :: finalize ()
     // merged.  This is different from histFinalize() in that it only
     // gets called on worker nodes that processed input events.
 
-    xAOD::TEvent* event = wk()->xaodEvent();
+    //xAOD::TEvent* event = wk()->xaodEvent();
 
     Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
 
@@ -545,6 +649,14 @@ std::string MyResolution::GetHistName(unsigned int i_pt, unsigned int i_eta, std
     std::string hname = "h_"+s1+"_JetAll_Res"+s2+"_Pt";
     hname += std::to_string(i_pt);
     hname += "_Eta";
+    hname += std::to_string(i_eta);
+    return hname;
+}
+
+
+
+std::string MyResolution::GetHistNameEta(unsigned int i_eta, std::string s1) {
+    std::string hname = s1+"_Eta";
     hname += std::to_string(i_eta);
     return hname;
 }
@@ -591,4 +703,3 @@ void MyResolution::ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVect
         it->resize(PtBinEdges.size() - 1);
     }
 }
-
