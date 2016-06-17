@@ -1,1 +1,1 @@
-~/xxl-af-cms/testarea/2.4.8/Run/test_2/data-RandS/sample.root
+~/xxl-af-cms/testarea/2.4.8/Run/RandS_test_v1/data-RandS/sample.root

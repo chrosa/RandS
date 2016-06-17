@@ -30,6 +30,7 @@ class Prediction {
         Float_t weight;
         Float_t HT;
         Float_t MHT;
+        Float_t MET;
         std::vector<Float_t> *JetPt;
         std::vector<Float_t> *JetEta;
         std::vector<Float_t> *DeltaPhi;
@@ -42,6 +43,7 @@ class Prediction {
         // preselection
         TH2F* HT_presel_pred_raw;
         TH2F* MHT_presel_pred_raw;
+        TH2F* MET_presel_pred_raw;
         TH2F* NJets_presel_pred_raw;
         TH2F* NBJets_presel_pred_raw;
         TH2F* Jet1Pt_presel_pred_raw;
@@ -57,6 +59,7 @@ class Prediction {
         // preselection + delta phi cut
         TH2F* HT_deltaPhi_pred_raw;
         TH2F* MHT_deltaPhi_pred_raw;
+        TH2F* MET_deltaPhi_pred_raw;
         TH2F* Jet1Pt_deltaPhi_pred_raw;
         TH2F* Jet2Pt_deltaPhi_pred_raw;
         TH2F* Jet3Pt_deltaPhi_pred_raw;
@@ -65,20 +68,21 @@ class Prediction {
         TH2F* Jet3Eta_deltaPhi_pred_raw;
 
         // NJets
-        TH2F* NJets_baseline_withoutMHT_pred_raw;
+        TH2F* NJets_baseline_withoutMET_pred_raw;
         TH2F* NJets_baseline_pred_raw;
-        TH2F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred_raw;
+        TH2F* NJets_baseline_withoutDeltaPhi_withoutMET_pred_raw;
         TH2F* NJets_baseline_withoutDeltaPhi_pred_raw;
 
         // NBJets
-        TH2F* NBJets_baseline_withoutMHT_pred_raw;
+        TH2F* NBJets_baseline_withoutMET_pred_raw;
         TH2F* NBJets_baseline_pred_raw;
-        TH2F* NBJets_baseline_withoutDeltaPhi_withoutMHT_pred_raw;
+        TH2F* NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw;
         TH2F* NBJets_baseline_withoutDeltaPhi_pred_raw;
 
         // baseline
         TH2F* HT_baseline_pred_raw;
         TH2F* MHT_baseline_pred_raw;
+        TH2F* MET_baseline_pred_raw;
 
         // baseline jet bin 1
         TH2F* Jet1Pt_JetBin1_baseline_pred_raw;
@@ -124,6 +128,7 @@ class Prediction {
         // baseline without deltaPhi jet bin 1
         TH2F* HT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
         TH2F* MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw;
+        TH2F* MET_JetBin1_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw;
@@ -137,6 +142,7 @@ class Prediction {
         // baseline without deltaPhi jet bin 2
         TH2F* HT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
         TH2F* MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw;
+        TH2F* MET_JetBin2_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw;
@@ -150,6 +156,7 @@ class Prediction {
         // baseline without deltaPhi jet bin 3
         TH2F* HT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
         TH2F* MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw;
+        TH2F* MET_JetBin3_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw;
@@ -163,6 +170,7 @@ class Prediction {
         // baseline without deltaPhi jet bin 4
         TH2F* HT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
         TH2F* MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw;
+        TH2F* MET_JetBin4_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
         TH2F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw;
@@ -182,11 +190,21 @@ class Prediction {
         // HT inclusive >=9 jets
         TH2F* MHT_JetBin4_HTinclusive_pred_raw;
 
+        // HT inclusive 2-3 jets
+        TH2F* MET_JetBin1_HTinclusive_pred_raw;
+        // HT inclusive 4-6 jets
+        TH2F* MET_JetBin2_HTinclusive_pred_raw;
+        // HT inclusive 7-8 jets
+        TH2F* MET_JetBin3_HTinclusive_pred_raw;
+        // HT inclusive >=9 jets
+        TH2F* MET_JetBin4_HTinclusive_pred_raw;
+
         // ------------------------------------------------------- //
         // prediction histograms
         // preselection
         TH1F* HT_presel_pred;
         TH1F* MHT_presel_pred;
+        TH1F* MET_presel_pred;
         TH1F* NJets_presel_pred;
         TH1F* NBJets_presel_pred;
         TH1F* Jet1Pt_presel_pred;
@@ -202,6 +220,7 @@ class Prediction {
         // preselection + delta phi
         TH1F* HT_deltaPhi_pred;
         TH1F* MHT_deltaPhi_pred;
+        TH1F* MET_deltaPhi_pred;
         TH1F* Jet1Pt_deltaPhi_pred;
         TH1F* Jet2Pt_deltaPhi_pred;
         TH1F* Jet3Pt_deltaPhi_pred;
@@ -210,20 +229,21 @@ class Prediction {
         TH1F* Jet3Eta_deltaPhi_pred;
 
         // NJets
-        TH1F* NJets_baseline_withoutMHT_pred;
+        TH1F* NJets_baseline_withoutMET_pred;
         TH1F* NJets_baseline_pred;
-        TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_pred;
+        TH1F* NJets_baseline_withoutDeltaPhi_withoutMET_pred;
         TH1F* NJets_baseline_withoutDeltaPhi_pred;
 
         // NBJets
-        TH1F* NBJets_baseline_withoutMHT_pred;
+        TH1F* NBJets_baseline_withoutMET_pred;
         TH1F* NBJets_baseline_pred;
-        TH1F* NBJets_baseline_withoutDeltaPhi_withoutMHT_pred;
+        TH1F* NBJets_baseline_withoutDeltaPhi_withoutMET_pred;
         TH1F* NBJets_baseline_withoutDeltaPhi_pred;
 
         // baseline
         TH1F* HT_baseline_pred;
         TH1F* MHT_baseline_pred;
+        TH1F* MET_baseline_pred;
 
         // baseline jet bin 1
         TH1F* Jet1Pt_JetBin1_baseline_pred;
@@ -272,6 +292,7 @@ class Prediction {
         // baseline without delta Phi jet bin 1
         TH1F* HT_JetBin1_baseline_withoutDeltaPhi_pred;
         TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_pred;
+        TH1F* MET_JetBin1_baseline_withoutDeltaPhi_pred;
         TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred;
         TH1F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred;
         TH1F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_pred;
@@ -285,6 +306,7 @@ class Prediction {
         // baseline without delta Phi jet bin 2
         TH1F* HT_JetBin2_baseline_withoutDeltaPhi_pred;
         TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_pred;
+        TH1F* MET_JetBin2_baseline_withoutDeltaPhi_pred;
         TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred;
         TH1F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred;
         TH1F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred;
@@ -298,6 +320,7 @@ class Prediction {
         // baseline without delta Phi jet bin 3
         TH1F* HT_JetBin3_baseline_withoutDeltaPhi_pred;
         TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_pred;
+        TH1F* MET_JetBin3_baseline_withoutDeltaPhi_pred;
         TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred;
         TH1F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred;
         TH1F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred;
@@ -311,6 +334,7 @@ class Prediction {
         // baseline without delta Phi jet bin 4
         TH1F* HT_JetBin4_baseline_withoutDeltaPhi_pred;
         TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_pred;
+        TH1F* MET_JetBin4_baseline_withoutDeltaPhi_pred;
         TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred;
         TH1F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred;
         TH1F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred;
@@ -329,12 +353,22 @@ class Prediction {
         TH1F* MHT_JetBin3_HTinclusive_pred;
         // HT inclusive >=9 jets
         TH1F* MHT_JetBin4_HTinclusive_pred;
+
+        // HT inclusive 2-3 jets
+        TH1F* MET_JetBin1_HTinclusive_pred;
+        // HT inclusive 4-6 jets
+        TH1F* MET_JetBin2_HTinclusive_pred;
+        // HT inclusive 7-8 jets
+        TH1F* MET_JetBin3_HTinclusive_pred;
+        // HT inclusive >=9 jets
+        TH1F* MET_JetBin4_HTinclusive_pred;
         // ------------------------------------------------------- //
 
         // selection histograms
         // preselection
         TH1F* HT_presel_sel;
         TH1F* MHT_presel_sel;
+        TH1F* MET_presel_sel;
         TH1F* NJets_presel_sel;
         TH1F* NBJets_presel_sel;
         TH1F* Jet1Pt_presel_sel;
@@ -350,6 +384,7 @@ class Prediction {
         // preselection + delta phi
         TH1F* HT_deltaPhi_sel;
         TH1F* MHT_deltaPhi_sel;
+        TH1F* MET_deltaPhi_sel;
         TH1F* Jet1Pt_deltaPhi_sel;
         TH1F* Jet2Pt_deltaPhi_sel;
         TH1F* Jet3Pt_deltaPhi_sel;
@@ -358,20 +393,21 @@ class Prediction {
         TH1F* Jet3Eta_deltaPhi_sel;
 
         // NJets
-        TH1F* NJets_baseline_withoutMHT_sel;
+        TH1F* NJets_baseline_withoutMET_sel;
         TH1F* NJets_baseline_sel;
-        TH1F* NJets_baseline_withoutDeltaPhi_withoutMHT_sel;
+        TH1F* NJets_baseline_withoutDeltaPhi_withoutMET_sel;
         TH1F* NJets_baseline_withoutDeltaPhi_sel;
 
         // NJets
-        TH1F* NBJets_baseline_withoutMHT_sel;
+        TH1F* NBJets_baseline_withoutMET_sel;
         TH1F* NBJets_baseline_sel;
-        TH1F* NBJets_baseline_withoutDeltaPhi_withoutMHT_sel;
+        TH1F* NBJets_baseline_withoutDeltaPhi_withoutMET_sel;
         TH1F* NBJets_baseline_withoutDeltaPhi_sel;
 
         // baseline
         TH1F* HT_baseline_sel;
         TH1F* MHT_baseline_sel;
+        TH1F* MET_baseline_sel;
 
         // baseline jet bin 1
         TH1F* Jet1Pt_JetBin1_baseline_sel;
@@ -420,6 +456,7 @@ class Prediction {
         // baseline without delta Phi jet bin 1
         TH1F* HT_JetBin1_baseline_withoutDeltaPhi_sel;
         TH1F* MHT_JetBin1_baseline_withoutDeltaPhi_sel;
+        TH1F* MET_JetBin1_baseline_withoutDeltaPhi_sel;
         TH1F* Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel;
         TH1F* Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel;
         TH1F* Jet3Pt_JetBin1_baseline_withoutDeltaPhi_sel;
@@ -433,6 +470,7 @@ class Prediction {
         // baseline without delta Phi jet bin 2
         TH1F* HT_JetBin2_baseline_withoutDeltaPhi_sel;
         TH1F* MHT_JetBin2_baseline_withoutDeltaPhi_sel;
+        TH1F* MET_JetBin2_baseline_withoutDeltaPhi_sel;
         TH1F* Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel;
         TH1F* Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel;
         TH1F* Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel;
@@ -446,6 +484,7 @@ class Prediction {
         // baseline without delta Phi jet bin 3
         TH1F* HT_JetBin3_baseline_withoutDeltaPhi_sel;
         TH1F* MHT_JetBin3_baseline_withoutDeltaPhi_sel;
+        TH1F* MET_JetBin3_baseline_withoutDeltaPhi_sel;
         TH1F* Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel;
         TH1F* Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel;
         TH1F* Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel;
@@ -459,6 +498,7 @@ class Prediction {
         // baseline without delta Phi jet bin 4
         TH1F* HT_JetBin4_baseline_withoutDeltaPhi_sel;
         TH1F* MHT_JetBin4_baseline_withoutDeltaPhi_sel;
+        TH1F* MET_JetBin4_baseline_withoutDeltaPhi_sel;
         TH1F* Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel;
         TH1F* Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel;
         TH1F* Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel;
@@ -477,6 +517,15 @@ class Prediction {
         TH1F* MHT_JetBin3_HTinclusive_sel;
         // HT inclusive >=9 jets
         TH1F* MHT_JetBin4_HTinclusive_sel;
+
+        // HT inclusive 2-3 jets
+        TH1F* MET_JetBin1_HTinclusive_sel;
+        // HT inclusive 4-6 jets
+        TH1F* MET_JetBin2_HTinclusive_sel;
+        // HT inclusive 7-8 jets
+        TH1F* MET_JetBin3_HTinclusive_sel;
+        // HT inclusive >=9 jets
+        TH1F* MET_JetBin4_HTinclusive_sel;
         // ------------------------------------------------------- //
 
         // dummy histo

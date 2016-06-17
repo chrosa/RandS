@@ -84,9 +84,11 @@ class RandS : public EL::Algorithm
         std::string rebalanceMode_; // "MHTall", "MHThigh" or "MET" only for smearCollection = "Reco"
         std::string RebalanceCorrectionFile_;
         std::string genMHTprobFile_;
+        std::string METsoftResolutionFile_;
         bool useRebalanceCorrectionFactors_;
         bool useCleverRebalanceCorrectionFactors_;
         bool useGenMHTprob_;
+        bool useMETsoftResolution_;
 
         double JetsHTPt_, JetsHTEta_;
         double JetsMHTPt_, JetsMHTEta_;
@@ -107,7 +109,7 @@ class RandS : public EL::Algorithm
         int Ntries_;
         int NJetsSave_;
         double HTSave_;
-        double MHTSave_;
+        double METSave_;
         
         UShort_t Njets_stored;
 
@@ -139,16 +141,16 @@ class RandS : public EL::Algorithm
         int GetIndex(const double&, const std::vector<double>*);
 
         double calcHT(std::vector<myJet>&);
-        LorentzVector calcMHT(std::vector<myJet>&);
+        LorentzVector calcMHT(std::vector<myJet>&, const double&, const double&);
         int calcNJets(std::vector<myJet>&);
         int calcNBJets(std::vector<myJet>&);
         bool calcMinDeltaPhi(std::vector<myJet>&, LorentzVector&);
-        void FillPredictions(std::vector<myJet>&, const int&, const double&);
-        void FillLeadingJetPredictions(std::vector<myJet>&, LorentzVector&);
+        void calcPredictions(std::vector<myJet>&, LorentzVector&, const int&, const double&);
+        void calcLeadingJetPredictions(std::vector<myJet>&, LorentzVector&);
         double GetRebalanceCorrection(double jet_pt, bool btag);
 
-        bool RebalanceJets_KinFitter(std::vector<myJet>&, std::vector<myJet>&);
-        void SmearingJets(std::vector<myJet>&, const double&);
+        bool RebalanceJets_KinFitter(std::vector<myJet>&, std::vector<myJet>&, LorentzVector&);
+        void SmearingJets(std::vector<myJet>&, LorentzVector&, const double&);
 
         // these are the functions inherited from Algorithm
         virtual EL::StatusCode setupJob (EL::Job& job);
@@ -170,6 +172,7 @@ class RandS : public EL::Algorithm
         Int_t Ntries_pred; //!
         Float_t HT_pred; //!
         Float_t MHT_pred; //!
+        Float_t MET_pred; //!
         std::vector<Float_t>  JetPt_p; //!
 		std::vector<Float_t> * JetPt_pred = &JetPt_p; //!
         std::vector<Float_t>  JetEta_p; //!
@@ -207,6 +210,7 @@ class RandS : public EL::Algorithm
         TH2F* h_2DRebCorrectionFactor, *h_2DRebCorrectionFactor_b; //!
         vector <TH1D*> h_2DRebCorrectionFactor_py, h_2DRebCorrectionFactor_b_py;  //!
         TH3F* h_MHTtrueProb, *h_MHTtrueProb_input; //!
+        TH1F* h_METsoft_resPt, *h_METsoft_resPhi; //!
         vector < vector <TH1D*> > h_MHTtrueProb_pz; //!
 
         // this is needed to distribute the algorithm to the workers

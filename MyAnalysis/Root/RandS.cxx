@@ -74,7 +74,7 @@ RandS :: RandS ()
     PtBinEdges_ = {0,20,30,50,80,120,170,230,300,380,470,570,680,800,1000,1300,1700,2200,2800,3500,4300,5200,6500};
     EtaBinEdges_ = {0.0,0.7,1.3,1.8,3.2,5.0};
     rebalancedJetPt_ = 20000.;
-    rebalanceMode_ = "MHThigh";
+    rebalanceMode_ = "METsoft";
     smearCollection_ = "Reco";
     smearedJetPt_ = 0.;
     JetEffEmulation_ = true;
@@ -96,6 +96,8 @@ RandS :: RandS ()
     RebalanceCorrectionFile_ = "RebalanceCorrection.root";
     useGenMHTprob_ = false;
     genMHTprobFile_ = "$ROOTCOREBIN/data/MyAnalysis/genMHTprob_noNuMu_v1.root";
+    useMETsoftResolution_ = true;
+    METsoftResolutionFile_ = "$ROOTCOREBIN/data/MyAnalysis/METsoft_resolutions.root";
     controlPlots_ = false;
     outputfile_ = "RandS.root";
     outputfileMHT_ = "MHT.root";
@@ -107,7 +109,7 @@ RandS :: RandS ()
     Ntries_ = 10;
     NJetsSave_ = 2;
     HTSave_ = 500;
-    MHTSave_ = 0;
+    METSave_ = 0;
     BJetsPt_ = 40000.;
     BJetsEta_ = 2.5;
     JetsPt_ = 40000.;
@@ -199,8 +201,8 @@ EL::StatusCode RandS :: histInitialize ()
     }
 
     if( useGenMHTprob_ ) {
-        TFile *f_rebCorr = new TFile(genMHTprobFile_.c_str(), "READ", "", 0);
-        h_MHTtrueProb_input = (TH3F*) f_rebCorr->FindObjectAny("h_MHTtrueProb");
+        TFile *f_GenMHTprob = new TFile(genMHTprobFile_.c_str(), "READ", "", 0);
+        h_MHTtrueProb_input = (TH3F*) f_GenMHTprob->FindObjectAny("h_MHTtrueProb");
         //// Do projections for each x-bin and y-bin (doing an average of neighbouring HT bins)
         h_MHTtrueProb_pz.resize(h_MHTtrueProb_input->GetXaxis()->GetNbins());
         for (int ii = 1; ii <= h_MHTtrueProb_input->GetXaxis()->GetNbins(); ++ii) {
@@ -213,6 +215,12 @@ EL::StatusCode RandS :: histInitialize ()
         }
     }
 
+    if( useMETsoftResolution_ ) {
+        TFile *f_METsoft = new TFile(METsoftResolutionFile_.c_str(), "READ", "", 0);
+        h_METsoft_resPt = (TH1F*) f_METsoft->FindObjectAny("h_METsoft_resPt");
+        h_METsoft_resPhi = (TH1F*) f_METsoft->FindObjectAny("h_METsoft_resPhi");
+	}
+    
     h_MHTtrueProb = new TH3F("h_MHTtrueProb","h_MHTtrueProb", 100, 0., 10000000, 5, -0.5, 4.5, 100, -100000., 400000.);
     wk()->addOutput(h_MHTtrueProb);
 
@@ -234,6 +242,7 @@ EL::StatusCode RandS :: histInitialize ()
     PredictionTree->Branch("Weight",&weight);
     PredictionTree->Branch("HT", &HT_pred);
     PredictionTree->Branch("MHT", &MHT_pred);
+    PredictionTree->Branch("MET", &MET_pred);
     PredictionTree->Branch("JetPt", "std::vector<Float_t>", &JetPt_pred);
     PredictionTree->Branch("JetEta", "std::vector<Float_t>", &JetEta_pred);
     PredictionTree->Branch("DeltaPhi", "std::vector<Float_t>", &DeltaPhi_pred);
@@ -318,36 +327,36 @@ EL::StatusCode RandS :: initialize ()
 
 
     ST::ISUSYObjDef_xAODTool::DataSource datasource = ST::ISUSYObjDef_xAODTool::FullSim;
-    
-	//const xAOD::EventInfo* eventInfo = 0;
+
+    //const xAOD::EventInfo* eventInfo = 0;
     //EL_RETURN_CHECK("initialize",event->retrieve( eventInfo, "EventInfo"));
     //if (eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
     //    datasource = 1;
-	//}
+    //}
 
     objTool = new ST::SUSYObjDef_xAOD("SUSYObjDef_xAOD");
 
-	prw_file_ = "DUMMY";
-	std::vector<std::string> prw_conf;
-	if (prw_file_ == "DUMMY") {
-	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
-	  }
-	  else {
-	    prw_conf.push_back(prw_file_);     
-	  }
+    prw_file_ = "DUMMY";
+    std::vector<std::string> prw_conf;
+    if (prw_file_ == "DUMMY") {
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+    }
+    else {
+        prw_conf.push_back(prw_file_);
+    }
 
-   ///////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////
     // Configure the SUSYObjDef instance
-	EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
+    EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
     EL_RETURN_CHECK("initialize", objTool->setProperty("DataSource", datasource) ) ;
     EL_RETURN_CHECK("initialize", objTool->setProperty("ConfigFile", "SUSYTools/SUSYTools_Default.conf") );
 
-	//Manually setting additional properties will override what's in the configuration file
-	EL_RETURN_CHECK("initialize", objTool->setProperty("EleId", "TightLLH") );
-	EL_RETURN_CHECK("initialize", objTool->setProperty("EleBaselineId", "LooseLLH") );
+    //Manually setting additional properties will override what's in the configuration file
+    EL_RETURN_CHECK("initialize", objTool->setProperty("EleId", "TightLLH") );
+    EL_RETURN_CHECK("initialize", objTool->setProperty("EleBaselineId", "LooseLLH") );
 
-	EL_RETURN_CHECK("initialize", objTool->initialize() );
+    EL_RETURN_CHECK("initialize", objTool->initialize() );
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
@@ -528,7 +537,7 @@ EL::StatusCode RandS :: execute ()
     xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
-    
+
     //Call Overlap Removal
     //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons_nominal, muons_nominal, jets) );
     //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets,electrons_nominal,muons_nominal,0,0,true) );
@@ -552,6 +561,8 @@ EL::StatusCode RandS :: execute ()
         }
     }
 
+	// Fill truth jets to simplified jet container
+	// add back neutrinos and muons to truth jets
     std::vector<myJet> Jets_gen;
     for ( const auto& genjet : *genjets ) {
         myJet newJet;
@@ -570,6 +581,10 @@ EL::StatusCode RandS :: execute ()
         Jets_gen.push_back(newJet);
     }
 
+    GreaterByPt<myJet> ptComparator_;
+    std::sort(Jets_gen.begin(), Jets_gen.end(), ptComparator_);
+
+	// Fill reco jets to simplified jet container
     std::vector<myJet> Jets_rec;
     for ( const auto& jet : *jets_nominal) {
         myJet newJet;
@@ -578,128 +593,106 @@ EL::StatusCode RandS :: execute ()
         if (objTool->IsBJet(*jet)) newJet.btag = true;
         Jets_rec.push_back(newJet);
     }
+    std::sort(Jets_rec.begin(), Jets_rec.end(), ptComparator_);
 
     std::vector<myJet> Jets_reb;
     Jets_reb.reserve(Jets_rec.size());
 
-    GreaterByPt<myJet> ptComparator_;
+    LorentzVector vrecoMHT = calcMHT(Jets_rec, JetsMHTPt_, JetsMHTEta_);
+    LorentzVector vrecoMHTreb = calcMHT(Jets_rec, rebalancedJetPt_, 5.);
+    LorentzVector vgenMHT = calcMHT(Jets_gen, JetsMHTPt_, JetsMHTEta_);
+    
+    LorentzVector MET(0,0,0,0);
+    LorentzVector METsoft = vrecoMHTreb - MET;
+    MET.SetPxPyPzE((*mettst_nominal)["Final"]->mpx(), (*mettst_nominal)["Final"]->mpx(), 0, (*mettst_nominal)["Final"]->met() );
+    calcPredictions(Jets_rec, MET, -2, eventWeight);
+
+    //// Fill 3D plots for true MHT hypothesis used in rebalancing
+    //if (controlPlots_) {
+    //    vgenMHT.SetPtEtaPhiE(vgenMHT.Pt(), 0., vgenMHT.Phi(), vgenMHT.Pt());
+    //    vrecoMHT.SetPtEtaPhiE(vrecoMHT.Pt(), 0., vrecoMHT.Phi(), vrecoMHT.Pt());
+    //    double genMHTp = (vgenMHT.Vect() * vrecoMHT.Vect()) / sqrt(vrecoMHT.Vect() * vrecoMHT.Vect());
+    //    h_MHTtrueProb->Fill(HT_pred*1000, BTags_pred, genMHTp, eventWeight);
+    //    if (vrecoMHT.Pt() > 200000.) {
+    //        cout << "HT (reco): " << HT_pred << endl;
+    //        cout << "BTags (reco): " << BTags_pred << endl;
+    //        cout << "MHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
+    //        cout << "MHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
+    //        cout << "genMHTp, factor: " <<  genMHTp << ", " << genMHTp << endl;
+    //    }
+    //}
+
+    // gen MET from all status==1 gen particles
+    // true MHT from all status==1 gen particles matched (dR < 0.4) to jets above rebalancing threshold
+    LorentzVector vgenMET(0, 0, 0, 0);
+    LorentzVector vtrueMHTreb(0, 0, 0, 0);
+    for ( const auto* it : *genparticles ) {
+        if (it->pt() < 1. || it->status() != 1 || it->hasDecayVtx()) {
+            //cout << "Pid, status, pt, eta: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << endl;
+            continue;
+        }
+        vgenMET -= it->p4();
+        //cout << "MET (pt, phi): " << vgenMET.Pt() << ", " << vgenMET.Phi() << endl;
+        //cout << "Pid, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << ", " << it->phi() << endl;
+        bool particleAdded = false;
+        for (vector<myJet>::iterator jt = Jets_rec.begin(); (jt != Jets_rec.end() && !particleAdded) ; ++jt) {
+            if (jt->momentum.Pt() > rebalancedJetPt_ ) {
+                double dR = jt->momentum.DeltaR(it->p4());
+                if (dR < 0.4) {
+                    vtrueMHTreb -= it->p4();
+                    particleAdded = true;
+                }
+            }
+        }
+    }
+
+    // reco HT
+    HTreco = calcHT(Jets_rec);
+
+    // reco MHT
+    MHTreco_pt = vrecoMHT.Pt();
+    MHTreco_phi = vrecoMHT.Phi();
+	LorentzVector vrecoMHTall = calcMHT(Jets_rec, 0., 5.);
+	LorentzVector vrecoMHTlow = vrecoMHT - vrecoMHTall;
+    MHTrecolow_pt = vrecoMHTlow.Pt();
+    MHTrecolow_phi = vrecoMHTlow.Phi();
+
+    // reco MHT with rebalancing threshold
+    LorentzVector vrecoMHTreblow = vrecoMHTreb - vrecoMHTall;
+    MHTreb_pt = vrecoMHTreb.Pt();
+    MHTreb_phi = vrecoMHTreb.Phi();
+    MHTreblow_pt = vrecoMHTreblow.Pt();
+    MHTreblow_phi = vrecoMHTreblow.Phi();
+
+    // gen HT
+    HTgen = calcHT(Jets_gen);
+
+    // gen MHT
+    MHTgen_pt = vgenMHT.Pt();
+    MHTgen_phi = vgenMHT.Phi();
+
+    // gen MHT with rebalancing threshold
+    LorentzVector vgenMHTreb = calcMHT(Jets_gen, rebalancedJetPt_, JetsMHTEta_);
+    MHTgenreb_pt = vgenMHTreb.Pt();
+    MHTgenreb_phi = vgenMHTreb.Phi();
+
+    METgen_pt = vgenMET.Pt();
+    METgen_phi = vgenMET.Phi();
+    MHTtruereb_pt = vtrueMHTreb.Pt();
+    MHTtruereb_phi = vtrueMHTreb.Phi();
+
+    // MET
+    MET_pt = (*mettst_nominal)["Final"]->met();
+    MET_phi = (*mettst_nominal)["Final"]->phi();
+
+    if (storeMHTtree_) {
+        MHTTree->Fill();
+    }
 
     //
     // Rebalance multi jet system
     //
     bool isRebalanced = false;
-
-    FillPredictions(Jets_rec, -2, eventWeight);
-
-    //// Fill 3D plots for true MHT hypothesis used in rebalancing
-    if (controlPlots_) {
-        LorentzVector vgenMHT(0, 0, 0, 0);
-        for (vector<myJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
-            if (it->momentum.Pt() > rebalancedJetPt_ ) {
-                vgenMHT -= it->momentum;
-            }
-        }
-        vgenMHT.SetPtEtaPhiM(vgenMHT.Pt(), 0., vgenMHT.Phi(), 0.);
-        LorentzVector vrecoMHT = calcMHT(Jets_rec);
-        vrecoMHT.SetPtEtaPhiM(vrecoMHT.Pt(), 0., vrecoMHT.Phi(), 0.);
-        double genMHTp = (vgenMHT.Vect() * vrecoMHT.Vect()) / sqrt(vrecoMHT.Vect() * vrecoMHT.Vect());
-        h_MHTtrueProb->Fill(HT_pred*1000, BTags_pred, genMHTp, eventWeight);
-        if (vrecoMHT.Pt() > 200000.) {
-            cout << "HT (reco): " << HT_pred << endl;
-            cout << "BTags (reco): " << BTags_pred << endl;
-            cout << "MHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
-            cout << "MHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
-            cout << "genMHTp, factor: " <<  genMHTp << ", " << genMHTp << endl;
-        }
-    }
-
-    if (storeMHTtree_) {
-
-        //cout << "New event" << endl;
-
-        // reco HT
-        HTreco = calcHT(Jets_rec);
-
-        // reco MHT
-        LorentzVector vrecoMHT = calcMHT(Jets_rec);
-        MHTreco_pt = vrecoMHT.Pt();
-        MHTreco_phi = vrecoMHT.Phi();
-        LorentzVector vrecoMHTlow(0, 0, 0, 0);
-        for (vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-            if (it->momentum.Pt() <= JetsMHTPt_ ) {
-                vrecoMHTlow += it->momentum;
-            }
-        }
-        MHTrecolow_pt = vrecoMHTlow.Pt();
-        MHTrecolow_phi = vrecoMHTlow.Phi();
-
-        // reco MHT with rebalancing threshold
-        LorentzVector vrecoMHTreb(0, 0, 0, 0);
-        LorentzVector vrecoMHTreblow(0, 0, 0, 0);
-        for (vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-            if (it->momentum.Pt() > rebalancedJetPt_ ) {
-                vrecoMHTreb -= it->momentum;
-            } else {
-                vrecoMHTreblow += it->momentum;
-            }
-        }
-        MHTreb_pt = vrecoMHTreb.Pt();
-        MHTreb_phi = vrecoMHTreb.Phi();
-        MHTreblow_pt = vrecoMHTreblow.Pt();
-        MHTreblow_phi = vrecoMHTreblow.Phi();
-
-        // gen HT
-        HTgen = calcHT(Jets_gen);
-
-        // gen MHT
-        LorentzVector vgenMHT = calcMHT(Jets_gen);
-        MHTgen_pt = vgenMHT.Pt();
-        MHTgen_phi = vgenMHT.Phi();
-
-        // gen MHT with rebalancing threshold
-        LorentzVector vgenMHTreb(0, 0, 0, 0);
-        for (vector<myJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
-            if (it->momentum.Pt() > rebalancedJetPt_ ) {
-                vgenMHTreb -= it->momentum;
-            }
-        }
-        MHTgenreb_pt = vgenMHTreb.Pt();
-        MHTgenreb_phi = vgenMHTreb.Phi();
-
-        // gen MET from all status==1 gen particles
-        // true MHT from all status==1 gen particles matched (dR < 0.4) to jets above rebalancing threshold
-        LorentzVector vgenMET(0, 0, 0, 0);
-        LorentzVector vtrueMHTreb(0, 0, 0, 0);
-        for ( const auto* it : *genparticles ) {
-            if (it->pt() < 1. || it->status() != 1 || it->hasDecayVtx()) {
-                //cout << "Pid, status, pt, eta: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << endl;
-                continue;
-            }
-            vgenMET -= it->p4();
-            //cout << "MET (pt, phi): " << vgenMET.Pt() << ", " << vgenMET.Phi() << endl;
-            //cout << "Pid, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << ", " << it->phi() << endl;
-            bool particleAdded = false;
-            for (vector<myJet>::iterator jt = Jets_rec.begin(); (jt != Jets_rec.end() && !particleAdded) ; ++jt) {
-                if (jt->momentum.Pt() > rebalancedJetPt_ ) {
-                    double dR = jt->momentum.DeltaR(it->p4());
-                    if (dR < 0.4) {
-                        vtrueMHTreb -= it->p4();
-                        particleAdded = true;
-                    }
-                }
-            }
-        }
-        METgen_pt = vgenMET.Pt();
-        METgen_phi = vgenMET.Phi();
-        MHTtruereb_pt = vtrueMHTreb.Pt();
-        MHTtruereb_phi = vtrueMHTreb.Phi();
-
-        // MET
-        MET_pt = (*mettst_nominal)["Final"]->met();
-        MET_phi = (*mettst_nominal)["Final"]->phi();
-
-        MHTTree->Fill();
-    }
 
     if (HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_) {
 
@@ -710,7 +703,7 @@ EL::StatusCode RandS :: execute ()
 
         if (smearCollection_ == "Reco") {
             if (Jets_rec.size() > 2) {
-                isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb);
+                isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb, METsoft);
             } else {
                 cout << "Bad event: Not possible to rebalance becaue of too few jets!" << endl;
             }
@@ -728,12 +721,13 @@ EL::StatusCode RandS :: execute ()
         }
 
         if (isRebalanced) {
-            FillPredictions(Jets_gen, -1, eventWeight);
+            calcPredictions(Jets_gen, vgenMET, -1, eventWeight);
             //cout << "HTgen = " << HT_pred << endl;
             //cout << "NJetgen = " << Njets_pred << endl;
             PredictionTree->Fill();
 
-            FillPredictions(Jets_reb, 0, eventWeight);
+            LorentzVector MET_reb = -METsoft;
+            calcPredictions(Jets_reb, MET_reb, 0, eventWeight);
             //cout << "HTreb = " << HT_pred << endl;
             //cout << "NJetreb = " << Njets_pred << endl;
             PredictionTree->Fill();
@@ -743,7 +737,7 @@ EL::StatusCode RandS :: execute ()
         // Smear rebalanced multi jet system
         //
         if (doSmearing_) {
-            SmearingJets(Jets_reb, eventWeight);
+            SmearingJets(Jets_reb, METsoft, eventWeight);
         }
 
     }
@@ -757,9 +751,9 @@ EL::StatusCode RandS :: execute ()
     // delete muons_nominal_aux;
     // delete electrons_nominal;
     // delete electrons_nominal_aux;
-	// delete photons_nominal;
+    // delete photons_nominal;
     // delete photons_nominal_aux;
-	// delete metcst_nominal;
+    // delete metcst_nominal;
     // delete metcst_nominal_aux;
     delete mettst_nominal;
     delete mettst_nominal_aux;
@@ -960,10 +954,10 @@ bool RandS::calcMinDeltaPhi(std::vector<myJet>& Jets, LorentzVector& MHT) {
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-TLorentzVector RandS::calcMHT(std::vector<myJet>& Jets) {
+TLorentzVector RandS::calcMHT(std::vector<myJet>& Jets, const double& ptmin, const double& etamax) {
     LorentzVector MHT(0, 0, 0, 0);
     for (vector<myJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
-        if (it->momentum.Pt() > JetsMHTPt_ && std::abs(it->momentum.Eta()) < JetsMHTEta_) {
+        if (it->momentum.Pt() > ptmin && std::abs(it->momentum.Eta()) < etamax) {
             //cout << "(pt, eta, phi)" << it->momentum.Pt() << "," << it->momentum.Eta() << "," << it->momentum.Phi() << endl;
             MHT -= it->momentum;
         }
@@ -974,7 +968,7 @@ TLorentzVector RandS::calcMHT(std::vector<myJet>& Jets) {
 
 //--------------------------------------------------------------------------
 // rebalance the events using a kinematic fit and transverse momentum balance
-bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<myJet> &Jets_reb) {
+bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<myJet> &Jets_reb, LorentzVector& vMETsoft) {
 
     bool result = true;
 
@@ -1046,12 +1040,10 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
     double MET_constraint_x = 0.;
     double MET_constraint_y = 0.;
 
-    if (!useGenMHTprob_) {
-        MET_constraint_x = MHTx_low;
-        MET_constraint_y = MHTy_low;
-    } else {
+    if (useGenMHTprob_) {
+		
         //// Now get from simulation the expected true MHT for a given reco HT and reco MHT
-        LorentzVector vrecoMHT = calcMHT(Jets_rec);
+        LorentzVector vrecoMHT = calcMHT(Jets_rec, JetsMHTPt_, JetsMHTEta_);
         double recoHT = calcHT(Jets_rec);
         int NBJets = calcNBJets(Jets_rec);
         //// Do projections for the given HT and MHT bin (including neighbouring bins)
@@ -1072,21 +1064,28 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
         }
         MET_constraint_x = vgenMHT.Px();
         MET_constraint_y = vgenMHT.Py();
+        
+    } else {
+		
+        if (rebalanceMode_ == "MHTall") {
+            //// rebalance MHT of all jets
+            MET_constraint_x = MHTx_low;
+            MET_constraint_y = MHTy_low;
+        } else if (rebalanceMode_ == "MHThigh") {
+            //// rebalance MHT of fitted jets
+            MET_constraint_x = 0.;
+            MET_constraint_y = 0.;
+        } else if (rebalanceMode_ == "METsoft") {
+            //// rebalance MHT of fitted jets to soft MET
+            MET_constraint_x = vMETsoft.Px();
+            MET_constraint_y = vMETsoft.Py();
+        } else {
+            //// default: rebalance MHT of fitted jets
+            MET_constraint_x = 0.;
+            MET_constraint_y = 0.;
+        }
     }
 
-    if (rebalanceMode_ == "MHTall") {
-        //// rebalance MHT of all jets
-        MET_constraint_x += MHTx_low;
-        MET_constraint_y += MHTy_low;
-    } else if (rebalanceMode_ == "MHThigh") {
-        //// rebalance MHT of fitted jets
-        MET_constraint_x += 0.;
-        MET_constraint_y += 0.;
-    } else {
-        //// default: rebalance MHT of fitted jets
-        MET_constraint_x = 0.;
-        MET_constraint_y = 0.;
-    }
     TFitConstraintEp* momentumConstr1 = new TFitConstraintEp("px", "px", 0, TFitConstraintEp::pX, MET_constraint_x);
     TFitConstraintEp* momentumConstr2 = new TFitConstraintEp("py", "py", 0, TFitConstraintEp::pY, MET_constraint_y);
     for (unsigned int i = 0; i < fitted.size(); ++i) {
@@ -1177,7 +1176,7 @@ double RandS::GetRebalanceCorrection(double jet_pt, bool btag)
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void RandS::SmearingJets(std::vector<myJet> &Jets, const double& w) {
+void RandS::SmearingJets(std::vector<myJet> &Jets, LorentzVector& vMETsoft, const double& w) {
 
     double dPx = 0;
     double dPy = 0;
@@ -1233,9 +1232,16 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, const double& w) {
             GreaterByPt<myJet> ptComparator_;
             std::sort(Jets_smeared.begin(), Jets_smeared.end(), ptComparator_);
 
-            FillPredictions(Jets_smeared, i, weight);
+            //cout << "Reco METsoft (pt, phi): " << vMETsoft.Pt() << ", " << vMETsoft.Phi() << endl;
+            double METsoft_Pt = vMETsoft.Pt();// * h_METsoft_resPt->GetRandom();
+            double METsoft_Phi =  vMETsoft.Phi(); // + h_METsoft_resPhi->GetRandom();
+            LorentzVector vMETsoft_smeared(0,0,0,0);
+            vMETsoft_smeared.SetPtEtaPhiE(METsoft_Pt, 0., METsoft_Phi, METsoft_Pt);
+            //cout << "Smeared METsoft (pt, phi): " << vMETsoft_smeared.Pt() << ", " << vMETsoft_smeared.Phi() << endl;
+            LorentzVector vMETpred = calcMHT(Jets_smeared, 0., 5.) + vMETsoft_smeared;
+            calcPredictions(Jets_smeared, vMETpred, i, weight);
 
-            if( HT_pred > HTSave_ && MHT_pred > MHTSave_ && Njets_pred >= NJetsSave_) {
+            if( HT_pred > HTSave_ && vMETpred.Pt() > METSave_ && Njets_pred >= NJetsSave_) {
                 //cout << "HTpred = " << HT_pred << endl;
                 PredictionTree->Fill();
             }
@@ -1247,6 +1253,7 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, const double& w) {
             BTags_pred = 0;
             HT_pred = 0.;
             MHT_pred = 0.;
+            MET_pred = 0.;
             JetPt_pred->clear();
             JetEta_pred->clear();
             DeltaPhi_pred->clear();
@@ -1258,13 +1265,14 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, const double& w) {
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void RandS::FillPredictions(std::vector<myJet>& Jets, const int& i, const double& w) {
+void RandS::calcPredictions(std::vector<myJet>& Jets, LorentzVector& vMET, const int& i, const double& w) {
 
     int NJets = calcNJets(Jets);
     int NBJets = calcNBJets(Jets);
     double HT = calcHT(Jets);
-    LorentzVector vMHT = calcMHT(Jets);
+    LorentzVector vMHT = calcMHT(Jets, JetsMHTPt_, JetsMHTEta_);
     double MHT = vMHT.Pt();
+    double MET = vMET.Pt();
 
     weight = w;
     Ntries_pred = i;
@@ -1272,7 +1280,8 @@ void RandS::FillPredictions(std::vector<myJet>& Jets, const int& i, const double
     BTags_pred = NBJets;
     HT_pred = HT/1000.;
     MHT_pred = MHT/1000.;
-    FillLeadingJetPredictions(Jets, vMHT);
+    MET_pred = MET/1000.;
+    calcLeadingJetPredictions(Jets, vMET);
 
     if (i == -2) {
         NJetSeed = Njets_pred;
@@ -1286,7 +1295,7 @@ void RandS::FillPredictions(std::vector<myJet>& Jets, const int& i, const double
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void RandS::FillLeadingJetPredictions(std::vector<myJet>& Jets, LorentzVector& vMHT) {
+void RandS::calcLeadingJetPredictions(std::vector<myJet>& Jets, LorentzVector& vMHT) {
     int NJets = 0;
     for (vector<myJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
         if (it->momentum.Pt() > JetsPt_ && std::abs(it->momentum.Eta()) < JetsEta_) {
