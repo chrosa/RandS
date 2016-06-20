@@ -210,7 +210,7 @@ class RandS : public EL::Algorithm
         TH2F* h_2DRebCorrectionFactor, *h_2DRebCorrectionFactor_b; //!
         vector <TH1D*> h_2DRebCorrectionFactor_py, h_2DRebCorrectionFactor_b_py;  //!
         TH3F* h_MHTtrueProb, *h_MHTtrueProb_input; //!
-        TH1F* h_METsoft_resPt, *h_METsoft_resPhi; //!
+        TH1F* h_METsoft, *h_METsoft_resPt, *h_METsoft_resPhi; //!
         vector < vector <TH1D*> > h_MHTtrueProb_pz; //!
 
         // this is needed to distribute the algorithm to the workers

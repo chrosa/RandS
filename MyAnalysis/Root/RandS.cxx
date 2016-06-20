@@ -107,7 +107,7 @@ RandS :: RandS ()
     NJetsSeedMin_ = 2;
     NJetsStored_ = 3;
     Ntries_ = 10;
-    NJetsSave_ = 2;
+    NJetsSave_ = 3;
     HTSave_ = 500;
     METSave_ = 0;
     BJetsPt_ = 40000.;
@@ -219,6 +219,7 @@ EL::StatusCode RandS :: histInitialize ()
         TFile *f_METsoft = new TFile(METsoftResolutionFile_.c_str(), "READ", "", 0);
         h_METsoft_resPt = (TH1F*) f_METsoft->FindObjectAny("h_METsoft_resPt");
         h_METsoft_resPhi = (TH1F*) f_METsoft->FindObjectAny("h_METsoft_resPhi");
+        h_METsoft = (TH1F*) f_METsoft->FindObjectAny("h_METsoft");
 	}
     
     h_MHTtrueProb = new TH3F("h_MHTtrueProb","h_MHTtrueProb", 100, 0., 10000000, 5, -0.5, 4.5, 100, -100000., 400000.);
@@ -603,8 +604,8 @@ EL::StatusCode RandS :: execute ()
     LorentzVector vgenMHT = calcMHT(Jets_gen, JetsMHTPt_, JetsMHTEta_);
     
     LorentzVector MET(0,0,0,0);
-    LorentzVector METsoft = vrecoMHTreb - MET;
     MET.SetPxPyPzE((*mettst_nominal)["Final"]->mpx(), (*mettst_nominal)["Final"]->mpx(), 0, (*mettst_nominal)["Final"]->met() );
+    LorentzVector METsoft = MET - vrecoMHTreb;
     calcPredictions(Jets_rec, MET, -2, eventWeight);
 
     //// Fill 3D plots for true MHT hypothesis used in rebalancing
@@ -726,7 +727,7 @@ EL::StatusCode RandS :: execute ()
             //cout << "NJetgen = " << Njets_pred << endl;
             PredictionTree->Fill();
 
-            LorentzVector MET_reb = -METsoft;
+            LorentzVector MET_reb(0,0,0,0);
             calcPredictions(Jets_reb, MET_reb, 0, eventWeight);
             //cout << "HTreb = " << HT_pred << endl;
             //cout << "NJetreb = " << Njets_pred << endl;
@@ -842,7 +843,7 @@ bool RandS::IsReconstructed(const double& pt, const double& eta) {
     int i_Eta = GetIndex(eta, &EtaBinEdges_);
     int i_bin = smearFunc_->RecoEff_b.at(i_Eta)->GetXaxis()->FindBin(pt);
     double eff = 1.;
-    if (pt < 20.) {
+    if (pt < 40.) {
         eff = smearFunc_->RecoEff_nob.at(i_Eta)->GetBinContent(i_bin);
     }
     double random = rand_->Rndm();
@@ -1043,27 +1044,28 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
     if (useGenMHTprob_) {
 		
         //// Now get from simulation the expected true MHT for a given reco HT and reco MHT
-        LorentzVector vrecoMHT = calcMHT(Jets_rec, JetsMHTPt_, JetsMHTEta_);
-        double recoHT = calcHT(Jets_rec);
-        int NBJets = calcNBJets(Jets_rec);
+        //
+        //LorentzVector vrecoMHT = calcMHT(Jets_rec, JetsMHTPt_, JetsMHTEta_);
+        //double recoHT = calcHT(Jets_rec);
+        //int NBJets = calcNBJets(Jets_rec);
         //// Do projections for the given HT and MHT bin (including neighbouring bins)
-        int ii = h_MHTtrueProb_input->GetXaxis()->FindBin(recoHT);
-        if (ii > h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1) ii = h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1;
-        int jj = h_MHTtrueProb_input->GetYaxis()->FindBin((double) NBJets);
-        if (jj > h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1) jj = h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1;
-        double genMHTp = h_MHTtrueProb_pz.at(ii-1).at(jj-1)->GetRandom();
-        LorentzVector vgenMHT = vrecoMHT;
-        double px = vrecoMHT.Px() * genMHTp / vrecoMHT.Pt();
-        double py = vrecoMHT.Py() * genMHTp / vrecoMHT.Pt();
-        vgenMHT.SetPx(px);
-        vgenMHT.SetPy(py);
-        if (vrecoMHT.Pt() > 200000.) {
-            cout << "vrecoMHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
-            cout << "vrecoMHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
-            cout << "genMHTp: " << genMHTp << endl;
-        }
-        MET_constraint_x = vgenMHT.Px();
-        MET_constraint_y = vgenMHT.Py();
+        //int ii = h_MHTtrueProb_input->GetXaxis()->FindBin(recoHT);
+        //if (ii > h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1) ii = h_MHTtrueProb_input->GetXaxis()->GetNbins() - 1;
+        //int jj = h_MHTtrueProb_input->GetYaxis()->FindBin((double) NBJets);
+        //if (jj > h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1) jj = h_MHTtrueProb_input->GetYaxis()->GetNbins() - 1;
+        //double genMHTp = h_MHTtrueProb_pz.at(ii-1).at(jj-1)->GetRandom();
+        //LorentzVector vgenMHT = vrecoMHT;
+        //double px = vrecoMHT.Px() * genMHTp / vrecoMHT.Pt();
+        //double py = vrecoMHT.Py() * genMHTp / vrecoMHT.Pt();
+        //vgenMHT.SetPx(px);
+        //vgenMHT.SetPy(py);
+        //if (vrecoMHT.Pt() > 200000.) {
+        //    cout << "vrecoMHT, phi (reco): " << vrecoMHT.Pt() << ", " << vrecoMHT.Phi() << endl;
+        //    cout << "vrecoMHT, phi (gen): " << vgenMHT.Pt() << ", " << vgenMHT.Phi() << endl;
+        //    cout << "genMHTp: " << genMHTp << endl;
+        //}
+        //MET_constraint_x = vgenMHT.Px();
+        //MET_constraint_y = vgenMHT.Py();
         
     } else {
 		
@@ -1077,8 +1079,19 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
             MET_constraint_y = 0.;
         } else if (rebalanceMode_ == "METsoft") {
             //// rebalance MHT of fitted jets to soft MET
-            MET_constraint_x = vMETsoft.Px();
-            MET_constraint_y = vMETsoft.Py();
+
+			double METsoft_Pt = vMETsoft.Pt();
+            double METsoft_Phi =  vMETsoft.Phi();
+
+			//// Smear soft MET
+            //double METsoft_Pt = h_METsoft->GetRandom();
+            //double METsoft_Phi = vMETsoft.Phi() + h_METsoft_resPhi->GetRandom();
+
+            LorentzVector vMETsoft_smeared(0,0,0,0);
+            vMETsoft_smeared.SetPtEtaPhiE(METsoft_Pt, 0., METsoft_Phi, METsoft_Pt);
+
+            MET_constraint_x = vMETsoft_smeared.Px();
+            MET_constraint_y = vMETsoft_smeared.Py();
         } else {
             //// default: rebalance MHT of fitted jets
             MET_constraint_x = 0.;
@@ -1233,10 +1246,16 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, LorentzVector& vMETsoft, cons
             std::sort(Jets_smeared.begin(), Jets_smeared.end(), ptComparator_);
 
             //cout << "Reco METsoft (pt, phi): " << vMETsoft.Pt() << ", " << vMETsoft.Phi() << endl;
-            double METsoft_Pt = vMETsoft.Pt();// * h_METsoft_resPt->GetRandom();
-            double METsoft_Phi =  vMETsoft.Phi(); // + h_METsoft_resPhi->GetRandom();
+            double METsoft_Pt = vMETsoft.Pt();
+            double METsoft_Phi =  vMETsoft.Phi();
+  
+            //// Smear soft MET part
+            //double METsoft_Pt = h_METsoft->GetRandom();
+            //double METsoft_Phi = vMETsoft.Phi() + h_METsoft_resPhi->GetRandom();
+  
             LorentzVector vMETsoft_smeared(0,0,0,0);
             vMETsoft_smeared.SetPtEtaPhiE(METsoft_Pt, 0., METsoft_Phi, METsoft_Pt);
+  
             //cout << "Smeared METsoft (pt, phi): " << vMETsoft_smeared.Pt() << ", " << vMETsoft_smeared.Phi() << endl;
             LorentzVector vMETpred = calcMHT(Jets_smeared, 0., 5.) + vMETsoft_smeared;
             calcPredictions(Jets_smeared, vMETpred, i, weight);

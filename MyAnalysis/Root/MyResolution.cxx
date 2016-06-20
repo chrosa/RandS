@@ -484,6 +484,9 @@ EL::StatusCode MyResolution :: execute ()
             }
         }
         //if (numuActivity.Pt() > 0) std::cout << "Old, new pt: " <<  genjet->pt() << ", " << (genjet->p4() + numuActivity).Pt() << std::endl;
+        
+        // remove jets in very forward region
+        if (fabs(genjet->eta()) > 4.5) continue;
 
         // check for no additional genJet activity
         bool noGenActivity = true;

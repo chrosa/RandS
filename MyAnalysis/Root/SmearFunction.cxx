@@ -145,7 +145,7 @@ void SmearFunction::CalculateSmearFunctions() {
 
             for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
                 //// Get RMS
-                if (smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 10) {
+                if (smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     double RMS = smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     SigmaPhi.at(i_flav).at(i_eta).at(i_Pt) = RMS;
                 } else {
@@ -174,8 +174,10 @@ void SmearFunction::CalculateSmearFunctions() {
                     smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(1, p);
                 }
                 //// Get width of gaussian core
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && i_Pt != 0) {
-                    //if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
+                
+                // check if bin is meaningfull (Pt(E_bin)>20 GeV)
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)*1000./cosh(EtaBinEdges_.at(i_eta)) > 30000.);
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 500 && BinIsOK) {
                     double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     double MEAN = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetMean();
                     TF1* fitfunction = new TF1("f", "gaus(0)", MEAN - 1 * RMS, MEAN + 1 * RMS);
@@ -322,8 +324,8 @@ void SmearFunction::CalculateSmearFunctions() {
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmin(),
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmax());
 
-                //if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && i_Pt != 0) {
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)*1000./cosh(EtaBinEdges_.at(i_eta)) > 30000.);
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 500 && BinIsOK) {
                     //// fold core and tail with additional gaussian
                     TH1F smearFunc_Core_tmp(*smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt));
                     TH1F smearFunc_LowerTail_tmp(*smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt));
@@ -336,7 +338,7 @@ void SmearFunction::CalculateSmearFunctions() {
                         //// if no sigma was fitted use the extrapolation
                         if (sigma == 0)
                             sigma = SigmaPt_scaled.at(i_flav).at(i_eta)->Eval(SigmaPtHist_scaled.at(i_flav).at(i_eta)->GetBinCenter(i_Pt + 1));
-                        double AdditionalSigma = TMath::Sqrt(1 - 1 / pow(AddSmear, 2)) * sigma;
+                        double AdditionalSigma = TMath::Sqrt(1. - 1. / pow(AddSmear, 2)) * sigma;
                         smearFunc_Core_tmp.Reset();
                         smearFunc_LowerTail_tmp.Reset();
                         smearFunc_UpperTail_tmp.Reset();
@@ -386,7 +388,7 @@ void SmearFunction::CalculateSmearFunctions() {
                          << ", entries = " << smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() << endl;
                     for (int j = 1; j <= smearFunc_scaled.at(i_flav).at(i_eta).at(i_Pt)->GetNbinsX(); ++j) {
                         double pt = (PtBinEdges_.at(i_Pt) + PtBinEdges_.at(i_Pt + 1)) / 2;
-                        double g = N * TMath::Gaus(smearFunc_scaled.at(i_flav).at(i_eta).at(i_Pt)->GetBinCenter(j), 1., SigmaPt_scaled.at(i_flav).at(i_eta)->Eval(pt));
+                        double g = N * smearFunc_scaled.at(0).at(i_eta).at(i_Pt)->GetBinWidth(j) * TMath::Gaus(smearFunc_scaled.at(0).at(i_eta).at(i_Pt)->GetBinCenter(j), 1., SigmaPt_scaled.at(0).at(i_eta)->Eval(pt), true);
                         smearFunc_scaled.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(j, g);
                         smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(j, g);
                         smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(j, 0.);
@@ -473,7 +475,7 @@ void SmearFunction::CalculateSmearFunctions() {
         c->SetName(cname);
         RecoEff_nob.at(i_eta)->SetTitle(cname);
         RecoEff_nob.at(i_eta)->SetLineColor(kBlue);
-        RecoEff_nob.at(i_eta)->Draw("hist");
+        RecoEff_nob.at(i_eta)->Draw("histe");
         //RecoEff_b.at(i_eta)->SetTitle(cname);
         //RecoEff_b.at(i_eta)->SetLineColor(kRed);
         //RecoEff_b.at(i_eta)->Draw("hist same");
@@ -483,7 +485,7 @@ void SmearFunction::CalculateSmearFunctions() {
         c->SetName(cname);
         SigmaPtHist.at(0).at(i_eta)->SetTitle(cname);
         SigmaPtHist.at(0).at(i_eta)->SetLineColor(kBlue);
-        SigmaPtHist.at(0).at(i_eta)->Draw("hist");
+        SigmaPtHist.at(0).at(i_eta)->Draw("histe");
         //SigmaPtHist.at(1).at(i_eta)->SetTitle(cname);
         //SigmaPtHist.at(1).at(i_eta)->SetLineColor(kRed);
         //SigmaPtHist.at(1).at(i_eta)->Draw("hist same");
@@ -493,7 +495,7 @@ void SmearFunction::CalculateSmearFunctions() {
         c->SetName(cname);
         SigmaPtHist_scaled.at(0).at(i_eta)->SetTitle(cname);
         SigmaPtHist_scaled.at(0).at(i_eta)->SetLineColor(kBlue);
-        SigmaPtHist_scaled.at(0).at(i_eta)->Draw("hist");
+        SigmaPtHist_scaled.at(0).at(i_eta)->Draw("histe");
         //SigmaPtHist_scaled.at(1).at(i_eta)->SetTitle(cname);
         //SigmaPtHist_scaled.at(1).at(i_eta)->SetLineColor(kRed);
         //SigmaPtHist_scaled.at(1).at(i_eta)->Draw("hist same");
