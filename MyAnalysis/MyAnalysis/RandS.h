@@ -37,6 +37,7 @@ class RandS : public EL::Algorithm
         JetCleaningTool *m_jetCleaning; //!
    		ST::SUSYObjDef_xAOD *objTool; //!
 		std::string prw_file_;
+		std::string ilumicalc_file_;
 
         std::vector<double> PtBinEdges_;
         std::vector<double> EtaBinEdges_;
@@ -48,6 +49,8 @@ class RandS : public EL::Algorithm
         int debug_;
 
         bool JetEffEmulation_;
+        bool AddNuMuActivity_;
+        bool AddMuToJets_;
         double smearedJetPt_;
         std::vector<double> PtBinEdges_scaling_;
         std::vector<double> EtaBinEdges_scaling_;
@@ -83,12 +86,11 @@ class RandS : public EL::Algorithm
         double rebalancedJetPt_;
         std::string rebalanceMode_; // "MHTall", "MHThigh" or "MET" only for smearCollection = "Reco"
         std::string RebalanceCorrectionFile_;
-        std::string genMHTprobFile_;
         std::string METsoftResolutionFile_;
         bool useRebalanceCorrectionFactors_;
         bool useCleverRebalanceCorrectionFactors_;
-        bool useGenMHTprob_;
         bool useMETsoftResolution_;
+        bool useTrueMETsoftForRebalance_;
 
         double JetsHTPt_, JetsHTEta_;
         double JetsMHTPt_, JetsMHTEta_;
@@ -209,9 +211,10 @@ class RandS : public EL::Algorithm
         TH1F* h_RebCorrectionFactor, *h_RebCorrectionFactor_b; //!
         TH2F* h_2DRebCorrectionFactor, *h_2DRebCorrectionFactor_b; //!
         vector <TH1D*> h_2DRebCorrectionFactor_py, h_2DRebCorrectionFactor_b_py;  //!
-        TH3F* h_MHTtrueProb, *h_MHTtrueProb_input; //!
-        TH1F* h_METsoft, *h_METsoft_resPt, *h_METsoft_resPhi; //!
-        vector < vector <TH1D*> > h_MHTtrueProb_pz; //!
+
+        TH2F* h_METsoft_Pt, *h_METsoft_Phi; //!
+        vector <TH1D*> h_METsoft_Pt_px; //!
+        vector <TH1D*> h_METsoft_Phi_px; //!
 
         // this is needed to distribute the algorithm to the workers
         ClassDef(RandS, 1);

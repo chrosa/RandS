@@ -48,11 +48,11 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
         RatioTitle = "(Pred-Data)/Data";
     }
     else {
-        titlePrediction = "Data-driven Pred. from MC";
-        //titlePrediction = "Smeared Generator Jets";
+        //titlePrediction = "Data-driven Pred. from MC";
+        titlePrediction = "Smeared Generator Jets";
         titleSelection = "MC Expectation";
-        RatioTitle = "(Pred-MC)/MC";
-        //RatioTitle = "(Gen-MC)/MC";
+        //RatioTitle = "(Pred-MC)/MC";
+        RatioTitle = "(Gen-MC)/MC";
     }
 
     static Int_t c_LightBrown = TColor::GetColor( "#D9D9CC" );
@@ -135,8 +135,8 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
     r->Add(prediction, 1);
     r->Add(selection, -1);
     r->Divide(selection);
-    r->SetMaximum(1.2);
-    r->SetMinimum(-1.2);
+    r->SetMaximum(2.2);
+    r->SetMinimum(-2.2);
     r->Draw("ep");
     TLine l;
     l.DrawLine(MinX, 0., MaxX+BinWidth, 0.);
@@ -254,7 +254,15 @@ int main()
     else LumiTitle = "Simulation, L = 10 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     //TString postfix = "_RandS_Reb20_Smear0_EffEmuTrue_noRebCorr_v1";
-    TString postfix = "_RandS_test_v1";
+    //TString postfix = "_RandS_test_smearedMETSoftReb";
+    //TString postfix = "_RandS_test_METSoftRebZero";
+    //TString postfix = "_RandS_test_trueMETSoftReb";
+    //TString postfix = "_RandS_test_smearedMETSoftReb_minus";
+    //TString postfix = "_MHThigh_pt20_METsoft_v1";
+    //TString postfix = "_trueMETsoft_pt20_v2";
+    //TString postfix = "_GenSmearing_METsoftMHT20_v1";
+    //TString postfix = "_GenSmearing_MHT20_RecoEffEmu_v1";
+    TString postfix = "_test_v1";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");

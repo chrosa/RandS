@@ -51,14 +51,10 @@ SmearFunction::SmearFunction(std::string smearingfile,
     probExtreme_ = probExtreme;
 
     // Get correct dimensions for smear functions
-    cout << "Before ResizeSmearFunctions" << endl;
     ResizeSmearFunctions();
-    cout << "After ResizeSmearFunctions" << endl;
 
     // Get/scale/fill smear functions
-    cout << "Before CalculateSmearFunctions" << endl;
     CalculateSmearFunctions();
-    cout << "After CalculateSmearFunctions" << endl;
 }
 //--------------------------------------------------------------------------
 
@@ -80,10 +76,9 @@ TF1* SmearFunction::getSigmaPtScaledForRebalancing(int i_eta) const {
 void SmearFunction::CalculateSmearFunctions() {
 
     //// open root file/tree and create SmearingFunction histo
-    cout << "Open file with templates" << endl;
     TFile *f1 = new TFile(smearingfile_.c_str(), "READ", "", 0);
 
-    cout << "Fetch counts for efficiency calculation" << endl;
+    //// Fetch counts for efficiency calculation
     for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
         char hname[100];
         sprintf(hname, "h_NjetGen_tot_Eta%i", i_eta);
@@ -119,7 +114,6 @@ void SmearFunction::CalculateSmearFunctions() {
     }
 
     //// Fetch histos and fit gaussian core
-    cout << "Fetch templates" << endl;
     for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
         for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
             //// Get the histos
@@ -174,7 +168,7 @@ void SmearFunction::CalculateSmearFunctions() {
                     smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetBinContent(1, p);
                 }
                 //// Get width of gaussian core
-                
+
                 // check if bin is meaningfull (Pt(E_bin)>20 GeV)
                 bool BinIsOK = (PtBinEdges_.at(i_Pt)*1000./cosh(EtaBinEdges_.at(i_eta)) > 30000.);
                 if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 500 && BinIsOK) {

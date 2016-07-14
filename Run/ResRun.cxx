@@ -6,7 +6,8 @@ void ResRun( const std::string& submitDir ) {
     // Construct the samples to run on:
     SH::SampleHandler sh;
 
-	SH::readFileList (sh, "sample", "filelist_input_pythia_test.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_pythia_test.txt");
+	SH::readFileList (sh, "sample", "filelist_input_AOD.txt");
 
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.
@@ -19,6 +20,7 @@ void ResRun( const std::string& submitDir ) {
     EL::Job job;
     job.sampleHandler( sh );
     job.options()->setDouble (EL::Job::optMaxEvents, -1);
+    job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
 
     // Add our analysis to the job:
     MyResolution* alg = new MyResolution();

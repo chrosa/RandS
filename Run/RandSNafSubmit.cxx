@@ -18,6 +18,7 @@ void RandSNafSubmit( const std::string& submitDir ) {
     // Create an EventLoop job:
     EL::Job job;
     job.sampleHandler( sh );
+    job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
     job.options()->setDouble (EL::Job::optMaxEvents, -1);
     job.options()->setDouble(EL::Job::optFilesPerWorker, 5);
 	job.options()->setString(EL::Job::optSubmitFlags, "-o /nfs/dust/atlas/user/csander/logs -e /nfs/dust/atlas/user/csander/logs -S /bin/bash -l h_cpu=06:00:00 -l h_vmem=3000M -l distro=sld6");

@@ -20,7 +20,8 @@ class MyResolution : public EL::Algorithm
         double m_MatchingCone;
         double m_RelGenActivityVeto;
         double m_RelRecoActivityVeto;
-        std::string prw_file_;
+		std::string prw_file_;
+		std::string ilumicalc_file_;
 
         // put your configuration variables here as public variables.
         // that way they can be set directly from CINT and python.

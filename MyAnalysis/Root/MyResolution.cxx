@@ -12,6 +12,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODTruth/TruthEvent.h"
+#include "xAODMuon/Muon.h"
 
 #include <EventLoop/Job.h>
 #include <EventLoop/StatusCode.h>
@@ -32,6 +33,20 @@
 	   } while( false )
 #endif
 
+
+std::vector<std::string> getTokens(TString line, TString delim) {
+    std::vector<std::string> vtokens;
+    TObjArray* tokens = TString(line).Tokenize(delim); //delimiters
+    if(tokens->GetEntriesFast()) {
+        TIter iString(tokens);
+        TObjString* os=0;
+        while ((os=(TObjString*)iString())) {
+            vtokens.push_back( os->GetString().Data() );
+        }
+    }
+    delete tokens;
+    return vtokens;
+}
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(MyResolution)
@@ -269,43 +284,59 @@ EL::StatusCode MyResolution :: initialize ()
     xAOD::TEvent* event = wk()->xaodEvent();
 
     ST::ISUSYObjDef_xAODTool::DataSource datasource = ST::ISUSYObjDef_xAODTool::FullSim;
-    
-	//const xAOD::EventInfo* eventInfo = 0;
+
+    //const xAOD::EventInfo* eventInfo = 0;
     //EL_RETURN_CHECK("initialize",event->retrieve( eventInfo, "EventInfo"));
     //if (eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
     //    datasource = 1;
-	//}
+    //}
 
     objTool = new ST::SUSYObjDef_xAOD("SUSYObjDef_xAOD");
 
-	prw_file_ = "DUMMY";
-	std::vector<std::string> prw_conf;
-	if (prw_file_ == "DUMMY") {
-	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-	    prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
-	  }
-	  else {
-	    prw_conf.push_back(prw_file_);     
-	  }
+    prw_file_ = "DUMMY";
+    std::vector<std::string> prw_conf;
+    if (prw_file_ == "DUMMY") {
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+    }
+    else {
+        prw_conf = getTokens(prw_file_,",");
+        //prw_conf.push_back(prw_file_);
+    }
+    EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
 
-   ///////////////////////////////////////////////////////////////////////////////////////////
+    std::vector<std::string> prw_lumicalc;
+    ilumicalc_file_ = "DUMMY";
+    if (ilumicalc_file_ == "DUMMY") {
+        prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root");
+        prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
+
+    } else {
+        prw_lumicalc = getTokens(ilumicalc_file_, ",");
+        //prw_lumicalc.push_back(ilumicalc_file_);
+    }
+    EL_RETURN_CHECK("initialize", objTool->setProperty("PRWLumiCalcFiles", prw_lumicalc) );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
     // Configure the SUSYObjDef instance
-	EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
     EL_RETURN_CHECK("initialize", objTool->setProperty("DataSource", datasource) ) ;
     EL_RETURN_CHECK("initialize", objTool->setProperty("ConfigFile", "SUSYTools/SUSYTools_Default.conf") );
-	EL_RETURN_CHECK("initialize", objTool->initialize() );
 
+    //Manually setting additional properties will override what's in the configuration file
+    EL_RETURN_CHECK("initialize", objTool->setProperty("EleId", "TightLLH") );
+    EL_RETURN_CHECK("initialize", objTool->setProperty("EleBaselineId", "LooseLLH") );
+
+    EL_RETURN_CHECK("initialize", objTool->initialize() );
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
     const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
-    //const char* grlFilePath = "MyAnalysis/share/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
     const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
     std::vector<std::string> vecStringGRL;
     vecStringGRL.push_back(fullGRLFilePath);
-    EL_RETURN_CHECK("initialize",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
-    EL_RETURN_CHECK("initialize",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
-    EL_RETURN_CHECK("initialize",m_grl->initialize());
+    EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+    EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
+    EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -313,11 +344,12 @@ EL::StatusCode MyResolution :: initialize ()
     // initialize and configure the jet cleaning tool
     m_jetCleaning = new JetCleaningTool("JetCleaning");
     m_jetCleaning->msg().setLevel( MSG::DEBUG );
-    EL_RETURN_CHECK("initialize",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
-    EL_RETURN_CHECK("initialize",m_jetCleaning->setProperty("DoUgly", false));
-    EL_RETURN_CHECK("initialize",m_jetCleaning->initialize());
+    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
+    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty("DoUgly", false));
+    EL_RETURN_CHECK("initialize()",m_jetCleaning->initialize());
 
     return EL::StatusCode::SUCCESS;
+
 }
 
 
@@ -339,7 +371,10 @@ EL::StatusCode MyResolution :: execute ()
     // Event information
     //---------------------------
     const xAOD::EventInfo* eventInfo = 0;
-    EL_RETURN_CHECK("execute",event->retrieve( eventInfo, "EventInfo"));
+    EL_RETURN_CHECK("execute", event->retrieve( eventInfo, "EventInfo"));
+
+    EL_RETURN_CHECK("execute", objTool->ApplyPRWTool() );
+
 
     // check if the event is data or MC
     // (many tools are applied either to data or MC)
@@ -442,10 +477,36 @@ EL::StatusCode MyResolution :: execute ()
     } // end if the event is data
     m_numCleanEvents++;
 
+    // Electrons
+    //xAOD::ElectronContainer* electrons_nominal(0);
+    //xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetElectrons(electrons_nominal, electrons_nominal_aux) );
+
+    // Photons
+    //xAOD::PhotonContainer* photons_nominal(0);
+    //xAOD::ShallowAuxContainer* photons_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetPhotons(photons_nominal,photons_nominal_aux) );
+
+    // Muons
+    xAOD::MuonContainer* muons_nominal(0);
+    xAOD::ShallowAuxContainer* muons_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetMuons(muons_nominal, muons_nominal_aux) );
+
     // Jets
     xAOD::JetContainer* jets(0);
     xAOD::ShallowAuxContainer* jets_aux(0);
-    EL_RETURN_CHECK("execute()", objTool->GetJets(jets, jets_aux, true) );
+    EL_RETURN_CHECK("execute()", objTool->GetJets(jets, jets_aux) );
+
+    // Taus
+    //xAOD::TauJetContainer* taus_nominal(0);
+    //xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal,taus_nominal_aux) );
+
+    // MET
+    //xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
+    //xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
+    //mettst_nominal->setStore(mettst_nominal_aux);
+    //mettst_nominal->reserve(10);
 
 
     // get jet container of interest
@@ -476,15 +537,17 @@ EL::StatusCode MyResolution :: execute ()
 
         for ( const auto& it : *genparticles ) {
             if (abs(it->pdgId()) == 13 || abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 ) {
-                //std::cout << "id, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", "<< it->eta()<< ", " << it->phi()<< std::endl;
-                double dR = genjet->p4().DeltaR(it->p4());
-                if (dR < 0.4) {
-                    numuActivity += it->p4();
+                if (it->pt() > 0.0 && it->status() == 1 && !(it->hasDecayVtx())) {
+                    //std::cout << "id, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", "<< it->eta()<< ", " << it->phi()<< std::endl;
+                    double dR = genjet->p4().DeltaR(it->p4());
+                    if (dR < 0.4) {
+                        numuActivity += it->p4();
+                    }
                 }
             }
         }
         //if (numuActivity.Pt() > 0) std::cout << "Old, new pt: " <<  genjet->pt() << ", " << (genjet->p4() + numuActivity).Pt() << std::endl;
-        
+
         // remove jets in very forward region
         if (fabs(genjet->eta()) > 4.5) continue;
 
@@ -524,17 +587,23 @@ EL::StatusCode MyResolution :: execute ()
         } // end for loop over jets
 
         bool noRecoActivity = true;
+        TLorentzVector MuonContribution(0., 0., 0., 0.);
         if (dRmin_matched < m_MatchingCone) {
             if (dRmin_next < m_VetoCone) {
                 if (nextJet->pt()/matchedJet->pt()>m_RelRecoActivityVeto) noRecoActivity = false;
             }
+            //for ( const auto& muon : *muons_nominal) {
+            //    if (matchedJet->p4().DeltaR(muon->p4()) < 0.4) {
+            //        MuonContribution += muon->p4();
+            //    }
+            //}
         }
 
         if (noGenActivity) {
             int ii_eta = GetEtaBin(genjet->eta());
             NGen_tot.at(ii_eta)->Fill(genjet->pt(), eventWeight);
             //if (objTool->IsTruthBJet(*genjet)) {
-			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+            if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
                 NGen_b.at(ii_eta)->Fill(genjet->pt(), eventWeight);
             } else {
                 NGen_nob.at(ii_eta)->Fill(genjet->pt(), eventWeight);
@@ -545,7 +614,7 @@ EL::StatusCode MyResolution :: execute ()
             int ii_eta = GetEtaBin(genjet->eta());
             NReco_tot.at(ii_eta)->Fill(genjet->pt(), eventWeight);
             //if (objTool->IsTruthBJet(*genjet)) {
-			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+            if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
                 NReco_b.at(ii_eta)->Fill(genjet->pt(), eventWeight);
             } else {
                 NReco_nob.at(ii_eta)->Fill(genjet->pt(), eventWeight);
@@ -556,27 +625,27 @@ EL::StatusCode MyResolution :: execute ()
             //if (dRmin_matched < m_MatchingCone && noGenActivity) {
             int i_pt = GetPtBin((genjet->p4()+numuActivity).E()/1000.); // Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
             int i_eta = GetEtaBin(genjet->eta());
-            PtResolution_tot.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+            PtResolution_tot.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity+MuonContribution).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
             PhiResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
             EtaResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
             if (objTool->IsBJet(*matchedJet)) {
-                PtResolution_HF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
-                PhiResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
-                EtaResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
-            } else {
-                PtResolution_LF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
-                PhiResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
-                EtaResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
-            }
-            //if (objTool->IsTruthBJet(*genjet)) {
-			if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
-                PtResolution_b.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PtResolution_b.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity+MuonContribution).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
                 PhiResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
                 EtaResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
             } else {
-                PtResolution_nob.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PtResolution_nob.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity+MuonContribution).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
                 PhiResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
                 EtaResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            }
+            //if (objTool->IsTruthBJet(*genjet)) {
+            if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
+                PtResolution_HF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity+MuonContribution).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
+            } else {
+                PtResolution_LF.at(i_pt).at(i_eta)->Fill((matchedJet->p4()+addRecoActivity+MuonContribution).Pt()/(genjet->p4()+numuActivity).Pt(), eventWeight);
+                PhiResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->p4().DeltaPhi(genjet->p4()), eventWeight);
+                EtaResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->eta()-genjet->eta(), eventWeight);
             }
         }
 
@@ -584,6 +653,22 @@ EL::StatusCode MyResolution :: execute ()
         //delete nextJet;
 
     } // end for loop over genjets
+
+    // The containers created by the shallow copy are owned by you. Remember to delete them
+    delete jets; // not these, we put them in the store!
+    delete jets_aux;
+    // delete taus_nominal;
+    // delete taus_nominal_aux;
+    delete muons_nominal;
+    delete muons_nominal_aux;
+    // delete electrons_nominal;
+    // delete electrons_nominal_aux;
+    // delete photons_nominal;
+    // delete photons_nominal_aux;
+    // delete metcst_nominal;
+    // delete metcst_nominal_aux;
+    // delete mettst_nominal;
+    // delete mettst_nominal_aux;
 
     return EL::StatusCode::SUCCESS;
 }

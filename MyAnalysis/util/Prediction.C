@@ -30,7 +30,7 @@ Prediction::Prediction(TChain& QCDPrediction)
 
     // ------------- define all histos needed -------//
     // set histogram attributes
-    int Npseudo = 10;
+    int Npseudo = 100;
     int NbinsMHT = 100;
     int NbinsHT = 100;
     int NbinsJetPt = 100;
@@ -192,11 +192,11 @@ Prediction::Prediction(TChain& QCDPrediction)
     NJets_presel_pred_raw = new TH2F("NJets_presel_pred_raw", "NJets presel", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
 
     // NBJets
-    NBJets_baseline_withoutMET_pred_raw = new TH2F("NBJets_baseline_withoutMET_pred", "NBJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
-    NBJets_baseline_pred_raw = new TH2F("NBJets_baseline_pred", "NBJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
-    NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw = new TH2F("NBJets_baseline_withoutDeltaPhi_withoutMET_pred", "NBJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
-    NBJets_baseline_withoutDeltaPhi_pred_raw = new TH2F("NBJets_baseline_withoutDeltaPhi_pred", "NBJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
-    NBJets_presel_pred_raw = new TH2F("NBJets_presel_pred_raw", "NBJets presel", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
+    NBJets_baseline_withoutMET_pred_raw = new TH2F("NBJets_baseline_withoutMET_pred", "NBJets baseline", 5, 0, 5, Npseudo, 0.5, Npseudo + 0.5);
+    NBJets_baseline_pred_raw = new TH2F("NBJets_baseline_pred", "NBJets baseline", 5, 0, 5, Npseudo, 0.5, Npseudo + 0.5);
+    NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw = new TH2F("NBJets_baseline_withoutDeltaPhi_withoutMET_pred", "NBJets baseline", 5, 0, 5, Npseudo, 0.5, Npseudo + 0.5);
+    NBJets_baseline_withoutDeltaPhi_pred_raw = new TH2F("NBJets_baseline_withoutDeltaPhi_pred", "NBJets baseline", 5, 0, 5, Npseudo, 0.5, Npseudo + 0.5);
+    NBJets_presel_pred_raw = new TH2F("NBJets_presel_pred_raw", "NBJets presel", 5, 0, 5, Npseudo, 0.5, Npseudo + 0.5);
 
     // ------------------------------------------------------------------------------ //
 
@@ -344,11 +344,11 @@ Prediction::Prediction(TChain& QCDPrediction)
     NJets_presel_sel = new TH1F("NJets_presel_sel", "NJets presel", 15, 0, 15);
 
     // NBJets
-    NBJets_baseline_withoutMET_sel = new TH1F("NBJets_baseline_withoutMET_sel", "NBJets baseline", 15, 0, 15);
-    NBJets_baseline_sel = new TH1F("NBJets_baseline_sel", "NBJets baseline", 15, 0, 15);
-    NBJets_baseline_withoutDeltaPhi_withoutMET_sel = new TH1F("NBJets_baseline_withoutDeltaPhi_withoutMET_sel", "NBJets baseline", 15, 0, 15);
-    NBJets_baseline_withoutDeltaPhi_sel = new TH1F("NBJets_baseline_withoutDeltaPhi_sel", "NBJets baseline", 15, 0, 15);
-    NBJets_presel_sel = new TH1F("NBJets_presel_sel", "NBJets presel", 15, 0, 15);
+    NBJets_baseline_withoutMET_sel = new TH1F("NBJets_baseline_withoutMET_sel", "NBJets baseline", 5, 0, 5);
+    NBJets_baseline_sel = new TH1F("NBJets_baseline_sel", "NBJets baseline", 5, 0, 5);
+    NBJets_baseline_withoutDeltaPhi_withoutMET_sel = new TH1F("NBJets_baseline_withoutDeltaPhi_withoutMET_sel", "NBJets baseline", 5, 0, 5);
+    NBJets_baseline_withoutDeltaPhi_sel = new TH1F("NBJets_baseline_withoutDeltaPhi_sel", "NBJets baseline", 5, 0, 5);
+    NBJets_presel_sel = new TH1F("NBJets_presel_sel", "NBJets presel", 5, 0, 5);
 
     // ------------------------------------------------------------------------------ //
 
