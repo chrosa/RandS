@@ -44,20 +44,6 @@
 	   } while( false )
 #endif
 
-std::vector<std::string> getTokens2(TString line, TString delim) {
-    std::vector<std::string> vtokens;
-    TObjArray* tokens = TString(line).Tokenize(delim); //delimiters
-    if(tokens->GetEntriesFast()) {
-        TIter iString(tokens);
-        TObjString* os=0;
-        while ((os=(TObjString*)iString())) {
-            vtokens.push_back( os->GetString().Data() );
-        }
-    }
-    delete tokens;
-    return vtokens;
-}
-
 // this is needed to distribute the algorithm to the workers
 ClassImp(RandS)
 
@@ -69,7 +55,7 @@ RandS :: RandS ()
     btagCut_ = -0.7887; // not used since moving to SUSYTOOLS
     electronTag_ = ""; // not used since moving to SUSYTOOLS
     muonTag_ = ""; // not used since moving to SUSYTOOLS
-    smearingfile_ = "$ROOTCOREBIN/data/MyAnalysis/resolutions_E_GenWithNuMu_RecoWithMu_v1.root";
+    smearingfile_ = "$ROOTCOREBIN/data/MyAnalysis/resolutions_E_GenWithNuMu_fineEta_v1.root";
     inputhistPtHF_ = "h_b_JetAll_ResPt";
     inputhistEtaHF_ = "h_b_JetAll_ResEta";
     inputhistPhiHF_ = "h_b_JetAll_ResPhi";
@@ -84,10 +70,10 @@ RandS :: RandS ()
     //inputhistPhiLF_ = "h_LF_JetAll_ResPhi";
     //// Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
     PtBinEdges_ = {0,20,30,50,80,120,170,230,300,380,470,570,680,800,1000,1300,1700,2200,2800,3500,4300,5200,6500};
-    EtaBinEdges_ = {0.0,0.7,1.3,1.8,3.2,5.0};
-    rebalancedJetPt_ = 20000.;
+    EtaBinEdges_ = {0.0,0.7,1.3,1.8,2.5,3.2,4.0,5.0};
+    rebalancedJetPt_ = 20000.; //units in MeV
     rebalanceMode_ = "METsoft"; // "METsoft", "MHTall", "MHThigh"
-    smearCollection_ = "Reco";
+    smearCollection_ = "Gen";
     smearedJetPt_ = 0.;
     doSmearing_ = true;
     JetEffEmulation_ = false;
@@ -109,28 +95,31 @@ RandS :: RandS ()
     useRebalanceCorrectionFactors_ = false;
     useCleverRebalanceCorrectionFactors_ = false;
     RebalanceCorrectionFile_ = "RebalanceCorrection.root";
-    useMETsoftResolution_ = false;
-    useTrueMETsoftForRebalance_ = true;
-    METsoftResolutionFile_ = "$ROOTCOREBIN/data/MyAnalysis/METsoft_resolutions.root";
+    useMETsoftResolution_ = true;
+    useTrueMETsoftForRebalance_ = false;
+    METsoftResolutionFile_ = "$ROOTCOREBIN/data/MyAnalysis/METsoft_resolutions_noJVT.root";
     controlPlots_ = false;
+    debug_ = 0;
     outputfile_ = "RandS.root";
     outputfileMHT_ = "MHT.root";
-    storeMHTtree_ = true;
+    storeMHTtree_ = false;
     cleverPrescaleTreating_ = true;
-    HTSeedMin_ = 350.;
-    NJetsSeedMin_ = 2;
+    maxCleverWeight_ = 20;
+    HTSeedMin_ = 0.;
+    NJetsSeedMin_ = 0;
     NJetsStored_ = 3;
-    Ntries_ = 100;
-    NJetsSave_ = 3;
-    HTSave_ = 500;
-    METSave_ = 0;
-    BJetsPt_ = 40000.;
+    Ntries_ = 20;
+    NJetsSave_ = 0;
+    MjjSave_ = 500000.;
+    HTSave_ = 0; //units in GeV
+    METSave_ = 100; //units in MeV (GeV if MHT is used)
+    BJetsPt_ = 40000.; //units in MeV
     BJetsEta_ = 2.5;
-    JetsPt_ = 40000.;
+    JetsPt_ = 40000.; //units in MeV
     JetsEta_ = 2.5;
-    JetsHTPt_ = 40000.;
+    JetsHTPt_ = 40000.; //units in MeV
     JetsHTEta_ = 2.5;
-    JetsMHTPt_ = 30000.;
+    JetsMHTPt_ = 30000.; //units in MeV
     JetsMHTEta_ = 5.0;
     JetDeltaMin_ = {0.5,0.5,0.3};
     // Here you put any code for the base initialization of variables,
@@ -234,7 +223,7 @@ EL::StatusCode RandS :: histInitialize ()
 
     cout << PredictionTree << endl;
     PredictionTree->SetAutoSave(10000000000);
-    PredictionTree->SetAutoFlush(1000000);
+    PredictionTree->SetAutoFlush(100000000);
 
     // set branches for output tree
     //PredictionTree->Branch("NVtx", &vtxN);
@@ -247,8 +236,12 @@ EL::StatusCode RandS :: histInitialize ()
     PredictionTree->Branch("MET", &MET_pred);
     PredictionTree->Branch("JetPt", "std::vector<Float_t>", &JetPt_pred);
     PredictionTree->Branch("JetEta", "std::vector<Float_t>", &JetEta_pred);
+    PredictionTree->Branch("JetPhi", "std::vector<Float_t>", &JetPhi_pred);
+    PredictionTree->Branch("JetM", "std::vector<Float_t>", &JetM_pred);
     PredictionTree->Branch("DeltaPhi", "std::vector<Float_t>", &DeltaPhi_pred);
 
+    if (storeMHTtree_){
+		 
     // define output tree
     cout << "outputfileMHT_: " << outputfileMHT_ << endl;
     MHTTree = new TTree("MHTTree", "MHTTree");
@@ -256,7 +249,7 @@ EL::StatusCode RandS :: histInitialize ()
 
     cout << MHTTree << endl;
     MHTTree->SetAutoSave(10000000000);
-    MHTTree->SetAutoFlush(1000000);
+    MHTTree->SetAutoFlush(100000000);
 
     // set branches for output tree
     MHTTree->Branch("HTreco",&HTreco);
@@ -280,6 +273,7 @@ EL::StatusCode RandS :: histInitialize ()
     MHTTree->Branch("MET_pt",&MET_pt);
     MHTTree->Branch("MET_phi",&MET_phi);
     MHTTree->Branch("Weight",&weight);
+	}
 
     return EL::StatusCode::SUCCESS;
 }
@@ -344,8 +338,8 @@ EL::StatusCode RandS :: initialize ()
         prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
     }
     else {
-        prw_conf = getTokens2(prw_file_,",");
-        //prw_conf.push_back(prw_file_);
+        //prw_conf = getTokens2(prw_file_,",");
+        prw_conf.push_back(prw_file_);
     }
     EL_RETURN_CHECK("initialize", objTool->setProperty("PRWConfigFiles", prw_conf) );
 
@@ -356,8 +350,8 @@ EL::StatusCode RandS :: initialize ()
         prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
 
     } else {
-        prw_lumicalc = getTokens2(ilumicalc_file_, ",");
-        //prw_lumicalc.push_back(ilumicalc_file_);
+        //prw_lumicalc = getTokens2(ilumicalc_file_, ",");
+        prw_lumicalc.push_back(ilumicalc_file_);
     }
     EL_RETURN_CHECK("initialize", objTool->setProperty("PRWLumiCalcFiles", prw_lumicalc) );
 
@@ -373,24 +367,24 @@ EL::StatusCode RandS :: initialize ()
     EL_RETURN_CHECK("initialize", objTool->initialize() );
 
     // GRL
-    m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-    const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
-    const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
-    std::vector<std::string> vecStringGRL;
-    vecStringGRL.push_back(fullGRLFilePath);
-    EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
-    EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
-    EL_RETURN_CHECK("initialize()",m_grl->initialize());
+    //m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+    //const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v62-pro18_DQDefects-00-01-02_PHYS_StandardGRL_All_Good.xml";
+    //const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
+    //std::vector<std::string> vecStringGRL;
+    //vecStringGRL.push_back(fullGRLFilePath);
+    //EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
+    //EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
+    //EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
 
     // initialize and configure the jet cleaning tool
-    m_jetCleaning = new JetCleaningTool("JetCleaning");
-    m_jetCleaning->msg().setLevel( MSG::DEBUG );
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty("DoUgly", false));
-    EL_RETURN_CHECK("initialize()",m_jetCleaning->initialize());
+    //m_jetCleaning = new JetCleaningTool("JetCleaning");
+    //m_jetCleaning->msg().setLevel( MSG::DEBUG );
+    //EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty( "CutLevel", "LooseBad"));
+    //EL_RETURN_CHECK("initialize()",m_jetCleaning->setProperty("DoUgly", false));
+    //EL_RETURN_CHECK("initialize()",m_jetCleaning->initialize());
 
     return EL::StatusCode::SUCCESS;
 }
@@ -500,13 +494,6 @@ EL::StatusCode RandS :: execute ()
         //std::cout << "eventWeight = " << eventWeight << std::endl;
     }
 
-    // if data check if event passes GRL
-    if(!isMC) { // it's data!
-        if(!m_grl->passRunLB(*eventInfo)) {
-            return EL::StatusCode::SUCCESS; // go to next event
-        }
-    } // end if not MC
-
     //------------------------------------------------------------
     // Apply event cleaning to remove events due to
     // problematic regions of the detector
@@ -515,7 +502,7 @@ EL::StatusCode RandS :: execute ()
     //------------------------------------------------------------
     // reject event if:
     if(!isMC) {
-        if(   (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error ) || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) ) )
+        if( (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error ) || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) ) )
         {
             return EL::StatusCode::SUCCESS; // go to the next event
         } // end if event flags check
@@ -523,14 +510,14 @@ EL::StatusCode RandS :: execute ()
     m_numCleanEvents++;
 
     // Electrons
-    //xAOD::ElectronContainer* electrons_nominal(0);
-    //xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
-    //EL_RETURN_CHECK("execute()", objTool->GetElectrons(electrons_nominal, electrons_nominal_aux) );
+    xAOD::ElectronContainer* electrons_nominal(0);
+    xAOD::ShallowAuxContainer* electrons_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetElectrons(electrons_nominal, electrons_nominal_aux) );
 
     // Photons
-    //xAOD::PhotonContainer* photons_nominal(0);
-    //xAOD::ShallowAuxContainer* photons_nominal_aux(0);
-    //EL_RETURN_CHECK("execute()", objTool->GetPhotons(photons_nominal,photons_nominal_aux) );
+    xAOD::PhotonContainer* photons_nominal(0);
+    xAOD::ShallowAuxContainer* photons_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetPhotons(photons_nominal,photons_nominal_aux) );
 
     // Muons
     xAOD::MuonContainer* muons_nominal(0);
@@ -553,10 +540,28 @@ EL::StatusCode RandS :: execute ()
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
 
-    //Call Overlap Removal
-    //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons_nominal, muons_nominal, jets) );
-    //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets,electrons_nominal,muons_nominal,0,0,true) );
-    EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,0,0,0,0,true) );
+    // Call Overlap Removal
+    //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons_nominal, muons_nominal, jets_nominal) );
+
+    //// muon veto
+    //for (const auto& mu : *muons_nominal) {
+    //	if mu->IsSignalMuon(){
+    //		Info("execute()", "Reject event because of an isolated muon");
+    //		return EL::StatusCode::SUCCESS;
+    //	}
+    //}
+
+    //// electron veto
+    //for (const auto& ele : *electrons_nominal) {
+    //	if ele->IsSignalMuon(){
+    //		Info("execute()", "Reject event because of an isolated electron");
+    //		return EL::StatusCode::SUCCESS;
+    //	}
+    //}
+
+    // Calculate MET
+    EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,electrons_nominal,muons_nominal,photons_nominal) );
+    //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal) );
 
     // get jet container of interest
     //const xAOD::JetContainer* jets = 0;
@@ -566,18 +571,33 @@ EL::StatusCode RandS :: execute ()
     const xAOD::TruthParticleContainer* genparticles = 0;
     EL_RETURN_CHECK("execute()", event->retrieve( genparticles, "TruthParticles"));
 
-    // loop over the emjets and reject events with at least one bad jet
-    xAOD::JetContainer::const_iterator jet_itr = jets_nominal->begin();
-    xAOD::JetContainer::const_iterator jet_end = jets_nominal->end();
-    for( ; jet_itr != jet_end; ++jet_itr ) {
-        if( !m_jetCleaning->accept( **jet_itr ) && (*jet_itr)->pt() > 20000.) {
-            Info("execute()", "Reject event because of a bad jet");
-            return EL::StatusCode::SUCCESS;
+    // loop over the emjets and reject events with at least one bad jet (ICHEP16 recommendations)
+    for ( const auto& jet : *jets_nominal) {
+        float jvt = jet->auxdata<float>("Jvt");
+        //float jvt = 1.;
+        if (jet->pt() > 20000. && jet->pt() < 60000. && fabs(jet->eta()) < 2.4) {
+            if (objTool->IsBadJet(*jet) && jvt > 0.11) {
+                Info("execute()", "Reject event because of a bad central jet");
+                return EL::StatusCode::SUCCESS;
+            }
+        }
+        if (jet->pt() > 20000. && jet->pt() < 60000. && fabs(jet->eta()) >= 2.4) {
+            if (objTool->IsBadJet(*jet)) {
+                Info("execute()", "Reject event because of a bad forward jet");
+                return EL::StatusCode::SUCCESS;
+            }
+        }
+        if (jet->pt() > 60000.) {
+            if (objTool->IsBadJet(*jet)) {
+                Info("execute()", "Reject event because of a bad high pT jet");
+                return EL::StatusCode::SUCCESS;
+            }
         }
     }
 
     // Fill truth jets to simplified jet container
     // add back neutrinos and muons to truth jets
+    // CAREFUL: for now particles can be assigned to more than one truth jet
     std::vector<myJet> Jets_gen;
     for ( const auto& genjet : *genjets ) {
         myJet newJet;
@@ -603,9 +623,12 @@ EL::StatusCode RandS :: execute ()
     GreaterByPt<myJet> ptComparator_;
     std::sort(Jets_gen.begin(), Jets_gen.end(), ptComparator_);
 
-    // Fill reco jets to simplified jet container
+    // Fill reco jets to simplified jet container (ICHEP16 recommendations)
     std::vector<myJet> Jets_rec;
     for ( const auto& jet : *jets_nominal) {
+        float jvt = jet->auxdata<float>("Jvt");
+        //float jvt = 1.;
+        if (jvt < 0.11 && jet->pt() < 60000. && fabs(jet->eta()) < 2.4 ) continue;
         myJet newJet;
         newJet.momentum = jet->p4();
         newJet.btag = false;
@@ -619,9 +642,9 @@ EL::StatusCode RandS :: execute ()
             bool muonAdded = false;
             for (vector<myJet>::iterator it = Jets_rec.begin(); (it != Jets_rec.end() && !muonAdded); ++it) {
                 if (muon->p4().DeltaR(it->momentum) < 0.4) {
-					//cout << "vorher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << endl;
+                    //cout << "vorher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << endl;
                     it->momentum += muon->p4();
-					//cout << "nacher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << endl;
+                    //cout << "nacher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << endl;
                     muonAdded = true;
                 }
             }
@@ -639,9 +662,27 @@ EL::StatusCode RandS :: execute ()
 
     LorentzVector METtotal(0,0,0,0);
     METtotal.SetPxPyPzE((*mettst_nominal)["Final"]->mpx(), (*mettst_nominal)["Final"]->mpy(), 0, (*mettst_nominal)["Final"]->met() );
+    //cout << "METtotal (pt, phi): " << METtotal.Pt() << ", " << METtotal.Phi() << endl;
+    LorentzVector METjet(0,0,0,0);
+    METjet.SetPxPyPzE((*mettst_nominal)["RefJet"]->mpx(), (*mettst_nominal)["RefJet"]->mpy(), 0, (*mettst_nominal)["RefJet"]->met() );
+    //cout << "METjet (pt, phi): " << METjet.Pt() << ", " << METjet.Phi() << endl;
+    //LorentzVector METtau(0,0,0,0);
+    //METtau.SetPxPyPzE((*mettst_nominal)["RefTau"]->mpx(), (*mettst_nominal)["RefTau"]->mpy(), 0, (*mettst_nominal)["RefTau"]->met() );
     LorentzVector METmuon(0,0,0,0);
-    METmuon.SetPxPyPzE((*mettst_nominal)["Muons"]->mpx(), (*mettst_nominal)["Muons"]->mpy(), 0, (*mettst_nominal)["Muons"]->met() );
+    //METmuon.SetPxPyPzE((*mettst_nominal)["Muons"]->mpx(), (*mettst_nominal)["Muons"]->mpy(), 0, (*mettst_nominal)["Muons"]->met() );
+    //cout << "METmuon (pt, phi): " << METmuon.Pt() << ", " << METmuon.Phi() << endl;
+    LorentzVector METele(0,0,0,0);
+    //METele.SetPxPyPzE((*mettst_nominal)["RefEle"]->mpx(), (*mettst_nominal)["RefEle"]->mpy(), 0, (*mettst_nominal)["RefEle"]->met() );
+    //cout << "METele (pt, phi): " << METele.Pt() << ", " << METele.Phi() << endl;
+    LorentzVector METgamma(0,0,0,0);
+    //METgamma.SetPxPyPzE((*mettst_nominal)["RefGamma"]->mpx(), (*mettst_nominal)["RefGamma"]->mpy(), 0, (*mettst_nominal)["RefGamma"]->met() );
+    //cout << "METgamma (pt, phi): " << METgamma.Pt() << ", " << METgamma.Phi() << endl;
+    LorentzVector METtrack(0,0,0,0);
+    //METtrack.SetPxPyPzE((*mettst_nominal)[5]->mpx(), (*mettst_nominal)[5]->mpy(), 0, (*mettst_nominal)[5]->met() );
+    //cout << "METtrack (pt, phi): " << METtrack.Pt() << ", " << METtrack.Phi() << endl;
+
     LorentzVector MET = METtotal - METmuon;
+    //LorentzVector MET = METtotal;
     LorentzVector METsoft = MET - vrecoMHTreb;
     calcPredictions(Jets_rec, MET, -2, eventWeight);
 
@@ -652,7 +693,8 @@ EL::StatusCode RandS :: execute ()
     if (storeMHTtree_ || useTrueMETsoftForRebalance_) {
         for ( const auto* it : *genparticles ) {
             if (it->pt() > 0. && it->status() == 1 && !(it->hasDecayVtx())) {
-                if (abs(it->pdgId()) == 13 || abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 ) vgenMET += it->p4();
+                if (abs(it->pdgId()) == 13 || abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 )
+                    vgenMET += it->p4();
                 //cout << "Pid, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << ", " << it->phi() << endl;
                 bool particleAdded = false;
                 for (vector<myJet>::iterator jt = Jets_rec.begin(); (jt != Jets_rec.end() && !particleAdded) ; ++jt) {
@@ -700,8 +742,10 @@ EL::StatusCode RandS :: execute ()
     MHTgenreb_phi = vgenMHTreb.Phi();
 
     METgen_pt = vgenMET.Pt();
+    //cout << "METgen_pt: " << METgen_pt << endl;
     METgen_phi = vgenMET.Phi();
     MHTtruereb_pt = vtrueMHTreb.Pt();
+    //cout << "MHTtruereb_pt: " << MHTtruereb_pt << endl;
     MHTtruereb_phi = vtrueMHTreb.Phi();
 
     // MET
@@ -712,32 +756,88 @@ EL::StatusCode RandS :: execute ()
         MHTTree->Fill();
     }
 
+
+    //// what is going on with soft and muonic MET term
+    if (( MET_pt>100000 || MHTreb_pt> 100000) && debug_ >= 1) {
+        cout << "MHTreb (pt, phi): " << MHTreb_pt << ", " << MHTreb_phi << endl;
+        cout << "METgamma (pt, phi): " << METgamma.Pt() << ", " << METgamma.Phi() << endl;
+        cout << "METele (pt, phi): " << METele.Pt() << ", " << METele.Phi() << endl;
+        cout << "METtrack (pt, phi): " << METtrack.Pt() << ", " << METtrack.Phi() << endl;
+        cout << "METmuon (pt, phi): " << METmuon.Pt() << ", " << METmuon.Phi() << endl;
+        cout << "METjet (pt, phi): " << METjet.Pt() << ", " << METjet.Phi() << endl;
+        cout << "METtotal (pt, phi): " << METtotal.Pt()<< ", " << METtotal.Phi() << endl;
+        int index = 0;
+        for ( const auto& jet : *jets_nominal) {
+            if (jet->pt() > 10000.) {
+                cout << "Jet (" << index << ") (pt, eta, phi): " << jet->pt() << ", " << jet->eta() << ", " << jet->phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for (vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            if (it->momentum.Pt() > 10000.) {
+                cout << "MyRecoJet (" << index << ") (pt, eta, phi): " << it->momentum.Pt() << ", " << it->momentum.Eta() << ", " << it->momentum.Phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for ( const auto& genjet : *genjets ) {
+            if (genjet->pt() > 10000.) {
+                cout << "GenJet (" << index << ") (pt, eta, phi): " << genjet->pt() << ", " << genjet->eta() << ", " << genjet->phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for (vector<myJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
+            if (it->momentum.Pt() > 10000.) {
+                cout << "MyGenJet (" << index << ") (pt, eta, phi): " << it->momentum.Pt() << ", " << it->momentum.Eta() << ", " << it->momentum.Phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for ( const auto& photon : *photons_nominal) {
+            if (photon->pt() > 5000.) {
+                cout << "Photon (" << index << ") (pt, eta, phi): " << photon->pt() << ", " << photon->eta() << ", " << photon->phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for ( const auto& muons : *muons_nominal) {
+            if (muons->pt() > 5000.) {
+                cout << "Muon (" << index << ") (pt, eta, phi): " << muons->pt() << ", " << muons->eta() << ", " << muons->phi() << endl;
+                ++index;
+            }
+        }
+        index = 0;
+        for ( const auto& electrons : *electrons_nominal) {
+            if (electrons->pt() > 5000.) {
+                cout << "Electrons (" << index << ") (pt, eta, phi): " << electrons->pt() << ", " << electrons->eta() << ", " << electrons->phi() << endl;
+                ++index;
+            }
+        }
+    }
+
     //
     // Rebalance multi jet system
     //
     bool isRebalanced = false;
 
-    if (HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_) {
+    if (Jets_rec.size() >= 2 && HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_) {
 
-        //cout << "HTSeed = " << HTSeed << endl;
-        //cout << "NJetSeed = " << NJetSeed << endl;
-
-        PredictionTree->Fill();
+        //// Save reco event information (this is the MC expectation, which is compared to the data driven prediction in a closure test)
+        double mjj = (Jets_rec.at(0).momentum + Jets_rec.at(1).momentum).M();
+        if( HT_pred > HTSave_ && MHT_pred > METSave_ && Njets_pred >= NJetsSave_ && mjj > MjjSave_)
+            PredictionTree->Fill();
 
         if (smearCollection_ == "Reco") {
-            if (Jets_rec.size() >= 2) {
-                //cout << "vtrueMHTreb (pt, phi): " << vtrueMHTreb.Pt() << ", " << vtrueMHTreb.Phi() << endl;
-                //cout << "METsoft (pt, phi): " << METsoft.Pt() << ", " << METsoft.Phi() << endl;
-                if (!useTrueMETsoftForRebalance_) {
-                    isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb, METsoft);
-                } else {
-                    isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb, vtrueMHTreb);
-                }
+            //cout << "vtrueMHTreb (pt, phi): " << vtrueMHTreb.Pt() << ", " << vtrueMHTreb.Phi() << endl;
+            //cout << "METsoft (pt, phi): " << METsoft.Pt() << ", " << METsoft.Phi() << endl;
+            if (!useTrueMETsoftForRebalance_) {
+                isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb, METsoft);
             } else {
-                cout << "Bad event: Not possible to rebalance becaue of too few jets!" << endl;
+                isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_reb, vtrueMHTreb);
             }
-
-            if (!isRebalanced && Jets_rec.size() > 2) {
+            if (!isRebalanced) {
                 cout << "Bad event: Not possible to rebalance!" << endl;
                 weight_ = 0;
             }
@@ -750,23 +850,20 @@ EL::StatusCode RandS :: execute ()
         }
 
         if (isRebalanced) {
-            calcPredictions(Jets_gen, vgenMET, -1, eventWeight);
-            //cout << "HTgen = " << HT_pred << endl;
-            //cout << "NJetgen = " << Njets_pred << endl;
-            PredictionTree->Fill();
 
-            LorentzVector MET_reb(0,0,0,0);
-            calcPredictions(Jets_reb, MET_reb, 0, eventWeight);
-            //cout << "HTreb = " << HT_pred << endl;
-            //cout << "NJetreb = " << Njets_pred << endl;
-            PredictionTree->Fill();
-        }
+            //// comment in, if you want to save truth event information
+            //calcPredictions(Jets_gen, vgenMET, -1, eventWeight);
+            //PredictionTree->Fill();
 
-        //
-        // Smear rebalanced multi jet system
-        //
-        if (doSmearing_) {
-            SmearingJets(Jets_reb, METsoft, eventWeight);
+            //// comment in, if you want to save rebalanced event information
+            //LorentzVector MET_reb(0,0,0,0);
+            //calcPredictions(Jets_reb, MET_reb, 0, eventWeight);
+            //PredictionTree->Fill();
+
+            //// Smear rebalanced multi jet system
+            if (doSmearing_) {
+                SmearingJets(Jets_reb, METsoft, eventWeight);
+            }
         }
 
     }
@@ -774,14 +871,14 @@ EL::StatusCode RandS :: execute ()
     // The containers created by the shallow copy are owned by you. Remember to delete them
     delete jets_nominal; // not these, we put them in the store!
     delete jets_nominal_aux;
-    // delete taus_nominal;
-    // delete taus_nominal_aux;
-    // delete muons_nominal;
-    // delete muons_nominal_aux;
-    // delete electrons_nominal;
-    // delete electrons_nominal_aux;
-    // delete photons_nominal;
-    // delete photons_nominal_aux;
+    //delete taus_nominal;
+    //delete taus_nominal_aux;
+    delete muons_nominal;
+    delete muons_nominal_aux;
+    delete electrons_nominal;
+    delete electrons_nominal_aux;
+    delete photons_nominal;
+    delete photons_nominal_aux;
     // delete metcst_nominal;
     // delete metcst_nominal_aux;
     delete mettst_nominal;
@@ -816,18 +913,22 @@ EL::StatusCode RandS :: finalize ()
 
     //xAOD::TEvent* event = wk()->xaodEvent();
 
+    // close our output file:
+    //TFile *file = wk()->getOutputFile(outputfile_);
+    //file->Close();
+
     Info("finalize()", "Number of clean events = %i", m_numCleanEvents);
 
     // GRL
-    if (m_grl) {
-        delete m_grl;
-        m_grl = 0;
-    }
+    //if (m_grl) {
+    //    delete m_grl;
+    //    m_grl = 0;
+    //}
 
-    if( m_jetCleaning ) {
-        delete m_jetCleaning;
-        m_jetCleaning = 0;
-    }
+    //if( m_jetCleaning ) {
+    //    delete m_jetCleaning;
+    //    m_jetCleaning = 0;
+    //}
     return EL::StatusCode::SUCCESS;
 }
 
@@ -871,7 +972,7 @@ bool RandS::IsReconstructed(const double& pt, const double& eta) {
     int i_Eta = GetIndex(eta, &EtaBinEdges_);
     int i_bin = smearFunc_->RecoEff_b.at(i_Eta)->GetXaxis()->FindBin(pt);
     double eff = 1.;
-    if (pt < 40.) {
+    if (pt < 1000000.) {
         eff = smearFunc_->RecoEff_nob.at(i_Eta)->GetBinContent(i_bin);
     }
     double random = rand_->Rndm();
@@ -1164,6 +1265,7 @@ bool RandS::RebalanceJets_KinFitter(std::vector<myJet> &Jets_rec, std::vector<my
 //--------------------------------------------------------------------------
 double RandS::GetRebalanceCorrection(double jet_pt, bool btag)
 {
+    //// FIX: GeV-MeV mixup
     if( jet_pt > 1000. ) jet_pt = 999.;
 
     if ( jet_pt > rebalancedJetPt_ ) {
@@ -1211,7 +1313,7 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, LorentzVector& vMETsoft, cons
         weight = w;
         if (cleverPrescaleTreating_ == true && weight > 1) {
             Ntries2 = (int) weight;
-            if (Ntries2 > 100) Ntries2 = 100;
+            if (Ntries2 > maxCleverWeight_) Ntries2 = maxCleverWeight_;
             weight = w / Ntries2;
         }
         for (int j = 1; j <= Ntries2; ++j) {
@@ -1272,7 +1374,14 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, LorentzVector& vMETsoft, cons
             LorentzVector vMETpred = calcMHT(Jets_smeared, 0., 5.) + vMETsoft;
             calcPredictions(Jets_smeared, vMETpred, i, weight);
 
-            if( HT_pred > HTSave_ && vMETpred.Pt() > METSave_ && Njets_pred >= NJetsSave_) {
+            double mjj = 0.;
+            if (Jets_smeared.size() > 1) {
+                mjj = (Jets_smeared.at(0).momentum + Jets_smeared.at(1).momentum).M();
+            }
+
+            //if( HT_pred > HTSave_ && vMETpred.Pt() > METSave_ && Njets_pred >= NJetsSave_ && mjj > MjjSave_) {
+            //// check MHT instead of MET
+            if( HT_pred > HTSave_ && MHT_pred > METSave_ && Njets_pred >= NJetsSave_ && mjj > MjjSave_) {
                 PredictionTree->Fill();
             }
 
@@ -1286,6 +1395,8 @@ void RandS::SmearingJets(std::vector<myJet> &Jets, LorentzVector& vMETsoft, cons
             MET_pred = 0.;
             JetPt_pred->clear();
             JetEta_pred->clear();
+            JetPhi_pred->clear();
+            JetM_pred->clear();
             DeltaPhi_pred->clear();
         }
     }
@@ -1328,17 +1439,32 @@ void RandS::calcPredictions(std::vector<myJet>& Jets, LorentzVector& vMET, const
 void RandS::calcLeadingJetPredictions(std::vector<myJet>& Jets, LorentzVector& vMHT) {
     int NJets = 0;
     for (vector<myJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
-        if (it->momentum.Pt() > JetsPt_ && std::abs(it->momentum.Eta()) < JetsEta_) {
+        //if (it->momentum.Pt() > JetsPt_ && std::abs(it->momentum.Eta()) < JetsEta_) {
+        //// Fill all leading jets to output ntuple, and not only those passing jet counting thresholds
+        if (it->momentum.Pt() > 0. && std::abs(it->momentum.Eta()) < 5.) {
             ++NJets;
 
             if( NJets <= NJetsStored_ ) {
                 JetPt_pred->push_back(it->momentum.Pt()/1000.);
                 JetEta_pred->push_back(it->momentum.Eta());
+                JetPhi_pred->push_back(it->momentum.Phi());
+                JetM_pred->push_back(it->momentum.M()/1000.);
                 double dphi = std::abs(it->momentum.DeltaPhi(vMHT));
                 DeltaPhi_pred->push_back(dphi);
             }
         }
     }
+    while ( NJets < NJetsStored_ ) {
+        ++NJets;
+        JetPt_pred->push_back(0.);
+        JetEta_pred->push_back(0.);
+        JetPhi_pred->push_back(0.);
+        JetM_pred->push_back(0.);
+        DeltaPhi_pred->push_back(999.);
+
+    }
+
+
     return;
 }
 //--------------------------------------------------------------------------

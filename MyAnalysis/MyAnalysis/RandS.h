@@ -4,6 +4,7 @@
 #include "MyAnalysis/SmearFunction.h"
 
 #include <EventLoop/Algorithm.h>
+
 #include "TRandom3.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -15,13 +16,17 @@
 #include "TMatrixD.h"
 
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
-#include "JetSelectorTools/JetCleaningTool.h"
+
 #include "SUSYTools/SUSYToolsDict.h"
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
+#include "SUSYTools/SUSYCrossSection.h"
 
+#include "TrigConfxAOD/xAODConfigTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 #include <memory>
-
+#include <vector>
+#include <string>
 
 
 class RandS : public EL::Algorithm
@@ -33,11 +38,14 @@ class RandS : public EL::Algorithm
 
         int m_eventCounter; //!
         int m_numCleanEvents; //!
-        GoodRunsListSelectionTool *m_grl; //!
-        JetCleaningTool *m_jetCleaning; //!
+        //GoodRunsListSelectionTool *m_grl; //!
+        //JetCleaningTool *m_jetCleaning; //!
    		ST::SUSYObjDef_xAOD *objTool; //!
 		std::string prw_file_;
 		std::string ilumicalc_file_;
+		// trigger tools member variables
+		Trig::TrigDecisionTool *m_trigDecisionTool; //!
+		TrigConf::xAODConfigTool *m_trigConfigTool; //!
 
         std::vector<double> PtBinEdges_;
         std::vector<double> EtaBinEdges_;
@@ -89,6 +97,7 @@ class RandS : public EL::Algorithm
         std::string METsoftResolutionFile_;
         bool useRebalanceCorrectionFactors_;
         bool useCleverRebalanceCorrectionFactors_;
+        double maxCleverWeight_;
         bool useMETsoftResolution_;
         bool useTrueMETsoftForRebalance_;
 
@@ -112,6 +121,7 @@ class RandS : public EL::Algorithm
         int NJetsSave_;
         double HTSave_;
         double METSave_;
+		double MjjSave_;
         
         UShort_t Njets_stored;
 
@@ -130,6 +140,20 @@ class RandS : public EL::Algorithm
             LorentzVector momentum;
             bool btag;
         } myJet;
+
+        typedef struct myPhoton {
+            LorentzVector momentum;
+        } myPhoton;
+
+        typedef struct myElectron {
+            LorentzVector momentum;
+            int charge;
+        } myElectron;
+
+        typedef struct myMuon {
+            LorentzVector momentum;
+            int charge;
+        } myMuon;
 
         TRandom3 *rand_; //!
         SmearFunction *smearFunc_; //!
@@ -179,6 +203,10 @@ class RandS : public EL::Algorithm
 		std::vector<Float_t> * JetPt_pred = &JetPt_p; //!
         std::vector<Float_t>  JetEta_p; //!
 		std::vector<Float_t> * JetEta_pred = &JetEta_p; //!
+        std::vector<Float_t>  JetPhi_p; //!
+		std::vector<Float_t> * JetPhi_pred = &JetPhi_p; //!
+        std::vector<Float_t>  JetM_p; //!
+		std::vector<Float_t> * JetM_pred = &JetM_p; //!
         std::vector<Float_t>  DeltaPhi_p; //!
 		std::vector<Float_t> * DeltaPhi_pred = &DeltaPhi_p; //!
         Float_t weight; //!
@@ -219,7 +247,6 @@ class RandS : public EL::Algorithm
         // this is needed to distribute the algorithm to the workers
         ClassDef(RandS, 1);
 };
-
 
 template<typename T>
 struct GreaterByPt {

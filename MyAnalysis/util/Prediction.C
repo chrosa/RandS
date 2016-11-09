@@ -24,13 +24,13 @@
 
 using namespace std;
 
-Prediction::Prediction(TChain& QCDPrediction)
+Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 {
     gROOT->ProcessLine("#include <vector>");
 
     // ------------- define all histos needed -------//
     // set histogram attributes
-    int Npseudo = 100;
+    int Npseudo = 10;
     int NbinsMHT = 100;
     int NbinsHT = 100;
     int NbinsJetPt = 100;
@@ -44,9 +44,12 @@ Prediction::Prediction(TChain& QCDPrediction)
     double JetEtamin = -5.;
     double JetEtamax = 5.;
 
-    double HTSave = 500;
+    double HTSave = 0;
     double METSave = 0;
-    int NJetsSave = 3;
+    double MHTjjSave = 150;
+    double MHTSave = 0;
+    double MjjSave = 600;
+    int NJetsSave = 0;
 
     // define prediction histograms
     // preselection
@@ -183,6 +186,14 @@ Prediction::Prediction(TChain& QCDPrediction)
     DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred_raw = new TH2F("baseline_withoutDeltaPhi_DeltaPhi1_JetBin4_prediction", "DeltaPhi1", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw = new TH2F("baseline_withoutDeltaPhi_DeltaPhi2_JetBin4_prediction", "DeltaPhi2", 100,  0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw = new TH2F("baseline_withoutDeltaPhi_DeltaPhi3_JetBin4_prediction", "DeltaPhi3", 100,  0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+
+    // Mjj
+    Mjj_pred_raw = new TH2F("Mjj_prediction", "Mjj_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    Mjj_3rdVeto_pred_raw = new TH2F("Mjj_3rdVeto_prediction", "Mjj_3rdVeto_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    Mjj_NoDeltaPhi_pred_raw = new TH2F("Mjj_NoDeltaPhi_prediction", "Mjj_NoDeltaPhi_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    Mjj_DPhiMHT_pred_raw = new TH2F("Mjj_DPhiMHT_prediction", "Mjj_DPhiMHT_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    Mjj_DPhiMHT_3rdVeto_pred_raw = new TH2F("Mjj_DPhiMHT_3rdVeto_prediction", "Mjj_DPhiMHT_3rdVeto_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    Mjj_DPhiMHT_NoDeltaPhi_pred_raw = new TH2F("Mjj_DPhiMHT_NoDeltaPhi_prediction", "Mjj_DPhiMHT_NoDeltaPhi_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
 
     // NJets
     NJets_baseline_withoutMET_pred_raw = new TH2F("NJets_baseline_withoutMET_pred", "NJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
@@ -336,6 +347,14 @@ Prediction::Prediction(TChain& QCDPrediction)
     DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel = new TH1F("baseline_withoutDeltaPhi_DeltaPhi2_JetBin4_selection", "DeltaPhi2", 100, 0., TMath::Pi());
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel = new TH1F("baseline_withoutDeltaPhi_DeltaPhi3_JetBin4_selection", "DeltaPhi3", 100, 0., TMath::Pi());
 
+    // Mjj
+    Mjj_sel = new TH1F("Mjj_sel", "Mjj_sel", NbinsHT, HTmin, HTmax);
+    Mjj_3rdVeto_sel = new TH1F("Mjj_3rdVeto_sel", "Mjj_3rdVeto_sel", NbinsHT, HTmin, HTmax);
+    Mjj_NoDeltaPhi_sel = new TH1F("Mjj_NoDeltaPhi_sel", "Mjj_NoDeltaPhi_sel", NbinsHT, HTmin, HTmax);
+    Mjj_DPhiMHT_sel = new TH1F("Mjj_DPhiMHT_sel", "Mjj_DPhiMHT_sel", NbinsHT, HTmin, HTmax);
+    Mjj_DPhiMHT_3rdVeto_sel = new TH1F("Mjj_DPhiMHT_3rdVeto_sel", "Mjj_DPhiMHT_3rdVeto_sel", NbinsHT, HTmin, HTmax);
+    Mjj_DPhiMHT_NoDeltaPhi_sel = new TH1F("Mjj_DPhiMHT_NoDeltaPhi_sel", "Mjj_DPhiMHT_NoDeltaPhi_sel", NbinsHT, HTmin, HTmax);
+
     // NJets
     NJets_baseline_withoutMET_sel = new TH1F("NJets_baseline_withoutMET_sel", "NJets baseline", 15, 0, 15);
     NJets_baseline_sel = new TH1F("NJets_baseline_sel", "NJets baseline", 15, 0, 15);
@@ -367,6 +386,8 @@ Prediction::Prediction(TChain& QCDPrediction)
     QCDPrediction.SetBranchAddress("MET",&MET);
     QCDPrediction.SetBranchAddress("JetPt",&JetPt);
     QCDPrediction.SetBranchAddress("JetEta",&JetEta);
+    QCDPrediction.SetBranchAddress("JetPhi",&JetPhi);
+    QCDPrediction.SetBranchAddress("JetM",&JetM);
     QCDPrediction.SetBranchAddress("DeltaPhi",&DeltaPhi);
 
     cout << "Needed trees are loaded!" << endl;
@@ -382,14 +403,56 @@ Prediction::Prediction(TChain& QCDPrediction)
 
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << " (" << 100*double(i)/nentries << "%)"<< '\n';
 
+        //cout << "Ntries: " << Ntries <<endl;
+
+        //cout << "Pt1, Pt2, Pt3: " << JetPt->at(0) << ", " << JetPt->at(1) << ", " << JetPt->at(2) << endl;
+        //cout << "Eta1, Eta2, Eta3: " << JetEta->at(0) << ", " << JetEta->at(1) << ", " << JetEta->at(2) << endl;
+        //cout << "Phi1, Phi2, Phi3: " << JetPhi->at(0) << ", " << JetPhi->at(1) << ", " << JetPhi->at(2) << endl;
+        //cout << "Ntries, weight: " << Ntries << ", " << weight << endl;
+
+        double Mjj = CalcMjj();
+        double MHTjj = CalcMHTjj();
+
         // apply some baseline cuts as used for storing in result tree
-        if( HT > HTSave && MET > METSave && NJets >= NJetsSave) {
+        if( HT > HTSave && MET > METSave && MHT > MHTSave && MHTjj > MHTjjSave && NJets >= NJetsSave && Mjj > MjjSave) {
+
+            double DPhiMHT = CalcDPhiMHT();
+            if (MjjJetSel() && MHTjj > 150.) {
+                if (Ntries > 0) {
+                    Mjj_NoDeltaPhi_pred_raw->Fill(Mjj, Ntries, weight);
+                    if (DPhiMHT > 1.) Mjj_DPhiMHT_NoDeltaPhi_pred_raw->Fill(Mjj, Ntries, weight);
+                } else if (Ntries == -2) {
+                    Mjj_NoDeltaPhi_sel->Fill(Mjj, weight);
+                    if (DPhiMHT > 1.) Mjj_DPhiMHT_NoDeltaPhi_sel->Fill(Mjj, weight);
+                }
+                if (CalcDeltaPhi() < 1.8 && CalcDeltaEta() > 4.6) {
+                    if (Ntries > 0) {
+                        Mjj_pred_raw->Fill(Mjj, Ntries, weight);
+                        if (DPhiMHT > 1.0) Mjj_DPhiMHT_pred_raw->Fill(Mjj, Ntries, weight);;
+                    } else if (Ntries == -2) {
+                        Mjj_sel->Fill(Mjj, weight);
+                        if (DPhiMHT > 1.0)  Mjj_DPhiMHT_sel->Fill(Mjj, weight);
+                    }
+                    if (Veto3rd()) {
+						//cout << "Pt1, Pt2, Pt3: " << JetPt->at(0) << ", " << JetPt->at(1) << ", " << JetPt->at(2) << endl;
+						//cout << "Eta1, Eta2, Eta3: " << JetEta->at(0) << ", " << JetEta->at(1) << ", " << JetEta->at(2) << endl;
+						//cout << "Phi1, Phi2, Phi3: " << JetPhi->at(0) << ", " << JetPhi->at(1) << ", " << JetPhi->at(2) << endl;
+                        if (Ntries > 0) {
+                            Mjj_3rdVeto_pred_raw->Fill(Mjj, Ntries, weight);
+                            if (DPhiMHT > 1.0) Mjj_DPhiMHT_3rdVeto_pred_raw->Fill(Mjj, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            Mjj_3rdVeto_sel->Fill(Mjj, weight);
+                            if (DPhiMHT > 1.0) Mjj_DPhiMHT_3rdVeto_sel->Fill(Mjj, weight);
+                        }
+                    }
+                }
+            }
 
             // ------------------------------------------------------------- //
             // fill preselection histos
             // ------------------------------------------------------------- //
 
-            if( NJets >=4 ) {
+            if( NJets >=2 ) {
                 if (Ntries > 0) {
                     HT_presel_pred_raw->Fill(HT, Ntries, weight);
                     MHT_presel_pred_raw->Fill(MHT, Ntries, weight);
@@ -946,6 +1009,13 @@ Prediction::Prediction(TChain& QCDPrediction)
     DoRebinning(DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw, DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel, 5);
     DoRebinning(DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw, DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel, 5);
 
+    DoRebinning(Mjj_pred_raw, Mjj_sel, -3);
+    DoRebinning(Mjj_3rdVeto_pred_raw, Mjj_3rdVeto_sel, -3);
+    DoRebinning(Mjj_NoDeltaPhi_pred_raw, Mjj_NoDeltaPhi_sel, 2);
+    DoRebinning(Mjj_DPhiMHT_pred_raw, Mjj_DPhiMHT_sel, -3);
+    DoRebinning(Mjj_DPhiMHT_3rdVeto_pred_raw, Mjj_DPhiMHT_3rdVeto_sel, -3);
+    DoRebinning(Mjj_DPhiMHT_NoDeltaPhi_pred_raw, Mjj_DPhiMHT_NoDeltaPhi_sel, 2);
+
     cout << "after rebinning all histograms" << endl;
     //----------------------------------------------------------//
 
@@ -1086,12 +1156,19 @@ Prediction::Prediction(TChain& QCDPrediction)
     NBJets_baseline_withoutDeltaPhi_withoutMET_pred = CalcPrediction(NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw);
     NBJets_baseline_withoutDeltaPhi_pred = CalcPrediction(NBJets_baseline_withoutDeltaPhi_pred_raw);
 
+    Mjj_pred = CalcPrediction( Mjj_pred_raw);
+    Mjj_3rdVeto_pred = CalcPrediction( Mjj_3rdVeto_pred_raw);
+    Mjj_NoDeltaPhi_pred = CalcPrediction( Mjj_NoDeltaPhi_pred_raw);
+    Mjj_DPhiMHT_pred = CalcPrediction( Mjj_DPhiMHT_pred_raw);
+    Mjj_DPhiMHT_3rdVeto_pred = CalcPrediction( Mjj_DPhiMHT_3rdVeto_pred_raw);
+    Mjj_DPhiMHT_NoDeltaPhi_pred = CalcPrediction( Mjj_DPhiMHT_NoDeltaPhi_pred_raw);
+
     cout << "after calculation of prediction" << endl;
     //----------------------------------------------------------//
 
     //----------------------------------------------------------//
     // write histos to file
-    TFile* prediction_histos = new TFile("output_GetPrediction/prediction_histos.root", "RECREATE");
+    TFile* prediction_histos = new TFile("output_GetPrediction/prediction_histos" + postfix + ".root", "RECREATE");
 
     // Save histograms: prediction
 
@@ -1226,6 +1303,13 @@ Prediction::Prediction(TChain& QCDPrediction)
     DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred->Write();
     DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred->Write();
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+
+    Mjj_pred->Write();
+    Mjj_3rdVeto_pred->Write();
+    Mjj_NoDeltaPhi_pred->Write();
+    Mjj_DPhiMHT_pred->Write();
+    Mjj_DPhiMHT_3rdVeto_pred->Write();
+    Mjj_DPhiMHT_NoDeltaPhi_pred->Write();
 
     cout << "after saving predictions" << endl;
 
@@ -1362,6 +1446,13 @@ Prediction::Prediction(TChain& QCDPrediction)
     DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel->Write();
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel->Write();
 
+    Mjj_sel->Write();
+    Mjj_3rdVeto_sel->Write();
+    Mjj_NoDeltaPhi_sel->Write();
+    Mjj_DPhiMHT_sel->Write();
+    Mjj_DPhiMHT_3rdVeto_sel->Write();
+    Mjj_DPhiMHT_NoDeltaPhi_sel->Write();
+
     cout << "after saving expectation" << endl;
 
     prediction_histos->Write();
@@ -1388,18 +1479,103 @@ bool Prediction::DeltaPhiCut()
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////////////
+double Prediction::CalcMHTjj() {
+    TLorentzVector v1(0., 0., 0., 0.);
+    v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
+    TLorentzVector v2(0., 0., 0., 0.);
+    v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    double result = (v1+v2).Pt();
+    //cout << "MHTjj: " << result << endl;
+
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+double Prediction::CalcMjj() {
+    TLorentzVector v1(0., 0., 0., 0.);
+    v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
+    TLorentzVector v2(0., 0., 0., 0.);
+    v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    //cout << "Mjj Jet1 (pT, eta, phi): " << v1.Pt() << ", " << v1.Eta() << ", " << v1.Phi() << endl;
+    //cout << "Mjj Jet2 (pT, eta, phi): " << v2.Pt() << ", " << v2.Eta() << ", " << v2.Phi() << endl;
+    double result = (v1+v2).M();
+    //cout << "Mjj: " << result << endl;
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+double Prediction::CalcDPhiMHT() {
+    TLorentzVector v1(0., 0., 0., 0.);
+    v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
+    TLorentzVector v2(0., 0., 0., 0.);
+    v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    TLorentzVector MHT(0., 0., 0., 0.);
+    MHT += v1;
+    MHT += v2;
+    double result = fabs(MHT.DeltaPhi(v1));
+    double result2 = fabs(MHT.DeltaPhi(v2));
+    if (result2 < result) result = result2;
+    //cout << "MHT Jet1 (pT, eta, phi): " << v1.Pt() << ", " << v1.Eta() << ", " << v1.Phi() << endl;
+    //cout << "MHT Jet2 (pT, eta, phi): " << v2.Pt() << ", " << v2.Eta() << ", " << v2.Phi() << endl;
+    //cout << "MHT Jet3 (pT, eta, phi): " << v3.Pt() << ", " << v3.Eta() << ", " << v3.Phi() << endl;
+    //cout << "DPhiMHT: " << result << endl;
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+double Prediction::CalcDeltaPhi() {
+    TLorentzVector v1(0., 0., 0., 0.);
+    v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
+    TLorentzVector v2(0., 0., 0., 0.);
+    v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    double result = v1.DeltaPhi(v2);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+double Prediction::CalcDeltaEta() {
+    TLorentzVector v1(0., 0., 0., 0.);
+    v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
+    TLorentzVector v2(0., 0., 0., 0.);
+    v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    double result = fabs(v1.Eta()-v2.Eta());
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+bool Prediction::Veto3rd() {
+    bool result = (JetPt->at(2) < 25.);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+bool Prediction::MjjJetSel() {
+    bool result = (JetPt->at(0) > 80. && JetPt->at(1) > 50.);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
 void Prediction::DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbins)
 {
-    //do some non-equidistant re-binning
-    if (Nbins < 0) {
 
-        // MHT & MET binning
+    TH2F* temp = (TH2F*) prediction_raw->Clone();
+
+    //do some non-equidistant re-binning
+
+    // MHT & MET binning
+    if (Nbins == -2) {
+
         int nbins = 16;
         double vbins[17] = { 0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 120., 150., 200., 250., 350., 500.};
 
-        TH2F* temp = (TH2F*) prediction_raw->Clone();
         prediction_raw->GetXaxis()->Set(nbins, &vbins[0]);
         for (int j = 0; j <= prediction_raw->GetYaxis()->GetNbins() + 1; ++j) {
             for (int i = 0; i <= prediction_raw->GetXaxis()->GetNbins() + 1; ++i) {
@@ -1416,6 +1592,7 @@ void Prediction::DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbin
                 int this_bin = prediction_raw->GetXaxis()->FindBin(temp->GetXaxis()->GetBinCenter(i));
                 if (this_bin > bin) {
                     double binWidth = prediction_raw->GetXaxis()->GetBinWidth(bin);
+                    binWidth = 1.; //// for event counts
                     prediction_raw->SetBinContent(bin, j, content/binWidth);
                     prediction_raw->SetBinError(bin, j, sqrt(sum2)/binWidth);
                     bin = this_bin;
@@ -1440,6 +1617,7 @@ void Prediction::DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbin
             int this_bin = selection_raw->GetXaxis()->FindBin(temp->GetXaxis()->GetBinCenter(i));
             if (this_bin > bin) {
                 double binWidth = selection_raw->GetXaxis()->GetBinWidth(bin);
+                binWidth = 1.; //// for event counts
                 selection_raw->SetBinContent(bin, content/binWidth);
                 selection_raw->SetBinError(bin, sqrt(sum2)/binWidth);
                 bin = this_bin;
@@ -1449,10 +1627,73 @@ void Prediction::DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbin
             content += temp2->GetBinContent(i);
         }
 
-    } else {
+    }
+
+    // Mjj binning
+    if (Nbins == -3) {
+
+        int nbins = 6;
+        double vbins[7] = { 0., 600., 1000., 1500., 2000., 5000., 5500.};
+
+        prediction_raw->GetXaxis()->Set(nbins, &vbins[0]);
+        for (int j = 0; j <= prediction_raw->GetYaxis()->GetNbins() + 1; ++j) {
+            for (int i = 0; i <= prediction_raw->GetXaxis()->GetNbins() + 1; ++i) {
+                prediction_raw->SetBinContent(i, j, 0);
+                prediction_raw->SetBinError(i, j, 0);
+            }
+        }
+
+        //loop over y-axis
+        for (int j = 1; j < temp->GetYaxis()->GetNbins() + 1; ++j) {
+            int bin = 0;
+            double sum2 = 0., content = 0.;
+            for (int i = 0; i <= temp->GetXaxis()->GetNbins() + 1; ++i) {
+                int this_bin = prediction_raw->GetXaxis()->FindBin(temp->GetXaxis()->GetBinCenter(i));
+                if (this_bin > bin) {
+                    double binWidth = prediction_raw->GetXaxis()->GetBinWidth(bin);
+                    binWidth = 1.;
+                    prediction_raw->SetBinContent(bin, j, content/binWidth);
+                    prediction_raw->SetBinError(bin, j, sqrt(sum2)/binWidth);
+                    bin = this_bin;
+                    sum2 = content = 0.;
+                }
+                sum2 += pow(temp->GetBinError(i, j), 2);
+                content += temp->GetBinContent(i, j);
+            }
+
+        }
+
+        TH1F* temp2 = (TH1F*) selection_raw->Clone();
+        selection_raw->GetXaxis()->Set(nbins, &vbins[0]);
+        for (int i = 0; i <= selection_raw->GetXaxis()->GetNbins() + 1; ++i) {
+            selection_raw->SetBinContent(i, 0);
+            selection_raw->SetBinError(i, 0);
+        }
+
+        int bin = 0;
+        double sum2 = 0., content = 0.;
+        for (int i = 0; i <= temp2->GetXaxis()->GetNbins() + 1; ++i) {
+            int this_bin = selection_raw->GetXaxis()->FindBin(temp->GetXaxis()->GetBinCenter(i));
+            if (this_bin > bin) {
+                double binWidth = selection_raw->GetXaxis()->GetBinWidth(bin);
+                binWidth = 1.;
+                selection_raw->SetBinContent(bin, content/binWidth);
+                selection_raw->SetBinError(bin, sqrt(sum2)/binWidth);
+                bin = this_bin;
+                sum2 = content = 0.;
+            }
+            sum2 += pow(temp2->GetBinError(i), 2);
+            content += temp2->GetBinContent(i);
+        }
+
+    }
+
+    // standard equidistant re-binning
+    if (Nbins > 0) {
         prediction_raw->Rebin2D(Nbins, 1);
         selection_raw->Rebin(Nbins);
     }
+
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1472,7 +1713,6 @@ TH1F* Prediction::CalcPrediction(TH2F* prediction_raw) {
 
         //// Calculate mean
         for (int j = 1; j <= h.GetNbinsX(); ++j) {
-            //for (int j = 501; j <= 1000; ++j) {
             summ += h.GetBinContent(j);
             ++N;
         }
@@ -1480,11 +1720,9 @@ TH1F* Prediction::CalcPrediction(TH2F* prediction_raw) {
 
         //// Calculated variance
         for (int j = 1; j <= h.GetNbinsX(); ++j) {
-            //for (int j = 501; j <= 1000; ++j) {
             sumv += pow(mean - h.GetBinContent(j), 2);
         }
         double variance = sqrt(sumv / N);
-        //cout << "i, mean, variance: " << i << " " << mean << " " << variance << endl;
 
         prediction->SetBinContent(i, mean);
         prediction->SetBinError(i, variance);
@@ -1633,6 +1871,13 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "NBJets_baseline_withoutDeltaPhi_withoutMET") return NBJets_baseline_withoutDeltaPhi_withoutMET_sel;
     if ( type == "NBJets_baseline_withoutDeltaPhi") return NBJets_baseline_withoutDeltaPhi_sel;
 
+    if ( type == "Mjj") return Mjj_sel;
+    if ( type == "Mjj_3rdVeto") return Mjj_3rdVeto_sel;
+    if ( type == "Mjj_NoDeltaPhi") return Mjj_NoDeltaPhi_sel;
+    if ( type == "Mjj_DPhiMHT") return Mjj_DPhiMHT_sel;
+    if ( type == "Mjj_DPhiMHT_3rdVeto") return Mjj_DPhiMHT_3rdVeto_sel;
+    if ( type == "Mjj_DPhiMHT_NoDeltaPhi") return Mjj_DPhiMHT_NoDeltaPhi_sel;
+
     else {
         cout << "Error: No valid hist type" << endl;
         return dummy;
@@ -1778,6 +2023,13 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "NBJets_baseline") return NBJets_baseline_pred;
     if ( type == "NBJets_baseline_withoutDeltaPhi_withoutMET") return NBJets_baseline_withoutDeltaPhi_withoutMET_pred;
     if ( type == "NBJets_baseline_withoutDeltaPhi") return NBJets_baseline_withoutDeltaPhi_pred;
+
+    if ( type == "Mjj") return Mjj_pred;
+    if ( type == "Mjj_3rdVeto") return Mjj_3rdVeto_pred;
+    if ( type == "Mjj_NoDeltaPhi") return Mjj_NoDeltaPhi_pred;
+    if ( type == "Mjj_DPhiMHT") return Mjj_DPhiMHT_pred;
+    if ( type == "Mjj_DPhiMHT_3rdVeto") return Mjj_DPhiMHT_3rdVeto_pred;
+    if ( type == "Mjj_DPhiMHT_NoDeltaPhi") return Mjj_DPhiMHT_NoDeltaPhi_pred;
 
     else {
         cout << "Error: No valid hist type" << endl;

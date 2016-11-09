@@ -6,8 +6,8 @@ void RandSRun( const std::string& submitDir ) {
     // Construct the samples to run on:
     SH::SampleHandler sh;
 
-	//SH::readFileList (sh, "sample", "filelist_input_pythia_test.txt");
-	SH::readFileList (sh, "sample", "filelist_input_AOD.txt");
+	SH::readFileList (sh, "sample", "filelist_input_pythia_test.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_AOD.txt");
 
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.

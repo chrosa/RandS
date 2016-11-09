@@ -32,12 +32,12 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
     double MaxY = prediction->GetBinContent(prediction->GetMaximumBin());
     double MaxYsel = selection->GetBinContent(selection->GetMaximumBin());
     if (MaxY < MaxYsel) MaxY = MaxYsel;
-    double YRangeMax = 2.*pow(10., int(log10(MaxY))+2);
+    double YRangeMax = 2.*pow(10., int(log10(MaxY))+3);
     double MinY = prediction->GetBinContent(prediction->GetMinimumBin());
     double MinYsel = selection->GetBinContent(selection->GetMinimumBin());
     if (MinY > MinYsel) MinY = MinYsel;
-    if (MinY < 0.001) MinY = 0.001;
-    double YRangeMin = 0.5*pow(10., int(log10(MinY))-2);
+    if (MinY < 0.1) MinY = 0.1;
+    double YRangeMin = 0.5*pow(10., int(log10(MinY))-0);
     TString titlePrediction;
     TString titleSelection;
     TString RatioTitle;
@@ -48,11 +48,11 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
         RatioTitle = "(Pred-Data)/Data";
     }
     else {
-        //titlePrediction = "Data-driven Pred. from MC";
-        titlePrediction = "Smeared Generator Jets";
+        titlePrediction = "Data-driven Pred. from MC";
+        //titlePrediction = "Smeared Generator Jets";
         titleSelection = "MC Expectation";
-        //RatioTitle = "(Pred-MC)/MC";
-        RatioTitle = "(Gen-MC)/MC";
+        RatioTitle = "(Pred-MC)/MC";
+        //RatioTitle = "(Gen-MC)/MC";
     }
 
     static Int_t c_LightBrown = TColor::GetColor( "#D9D9CC" );
@@ -224,7 +224,7 @@ int main()
     string root_file;
     TChain* prediction = new TChain("PredictionTree");
 
-    ifstream myfile1 ("filelist.txt");
+    ifstream myfile1 ("filelist_RnS_data_all.txt");
 
     if (myfile1.is_open()) {
         while( myfile1.good() ) {
@@ -243,26 +243,16 @@ int main()
 
     // initialize new Prediction object
     Prediction *pred_;
-    bool isData = false;
+    bool isData = true;
+    TString postfix = "_MyTestData_DPhiMHTinvJet_v2";
 
-    pred_ = new Prediction(*prediction);
+    pred_ = new Prediction(*prediction, postfix);
 
     cout << "after prediction in main" << endl;
 
     TString LumiTitle;
-    if( isData ) LumiTitle = "ATLAS preliminary, L = x.yz fb^{  -1}, #sqrt{s} = 13 TeV";
-    else LumiTitle = "Simulation, L = 10 fb^{  -1}, #sqrt{s} = 13 TeV";
-
-    //TString postfix = "_RandS_Reb20_Smear0_EffEmuTrue_noRebCorr_v1";
-    //TString postfix = "_RandS_test_smearedMETSoftReb";
-    //TString postfix = "_RandS_test_METSoftRebZero";
-    //TString postfix = "_RandS_test_trueMETSoftReb";
-    //TString postfix = "_RandS_test_smearedMETSoftReb_minus";
-    //TString postfix = "_MHThigh_pt20_METsoft_v1";
-    //TString postfix = "_trueMETsoft_pt20_v2";
-    //TString postfix = "_GenSmearing_METsoftMHT20_v1";
-    //TString postfix = "_GenSmearing_MHT20_RecoEffEmu_v1";
-    TString postfix = "_test_v1";
+    if( isData ) LumiTitle = "ATLAS internal, L = x.yz fb^{  -1}, #sqrt{s} = 13 TeV";
+    else LumiTitle = "Simulation, L = 30 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");
@@ -366,6 +356,19 @@ int main()
     xTitle_baseline_withoutDeltaPhi_Bin4.push_back("#Delta#phi 2");
     xTitle_baseline_withoutDeltaPhi_Bin4.push_back("#Delta#phi 3");
 
+    vector<TString> xTitle_Mjj_NoDeltaPhi;
+	xTitle_Mjj_NoDeltaPhi.push_back("M(j_{1},j_{2}) (GeV)");
+    vector<TString> xTitle_Mjj;
+	xTitle_Mjj.push_back("M(j_{1},j_{2}) (GeV)");
+    vector<TString> xTitle_Mjj_3rdVeto;
+	xTitle_Mjj_3rdVeto.push_back("M(j_{1},j_{2}) (GeV)");
+    vector<TString> xTitle_Mjj_DPhiMHT_NoDeltaPhi;
+	xTitle_Mjj_DPhiMHT_NoDeltaPhi.push_back("M(j_{1},j_{2}) (GeV)");
+    vector<TString> xTitle_Mjj_DPhiMHT;
+	xTitle_Mjj_DPhiMHT.push_back("M(j_{1},j_{2}) (GeV)");
+    vector<TString> xTitle_Mjj_DPhiMHT_3rdVeto;
+	xTitle_Mjj_DPhiMHT_3rdVeto.push_back("M(j_{1},j_{2}) (GeV)");
+	
     vector<TString> hist_type_presel;
     hist_type_presel.push_back("HT_presel");
     hist_type_presel.push_back("MHT_presel");
@@ -468,11 +471,86 @@ int main()
     hist_type_baseline_withoutDeltaPhi_Bin4.push_back("DeltaPhi2_JetBin4_baseline_withoutDeltaPhi");
     hist_type_baseline_withoutDeltaPhi_Bin4.push_back("DeltaPhi3_JetBin4_baseline_withoutDeltaPhi");
 
+    vector<TString> hist_type_Mjj_NoDeltaPhi;
+    hist_type_Mjj_NoDeltaPhi.push_back("Mjj_NoDeltaPhi");
+    vector<TString> hist_type_Mjj;
+    hist_type_Mjj.push_back("Mjj");
+    vector<TString> hist_type_Mjj_3rdVeto;
+    hist_type_Mjj_3rdVeto.push_back("Mjj_3rdVeto");
+    vector<TString> hist_type_Mjj_DPhiMHT_NoDeltaPhi;
+    hist_type_Mjj_DPhiMHT_NoDeltaPhi.push_back("Mjj_DPhiMHT_NoDeltaPhi");
+    vector<TString> hist_type_Mjj_DPhiMHT;
+    hist_type_Mjj_DPhiMHT.push_back("Mjj_DPhiMHT");
+    vector<TString> hist_type_Mjj_DPhiMHT_3rdVeto;
+    hist_type_Mjj_DPhiMHT_3rdVeto.push_back("Mjj_DPhiMHT_3rdVeto");
+    
     // --------------------------------------------------------------------------------------------- //
-    // plots for preselection (2 jets)
+    // plots for Mjj
     TString Title;
     TString yTitle = "Events";
-    Title = ">=4 jets";
+    Title = ">=2 jets, MHT(jj) > 150 GeV";
+
+    if( hist_type_Mjj.size() != xTitle_Mjj.size() ) cout << "Error: Missing xTitles Mjj!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj.at(i)), pred_->GetSelectionHisto(hist_type_Mjj.at(i)), Title, LumiTitle, xTitle_Mjj.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj.at(i) + postfix + ".pdf");
+    }
+
+    yTitle = "Events";
+    Title = ">=2 jets, MHT(jj) > 150 GeV, no #Delta#phi and #Delta#eta cut";
+
+    if( hist_type_Mjj_NoDeltaPhi.size() != xTitle_Mjj_NoDeltaPhi.size() ) cout << "Error: Missing xTitles Mjj_NoDeltaPhi!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj_NoDeltaPhi.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj_NoDeltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_Mjj_NoDeltaPhi.at(i)), Title, LumiTitle, xTitle_Mjj_NoDeltaPhi.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj_NoDeltaPhi.at(i) + postfix + ".pdf");
+    }
+
+    yTitle = "Events";
+    Title = "2 jets, MHT(jj) > 150 GeV";
+
+    if( hist_type_Mjj_3rdVeto.size() != xTitle_Mjj_3rdVeto.size() ) cout << "Error: Missing xTitles Mjj_3rdVeto!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj_3rdVeto.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj_3rdVeto.at(i)), pred_->GetSelectionHisto(hist_type_Mjj_3rdVeto.at(i)), Title, LumiTitle, xTitle_Mjj_3rdVeto.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj_3rdVeto.at(i) + postfix + ".pdf");
+    }
+
+    yTitle = "Events";
+    Title = ">=2 jets, MHT(jj) > 150 GeV, #Delta#Phi(MHT(jj),j)>0.5";
+
+   if( hist_type_Mjj_DPhiMHT.size() != xTitle_Mjj.size() ) cout << "Error: Missing xTitles Mjj_DPhiMHT!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj_DPhiMHT.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj_DPhiMHT.at(i)), pred_->GetSelectionHisto(hist_type_Mjj_DPhiMHT.at(i)), Title, LumiTitle, xTitle_Mjj_DPhiMHT.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj_DPhiMHT.at(i) + postfix + ".pdf");
+    }
+
+    yTitle = "Events";
+    Title = ">=2 jets, MHT(jj) > 150 GeV, no #Delta#phi and #Delta#eta cut, #Delta#Phi(MHT(jj),j)>0.5";
+
+    if( hist_type_Mjj_DPhiMHT_NoDeltaPhi.size() != xTitle_Mjj_DPhiMHT_NoDeltaPhi.size() ) cout << "Error: Missing xTitles Mjj_DPhiMHT_NoDeltaPhi!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj_DPhiMHT_NoDeltaPhi.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj_DPhiMHT_NoDeltaPhi.at(i)), pred_->GetSelectionHisto(hist_type_Mjj_DPhiMHT_NoDeltaPhi.at(i)), Title, LumiTitle, xTitle_Mjj_DPhiMHT_NoDeltaPhi.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj_DPhiMHT_NoDeltaPhi.at(i) + postfix + ".pdf");
+    }
+
+    yTitle = "Events";
+    Title = "2 jets, MHT(jj) > 150 GeV, #Delta#Phi(MHT(jj),j)>0.5";
+
+    if( hist_type_Mjj_DPhiMHT_3rdVeto.size() != xTitle_Mjj_DPhiMHT_3rdVeto.size() ) cout << "Error: Missing xTitles Mjj_DPhiMHT_3rdVeto!!" << endl;
+
+    for(int i = 0; i < hist_type_Mjj_DPhiMHT_3rdVeto.size(); i++ ) {
+        TCanvas *c = DrawComparison( pred_->GetPredictionHisto(hist_type_Mjj_DPhiMHT_3rdVeto.at(i)), pred_->GetSelectionHisto(hist_type_Mjj_DPhiMHT_3rdVeto.at(i)), Title, LumiTitle, xTitle_Mjj_DPhiMHT_3rdVeto.at(i), yTitle, isData);
+        c->Print("output_GetPrediction/" + hist_type_Mjj_DPhiMHT_3rdVeto.at(i) + postfix + ".pdf");
+    }
+
+   // --------------------------------------------------------------------------------------------- //
+    // plots for preselection (2 jets)
+    yTitle = "Events";
+    Title = ">=2 jets";
 
     if( hist_type_presel.size() != xTitle_presel.size() ) cout << "Error: Missing xTitles preselection!!" << endl;
 
@@ -483,15 +561,15 @@ int main()
 
     // --------------------------------------------------------------------------------------------- //
     // deltaPhi after preselection
-    Title = ">=4 jets";
+    Title = ">=2 jets";
     TCanvas *c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi1_presel"), pred_->GetSelectionHisto("DeltaPhi1_presel"), Title, LumiTitle,"#Delta#phi (jet1, MET)", yTitle, isData);
     c->Print("output_GetPrediction/DeltaPhi1_presel" + postfix + ".pdf");
 
-    Title = ">=4 jets";
+    Title = ">=2 jets";
     c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi2_presel"), pred_->GetSelectionHisto("DeltaPhi2_presel"), Title, LumiTitle,"#Delta#phi (jet2, MET)", yTitle, isData);
     c->Print("output_GetPrediction/DeltaPhi2_presel" + postfix + ".pdf");
 
-    Title = ">=4 jets";
+    Title = ">=2 jets";
     c =  DrawComparison( pred_->GetPredictionHisto("DeltaPhi3_presel"), pred_->GetSelectionHisto("DeltaPhi3_presel"), Title, LumiTitle,"#Delta#phi (jet3, MET)", yTitle, isData);
     c->Print("output_GetPrediction/DeltaPhi3_presel" + postfix + ".pdf");
 

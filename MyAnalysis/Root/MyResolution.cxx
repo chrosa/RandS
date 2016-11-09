@@ -97,7 +97,9 @@ MyResolution :: MyResolution ():
     EtaBinEdges.push_back(0.7);
     EtaBinEdges.push_back(1.3);
     EtaBinEdges.push_back(1.8);
+    EtaBinEdges.push_back(2.5);
     EtaBinEdges.push_back(3.2);
+    EtaBinEdges.push_back(4.0);
     EtaBinEdges.push_back(5.0);
 
     //// Array of histograms for jet resolutions (all jet multiplicities)

@@ -2,6 +2,8 @@
 
 #include <MyAnalysis/MyResolution.h>
 
+#include <MyAnalysis/NtupleMaker.h>
+
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -17,4 +19,8 @@
 
 #ifdef __CINT__
 #pragma link C++ class RandS+;
+#endif
+
+#ifdef __CINT__
+#pragma link C++ class NtupleMaker+;
 #endif

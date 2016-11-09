@@ -2,6 +2,7 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TLorentzVector.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -14,7 +15,7 @@ using namespace std;
 class Prediction {
 
     public:
-        Prediction (TChain&);
+        Prediction (TChain&, TString);
         ~Prediction();
 
         TH1F* GetSelectionHisto(TString type);
@@ -33,6 +34,8 @@ class Prediction {
         Float_t MET;
         std::vector<Float_t> *JetPt;
         std::vector<Float_t> *JetEta;
+        std::vector<Float_t> *JetPhi;
+        std::vector<Float_t> *JetM;
         std::vector<Float_t> *DeltaPhi;
 
         // store deltaPhi cut
@@ -66,6 +69,14 @@ class Prediction {
         TH2F* Jet1Eta_deltaPhi_pred_raw;
         TH2F* Jet2Eta_deltaPhi_pred_raw;
         TH2F* Jet3Eta_deltaPhi_pred_raw;
+
+        // Mjj
+        TH2F* Mjj_pred_raw;
+        TH2F* Mjj_3rdVeto_pred_raw;
+        TH2F* Mjj_NoDeltaPhi_pred_raw;
+        TH2F* Mjj_DPhiMHT_pred_raw;
+        TH2F* Mjj_DPhiMHT_3rdVeto_pred_raw;
+        TH2F* Mjj_DPhiMHT_NoDeltaPhi_pred_raw;
 
         // NJets
         TH2F* NJets_baseline_withoutMET_pred_raw;
@@ -227,6 +238,14 @@ class Prediction {
         TH1F* Jet1Eta_deltaPhi_pred;
         TH1F* Jet2Eta_deltaPhi_pred;
         TH1F* Jet3Eta_deltaPhi_pred;
+
+        // Mjj
+        TH1F* Mjj_pred;
+        TH1F* Mjj_3rdVeto_pred;
+        TH1F* Mjj_NoDeltaPhi_pred;
+        TH1F* Mjj_DPhiMHT_pred;
+        TH1F* Mjj_DPhiMHT_3rdVeto_pred;
+        TH1F* Mjj_DPhiMHT_NoDeltaPhi_pred;
 
         // NJets
         TH1F* NJets_baseline_withoutMET_pred;
@@ -392,6 +411,14 @@ class Prediction {
         TH1F* Jet2Eta_deltaPhi_sel;
         TH1F* Jet3Eta_deltaPhi_sel;
 
+        // Mjj
+        TH1F* Mjj_sel;
+        TH1F* Mjj_3rdVeto_sel;
+        TH1F* Mjj_NoDeltaPhi_sel;
+        TH1F* Mjj_DPhiMHT_sel;
+        TH1F* Mjj_DPhiMHT_3rdVeto_sel;
+        TH1F* Mjj_DPhiMHT_NoDeltaPhi_sel;
+
         // NJets
         TH1F* NJets_baseline_withoutMET_sel;
         TH1F* NJets_baseline_sel;
@@ -534,6 +561,13 @@ class Prediction {
         bool DeltaPhiCut();
         void DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbins);
         TH1F* CalcPrediction(TH2F* prediction_raw);
+        double CalcMHTjj();
+        double CalcMjj();
+        double CalcDeltaPhi();
+        double CalcDeltaEta();
+        double CalcDPhiMHT();
+        bool Veto3rd();
+        bool MjjJetSel();
 
 };
 
