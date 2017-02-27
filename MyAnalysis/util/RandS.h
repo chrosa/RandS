@@ -83,9 +83,11 @@ class RandS : public TSelector {
         double rebalancedJetPt_;
         std::string rebalanceMode_; // "MHTall", "MHThigh" or "METsoft" only for smearCollection = "Reco"
         std::string METsoftResolutionFile_;
+        std::string triggerTurnOnFile_;
         double maxCleverWeight_;
         bool useMETsoftResolution_;
         bool useTrueMETsoftForRebalance_;
+        bool useTriggerTurnOn_;
 
         double JetsHTPt_, JetsHTEta_;
         double JetsMHTPt_, JetsMHTEta_;
@@ -97,6 +99,8 @@ class RandS : public TSelector {
 
         double HTSeed;
         int NJetSeed;
+        double MHTSeedMax_;
+        double MHTSigSeedMax_;
         double HTSeedMin_;
         int NJetsSeedMin_;
         bool doSmearing_;
@@ -110,6 +114,8 @@ class RandS : public TSelector {
         double MHTSave_;
         double MHTjjSave_;
         double MjjSave_;
+        double dPhiSave_;
+        double jet3PtSave_;
 
         UShort_t Njets_stored;
 
@@ -215,11 +221,18 @@ class RandS : public TSelector {
         void calcLeadingJetPredictions(std::vector<MyJet>&, TLorentzVector&);
         double calcMjj(std::vector<MyJet>&);
         double calcMHTjj(std::vector<MyJet>&);
+        double calcDPhijj(std::vector<MyJet>&);
+        double calcJet3Pt(std::vector<MyJet>&);
+        bool calcMjjSeed(std::vector<MyJet>&, const float&, const float&, const float&);
 
         bool RebalanceJets_KinFitter(std::vector<MyJet>&, std::vector<MyJet>&, TLorentzVector&);
         void SmearingJets(std::vector<MyJet>&, TLorentzVector&, const float&);
 
         std::map <const MyJet*, bool> genJet_btag;
+
+		TH2F* h_MHTvsHT_all;
+        TH2F* h_MHTvsHT_triggered;
+        TH2F* h_MHTvsHT_eff;
 
         TH2F* h_METsoft_Pt, *h_METsoft_Phi;
         vector <TH1D*> h_METsoft_Pt_px;
@@ -244,6 +257,7 @@ class RandS : public TSelector {
         std::vector<Float_t>  DeltaPhi_p;
         std::vector<Float_t> * DeltaPhi_pred = &DeltaPhi_p;
         Float_t weight;
+        Float_t triggerWeight;
 
         //ClassDef(RandS,0);
 

@@ -7,7 +7,8 @@ void NtupleMakerNafSubmit( const std::string& submitDir ) {
     SH::SampleHandler sh;
 
 	SH::readFileList (sh, "sample", "filelist_input_pythia.txt");
-
+	//SH::readFileList (sh, "sample", "filelist_input_dataK.txt");
+    
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.
     sh.setMetaString( "nc_tree", "CollectionTree" );
@@ -21,7 +22,7 @@ void NtupleMakerNafSubmit( const std::string& submitDir ) {
     job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
     job.options()->setDouble (EL::Job::optMaxEvents, -1);
     job.options()->setDouble(EL::Job::optFilesPerWorker, 5);
-	job.options()->setString(EL::Job::optSubmitFlags, "-o /nfs/dust/atlas/user/csander/logs -e /nfs/dust/atlas/user/csander/logs -S /bin/bash -l h_cpu=12:00:00 -l h_vmem=4000M -l distro=sld6");
+	job.options()->setString(EL::Job::optSubmitFlags, "-o /nfs/dust/atlas/user/csander/logs -e /nfs/dust/atlas/user/csander/logs -S /bin/bash -l h_cpu=48:00:00 -l h_vmem=4000M -l distro=sld6");
 
 
     // Add our analysis to the job:

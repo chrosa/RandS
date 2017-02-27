@@ -28,7 +28,8 @@ class Prediction {
         Int_t Ntries;
         UShort_t NJets;
         UShort_t BTags;
-        Float_t weight;
+        Float_t weight0;
+        Float_t triggerWeight;
         Float_t HT;
         Float_t MHT;
         Float_t MET;
@@ -71,12 +72,75 @@ class Prediction {
         TH2F* Jet3Eta_deltaPhi_pred_raw;
 
         // Mjj
-        TH2F* Mjj_pred_raw;
-        TH2F* Mjj_3rdVeto_pred_raw;
-        TH2F* Mjj_NoDeltaPhi_pred_raw;
-        TH2F* Mjj_DPhiMHT_pred_raw;
-        TH2F* Mjj_DPhiMHT_3rdVeto_pred_raw;
-        TH2F* Mjj_DPhiMHT_NoDeltaPhi_pred_raw;
+        TH2F* VBF_dPhi_presel_pred_raw;
+        TH2F* VBF_dEta_presel_pred_raw;
+        TH2F* VBF_Mjj_presel_pred_raw;
+        TH2F* VBF_Jet1Pt_presel_pred_raw;
+        TH2F* VBF_Jet2Pt_presel_pred_raw;
+        TH2F* VBF_Jet3Pt_presel_pred_raw;
+        TH2F* VBF_Jet1Eta_presel_pred_raw;
+        TH2F* VBF_Jet2Eta_presel_pred_raw;
+        TH2F* VBF_Jet3Eta_presel_pred_raw;
+        TH2F* VBF_PTjj_presel_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_presel_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_presel_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_presel_pred_raw;
+
+        TH2F* VBF_dPhi_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_dEta_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Mjj_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet1Pt_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet2Pt_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet3Pt_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet1Eta_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_PTjj_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw;
+
+        TH2F* VBF_dPhi_dEta_pred_raw;
+        TH2F* VBF_dEta_dEta_pred_raw;
+        TH2F* VBF_Mjj_dEta_pred_raw;
+        TH2F* VBF_Jet1Pt_dEta_pred_raw;
+        TH2F* VBF_Jet2Pt_dEta_pred_raw;
+        TH2F* VBF_Jet3Pt_dEta_pred_raw;
+        TH2F* VBF_Jet1Eta_dEta_pred_raw;
+        TH2F* VBF_Jet2Eta_dEta_pred_raw;
+        TH2F* VBF_Jet3Eta_dEta_pred_raw;
+        TH2F* VBF_PTjj_dEta_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_dEta_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_dEta_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_dEta_pred_raw;
+
+        TH2F* VBF_dPhi_dEta_3JV_pred_raw;
+        TH2F* VBF_dEta_dEta_3JV_pred_raw;
+        TH2F* VBF_Mjj_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet1Pt_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet2Pt_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet3Pt_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet1Eta_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet2Eta_dEta_3JV_pred_raw;
+        TH2F* VBF_Jet3Eta_dEta_3JV_pred_raw;
+        TH2F* VBF_PTjj_dEta_3JV_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_dEta_3JV_pred_raw;
+
+        TH2F* VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw;
 
         // NJets
         TH2F* NJets_baseline_withoutMET_pred_raw;
@@ -240,12 +304,75 @@ class Prediction {
         TH1F* Jet3Eta_deltaPhi_pred;
 
         // Mjj
-        TH1F* Mjj_pred;
-        TH1F* Mjj_3rdVeto_pred;
-        TH1F* Mjj_NoDeltaPhi_pred;
-        TH1F* Mjj_DPhiMHT_pred;
-        TH1F* Mjj_DPhiMHT_3rdVeto_pred;
-        TH1F* Mjj_DPhiMHT_NoDeltaPhi_pred;
+        TH1F* VBF_dPhi_presel_pred;
+        TH1F* VBF_dEta_presel_pred;
+        TH1F* VBF_Mjj_presel_pred;
+        TH1F* VBF_Jet1Pt_presel_pred;
+        TH1F* VBF_Jet2Pt_presel_pred;
+        TH1F* VBF_Jet3Pt_presel_pred;
+        TH1F* VBF_Jet1Eta_presel_pred;
+        TH1F* VBF_Jet2Eta_presel_pred;
+        TH1F* VBF_Jet3Eta_presel_pred;
+        TH1F* VBF_PTjj_presel_pred;
+        TH1F* VBF_minDeltaPhiPTj12_presel_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_presel_pred;
+        TH1F* VBF_DeltaPhiPTj3_presel_pred;
+
+        TH1F* VBF_dPhi_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_dEta_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Mjj_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet1Pt_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet2Pt_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet3Pt_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet1Eta_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet2Eta_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_Jet3Eta_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_PTjj_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred;
+
+		TH1F* VBF_dPhi_dEta_pred;
+        TH1F* VBF_dEta_dEta_pred;
+        TH1F* VBF_Mjj_dEta_pred;
+        TH1F* VBF_Jet1Pt_dEta_pred;
+        TH1F* VBF_Jet2Pt_dEta_pred;
+        TH1F* VBF_Jet3Pt_dEta_pred;
+        TH1F* VBF_Jet1Eta_dEta_pred;
+        TH1F* VBF_Jet2Eta_dEta_pred;
+        TH1F* VBF_Jet3Eta_dEta_pred;
+        TH1F* VBF_PTjj_dEta_pred;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_pred;
+        TH1F* VBF_DeltaPhiPTj3_dEta_pred;
+
+        TH1F* VBF_dPhi_dEta_3JV_pred;
+        TH1F* VBF_dEta_dEta_3JV_pred;
+        TH1F* VBF_Mjj_dEta_3JV_pred;
+        TH1F* VBF_Jet1Pt_dEta_3JV_pred;
+        TH1F* VBF_Jet2Pt_dEta_3JV_pred;
+        TH1F* VBF_Jet3Pt_dEta_3JV_pred;
+        TH1F* VBF_Jet1Eta_dEta_3JV_pred;
+        TH1F* VBF_Jet2Eta_dEta_3JV_pred;
+        TH1F* VBF_Jet3Eta_dEta_3JV_pred;
+        TH1F* VBF_PTjj_dEta_3JV_pred;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_3JV_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_3JV_pred;
+        TH1F* VBF_DeltaPhiPTj3_dEta_3JV_pred;
+
+        TH1F* VBF_dPhi_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_dEta_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Mjj_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_PTjj_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred;
 
         // NJets
         TH1F* NJets_baseline_withoutMET_pred;
@@ -412,12 +539,75 @@ class Prediction {
         TH1F* Jet3Eta_deltaPhi_sel;
 
         // Mjj
-        TH1F* Mjj_sel;
-        TH1F* Mjj_3rdVeto_sel;
-        TH1F* Mjj_NoDeltaPhi_sel;
-        TH1F* Mjj_DPhiMHT_sel;
-        TH1F* Mjj_DPhiMHT_3rdVeto_sel;
-        TH1F* Mjj_DPhiMHT_NoDeltaPhi_sel;
+        TH1F* VBF_dPhi_presel_sel;
+        TH1F* VBF_dEta_presel_sel;
+        TH1F* VBF_Mjj_presel_sel;
+        TH1F* VBF_Jet1Pt_presel_sel;
+        TH1F* VBF_Jet2Pt_presel_sel;
+        TH1F* VBF_Jet3Pt_presel_sel;
+        TH1F* VBF_Jet1Eta_presel_sel;
+        TH1F* VBF_Jet2Eta_presel_sel;
+        TH1F* VBF_Jet3Eta_presel_sel;
+        TH1F* VBF_PTjj_presel_sel;
+        TH1F* VBF_minDeltaPhiPTj12_presel_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_presel_sel;
+        TH1F* VBF_DeltaPhiPTj3_presel_sel;
+
+        TH1F* VBF_dPhi_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_dEta_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Mjj_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet1Pt_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet2Pt_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet3Pt_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet1Eta_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet2Eta_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_Jet3Eta_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_PTjj_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel;
+
+        TH1F* VBF_dPhi_dEta_sel;
+        TH1F* VBF_dEta_dEta_sel;
+        TH1F* VBF_Mjj_dEta_sel;
+        TH1F* VBF_Jet1Pt_dEta_sel;
+        TH1F* VBF_Jet2Pt_dEta_sel;
+        TH1F* VBF_Jet3Pt_dEta_sel;
+        TH1F* VBF_Jet1Eta_dEta_sel;
+        TH1F* VBF_Jet2Eta_dEta_sel;
+        TH1F* VBF_Jet3Eta_dEta_sel;
+        TH1F* VBF_PTjj_dEta_sel;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_sel;
+        TH1F* VBF_DeltaPhiPTj3_dEta_sel;
+
+        TH1F* VBF_dPhi_dEta_3JV_sel;
+        TH1F* VBF_dEta_dEta_3JV_sel;
+        TH1F* VBF_Mjj_dEta_3JV_sel;
+        TH1F* VBF_Jet1Pt_dEta_3JV_sel;
+        TH1F* VBF_Jet2Pt_dEta_3JV_sel;
+        TH1F* VBF_Jet3Pt_dEta_3JV_sel;
+        TH1F* VBF_Jet1Eta_dEta_3JV_sel;
+        TH1F* VBF_Jet2Eta_dEta_3JV_sel;
+        TH1F* VBF_Jet3Eta_dEta_3JV_sel;
+        TH1F* VBF_PTjj_dEta_3JV_sel;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_3JV_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_3JV_sel;
+        TH1F* VBF_DeltaPhiPTj3_dEta_3JV_sel;
+
+        TH1F* VBF_dPhi_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_dEta_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Mjj_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_PTjj_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel;
 
         // NJets
         TH1F* NJets_baseline_withoutMET_sel;
@@ -565,8 +755,10 @@ class Prediction {
         double CalcMjj();
         double CalcDeltaPhi();
         double CalcDeltaEta();
-        double CalcDPhiMHT();
+        bool CalcDPhiMHT(double& DPhiMHTmin, double& DPhiMHTmax, double& DPhiMHT3);
         bool Veto3rd();
+        bool Veto4th();
+        bool Soft3rd();
         bool MjjJetSel();
 
 };

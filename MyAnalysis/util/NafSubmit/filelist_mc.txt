@@ -1,12 +1,5 @@
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000129.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000130.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000131.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000132.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000133.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000134.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000135.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000136.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000137.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000138.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000139.NtupleMaker.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_data16_v4/user.csander.NtupleMaker_v5.periodG.grp16_v01_p2769_NtupleMaker.root/user.csander.9809314._000140.NtupleMaker.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataK_v1/fetch/data-NtupleMaker/sample-96.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataK_v1/fetch/data-NtupleMaker/sample-97.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataK_v1/fetch/data-NtupleMaker/sample-98.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataK_v1/fetch/data-NtupleMaker/sample-99.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataK_v1/fetch/data-NtupleMaker/sample-9.root

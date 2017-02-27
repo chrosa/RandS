@@ -41,6 +41,8 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double HTmax = 5000.;
     double JetPtmin = 0.;
     double JetPtmax = 2500.;
+    double JetVBFPtmin = 0.;
+    double JetVBFPtmax = 500.;
     double JetEtamin = -5.;
     double JetEtamax = 5.;
 
@@ -49,7 +51,12 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double MHTjjSave = 150;
     double MHTSave = 0;
     double MjjSave = 600;
+    double dPhijjSave = 2.6;
     int NJetsSave = 0;
+
+    bool blindSR = true;
+    bool VBF = true;
+    bool HTMHT = false;
 
     // define prediction histograms
     // preselection
@@ -188,12 +195,75 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw = new TH2F("baseline_withoutDeltaPhi_DeltaPhi3_JetBin4_prediction", "DeltaPhi3", 100,  0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
 
     // Mjj
-    Mjj_pred_raw = new TH2F("Mjj_prediction", "Mjj_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
-    Mjj_3rdVeto_pred_raw = new TH2F("Mjj_3rdVeto_prediction", "Mjj_3rdVeto_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
-    Mjj_NoDeltaPhi_pred_raw = new TH2F("Mjj_NoDeltaPhi_prediction", "Mjj_NoDeltaPhi_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
-    Mjj_DPhiMHT_pred_raw = new TH2F("Mjj_DPhiMHT_prediction", "Mjj_DPhiMHT_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
-    Mjj_DPhiMHT_3rdVeto_pred_raw = new TH2F("Mjj_DPhiMHT_3rdVeto_prediction", "Mjj_DPhiMHT_3rdVeto_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
-    Mjj_DPhiMHT_NoDeltaPhi_pred_raw = new TH2F("Mjj_DPhiMHT_NoDeltaPhi_prediction", "Mjj_DPhiMHT_NoDeltaPhi_prediction", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dPhi_presel_pred_raw = new TH2F("VBF_dPhi_presel_prediction","dPhi", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dEta_presel_pred_raw = new TH2F("VBF_dEta_presel_prediction","dEta", 100, 0., 10., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Mjj_presel_pred_raw = new TH2F("VBF_Mjj_presel_prediction","Mjj", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Pt_presel_pred_raw = new TH2F("VBF_Jet1Pt_presel_prediction","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Pt_presel_pred_raw = new TH2F("VBF_Jet2Pt_presel_prediction","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Pt_presel_pred_raw = new TH2F("VBF_Jet3Pt_presel_prediction","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Eta_presel_pred_raw = new TH2F("VBF_Jet1Eta_presel_prediction","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Eta_presel_pred_raw = new TH2F("VBF_Jet2Eta_presel_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Eta_presel_pred_raw = new TH2F("VBF_Jet3Eta_presel_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_PTjj_presel_pred_raw = new TH2F("VBF_PTjj_presel_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_minDeltaPhiPTj12_presel_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_presel_prediction","minDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_maxDeltaPhiPTj12_presel_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_presel_prediction","maxDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_DeltaPhiPTj3_presel_pred_raw = new TH2F("VBF_DeltaPhiPTj3_presel_prediction","DeltaPhiPTj3", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+
+    VBF_dPhi_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_dPhi_presel_4JV_dPhiSide_prediction","dPhi", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dEta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_dEta_presel_4JV_dPhiSide_prediction","dEta", 100, 0., 10., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Mjj_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Mjj_presel_4JV_dPhiSide_prediction","Mjj", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Pt_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet1Pt_presel_4JV_dPhiSide_prediction","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Pt_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet2Pt_presel_4JV_dPhiSide_prediction","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Pt_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet3Pt_presel_4JV_dPhiSide_prediction","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Eta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet1Eta_presel_4JV_dPhiSide_prediction","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet2Eta_presel_4JV_dPhiSide_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet3Eta_presel_4JV_dPhiSide_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_PTjj_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_PTjj_presel_4JV_dPhiSide_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_prediction","minDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_prediction","maxDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_prediction","DeltaPhiPTj3", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+
+    VBF_dPhi_dEta_pred_raw = new TH2F("VBF_dPhi_dEta_prediction","dPhi", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dEta_dEta_pred_raw = new TH2F("VBF_dEta_dEta_prediction","dEta", 100, 0., 10., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Mjj_dEta_pred_raw = new TH2F("VBF_Mjj_dEta_prediction","Mjj", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Pt_dEta_pred_raw = new TH2F("VBF_Jet1Pt_dEta_prediction","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Pt_dEta_pred_raw = new TH2F("VBF_Jet2Pt_dEta_prediction","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Pt_dEta_pred_raw = new TH2F("VBF_Jet3Pt_dEta_prediction","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Eta_dEta_pred_raw = new TH2F("VBF_Jet1Eta_dEta_prediction","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Eta_dEta_pred_raw = new TH2F("VBF_Jet2Eta_dEta_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Eta_dEta_pred_raw = new TH2F("VBF_Jet3Eta_dEta_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_PTjj_dEta_pred_raw = new TH2F("VBF_PTjj_dEta_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_minDeltaPhiPTj12_dEta_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_prediction","minDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_maxDeltaPhiPTj12_dEta_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_prediction","maxDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_DeltaPhiPTj3_dEta_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_prediction","DeltaPhiPTj3", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+
+    VBF_dPhi_dEta_3JV_pred_raw = new TH2F("VBF_dPhi_dEta_3JV_prediction","dPhi", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dEta_dEta_3JV_pred_raw = new TH2F("VBF_dEta_dEta_3JV_prediction","dEta", 100, 0., 10., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Mjj_dEta_3JV_pred_raw = new TH2F("VBF_Mjj_dEta_3JV_prediction","Mjj", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Pt_dEta_3JV_pred_raw = new TH2F("VBF_Jet1Pt_dEta_3JV_prediction","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Pt_dEta_3JV_pred_raw = new TH2F("VBF_Jet2Pt_dEta_3JV_prediction","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Pt_dEta_3JV_pred_raw = new TH2F("VBF_Jet3Pt_dEta_3JV_prediction","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Eta_dEta_3JV_pred_raw = new TH2F("VBF_Jet1Eta_dEta_3JV_prediction","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Eta_dEta_3JV_pred_raw = new TH2F("VBF_Jet2Eta_dEta_3JV_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Eta_dEta_3JV_pred_raw = new TH2F("VBF_Jet3Eta_dEta_3JV_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_PTjj_dEta_3JV_pred_raw = new TH2F("VBF_PTjj_dEta_3JV_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_3JV_prediction","minDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_3JV_prediction","maxDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_DeltaPhiPTj3_dEta_3JV_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_3JV_prediction","DeltaPhiPTj3", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+
+    VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_dPhi_dEta_3JV_dPhiPTjj_prediction","dPhi", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_dEta_dEta_3JV_dPhiPTjj_prediction","dEta", 100, 0., 10., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Mjj_dEta_3JV_dPhiPTjj_prediction","Mjj", NbinsHT, HTmin, HTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet1Pt_dEta_3JV_dPhiPTjj_prediction","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet2Pt_dEta_3JV_dPhiPTjj_prediction","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet3Pt_dEta_3JV_dPhiPTjj_prediction","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2., Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet1Eta_dEta_3JV_dPhiPTjj_prediction","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet2Eta_dEta_3JV_dPhiPTjj_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet3Eta_dEta_3JV_dPhiPTjj_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_PTjj_dEta_3JV_dPhiPTjj_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_prediction","minDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_prediction","maxDeltaPhiPTj12", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
+    VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_prediction","DeltaPhiPTj3", 100, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
 
     // NJets
     NJets_baseline_withoutMET_pred_raw = new TH2F("NJets_baseline_withoutMET_pred", "NJets baseline", 15, 0, 15, Npseudo, 0.5, Npseudo + 0.5);
@@ -348,12 +418,75 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel = new TH1F("baseline_withoutDeltaPhi_DeltaPhi3_JetBin4_selection", "DeltaPhi3", 100, 0., TMath::Pi());
 
     // Mjj
-    Mjj_sel = new TH1F("Mjj_sel", "Mjj_sel", NbinsHT, HTmin, HTmax);
-    Mjj_3rdVeto_sel = new TH1F("Mjj_3rdVeto_sel", "Mjj_3rdVeto_sel", NbinsHT, HTmin, HTmax);
-    Mjj_NoDeltaPhi_sel = new TH1F("Mjj_NoDeltaPhi_sel", "Mjj_NoDeltaPhi_sel", NbinsHT, HTmin, HTmax);
-    Mjj_DPhiMHT_sel = new TH1F("Mjj_DPhiMHT_sel", "Mjj_DPhiMHT_sel", NbinsHT, HTmin, HTmax);
-    Mjj_DPhiMHT_3rdVeto_sel = new TH1F("Mjj_DPhiMHT_3rdVeto_sel", "Mjj_DPhiMHT_3rdVeto_sel", NbinsHT, HTmin, HTmax);
-    Mjj_DPhiMHT_NoDeltaPhi_sel = new TH1F("Mjj_DPhiMHT_NoDeltaPhi_sel", "Mjj_DPhiMHT_NoDeltaPhi_sel", NbinsHT, HTmin, HTmax);
+    VBF_dPhi_presel_sel = new TH1F("VBF_dPhi_presel_selection","dPhi", 100, 0., TMath::Pi());
+    VBF_dEta_presel_sel = new TH1F("VBF_dEta_presel_selection","dEta", 100, 0., 10.);
+    VBF_Mjj_presel_sel = new TH1F("VBF_Mjj_presel_selection","Mjj", NbinsHT, HTmin, HTmax);
+    VBF_Jet1Pt_presel_sel = new TH1F("VBF_Jet1Pt_presel_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet2Pt_presel_sel = new TH1F("VBF_Jet2Pt_presel_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_presel_sel = new TH1F("VBF_Jet3Pt_presel_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2.);
+    VBF_Jet1Eta_presel_sel = new TH1F("VBF_Jet1Eta_presel_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet2Eta_presel_sel = new TH1F("VBF_Jet2Eta_presel_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet3Eta_presel_sel = new TH1F("VBF_Jet3Eta_presel_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_PTjj_presel_sel = new TH1F("VBF_PTjj_presel_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_minDeltaPhiPTj12_presel_sel = new TH1F("VBF_minDeltaPhiPTj12_presel_selection","minDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_maxDeltaPhiPTj12_presel_sel = new TH1F("VBF_maxDeltaPhiPTj12_presel_selection","maxDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_DeltaPhiPTj3_presel_sel = new TH1F("VBF_DeltaPhiPTj3_presel_selection","DeltaPhiPTj3", 100, 0., TMath::Pi());
+
+    VBF_dPhi_presel_4JV_dPhiSide_sel = new TH1F("VBF_dPhi_presel_4JV_dPhiSide_selection","dPhi", 100, 0., TMath::Pi());
+    VBF_dEta_presel_4JV_dPhiSide_sel = new TH1F("VBF_dEta_presel_4JV_dPhiSide_selection","dEta", 100, 0., 10.);
+    VBF_Mjj_presel_4JV_dPhiSide_sel = new TH1F("VBF_Mjj_presel_4JV_dPhiSide_selection","Mjj", NbinsHT, HTmin, HTmax);
+    VBF_Jet1Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet1Pt_presel_4JV_dPhiSide_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet2Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet2Pt_presel_4JV_dPhiSide_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Pt_presel_4JV_dPhiSide_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet1Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet1Eta_presel_4JV_dPhiSide_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet2Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet2Eta_presel_4JV_dPhiSide_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet3Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Eta_presel_4JV_dPhiSide_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_PTjj_presel_4JV_dPhiSide_sel = new TH1F("VBF_PTjj_presel_4JV_dPhiSide_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel = new TH1F("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_selection","minDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel = new TH1F("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_selection","maxDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel = new TH1F("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_selection","DeltaPhiPTj3", 100, 0., TMath::Pi());
+
+    VBF_dPhi_dEta_sel = new TH1F("VBF_dPhi_dEta_selection","dPhi", 100, 0., TMath::Pi());
+    VBF_dEta_dEta_sel = new TH1F("VBF_dEta_dEta_selection","dEta", 100, 0., 10.);
+    VBF_Mjj_dEta_sel = new TH1F("VBF_Mjj_dEta_selection","Mjj", NbinsHT, HTmin, HTmax);
+    VBF_Jet1Pt_dEta_sel = new TH1F("VBF_Jet1Pt_dEta_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet2Pt_dEta_sel = new TH1F("VBF_Jet2Pt_dEta_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_dEta_sel = new TH1F("VBF_Jet3Pt_dEta_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2.);
+    VBF_Jet1Eta_dEta_sel = new TH1F("VBF_Jet1Eta_dEta_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet2Eta_dEta_sel = new TH1F("VBF_Jet2Eta_dEta_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet3Eta_dEta_sel = new TH1F("VBF_Jet3Eta_dEta_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_PTjj_dEta_sel = new TH1F("VBF_PTjj_dEta_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_minDeltaPhiPTj12_dEta_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_selection","minDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_maxDeltaPhiPTj12_dEta_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_selection","maxDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_DeltaPhiPTj3_dEta_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_selection","DeltaPhiPTj3", 100, 0., TMath::Pi());
+
+    VBF_dPhi_dEta_3JV_sel = new TH1F("VBF_dPhi_dEta_3JV_selection","dPhi", 100, 0., TMath::Pi());
+    VBF_dEta_dEta_3JV_sel = new TH1F("VBF_dEta_dEta_3JV_selection","dEta", 100, 0., 10.);
+    VBF_Mjj_dEta_3JV_sel = new TH1F("VBF_Mjj_dEta_3JV_selection","Mjj", NbinsHT, HTmin, HTmax);
+    VBF_Jet1Pt_dEta_3JV_sel = new TH1F("VBF_Jet1Pt_dEta_3JV_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet2Pt_dEta_3JV_sel = new TH1F("VBF_Jet2Pt_dEta_3JV_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_dEta_3JV_sel = new TH1F("VBF_Jet3Pt_dEta_3JV_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2.);
+    VBF_Jet1Eta_dEta_3JV_sel = new TH1F("VBF_Jet1Eta_dEta_3JV_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet2Eta_dEta_3JV_sel = new TH1F("VBF_Jet2Eta_dEta_3JV_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet3Eta_dEta_3JV_sel = new TH1F("VBF_Jet3Eta_dEta_3JV_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_PTjj_dEta_3JV_sel = new TH1F("VBF_PTjj_dEta_3JV_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_minDeltaPhiPTj12_dEta_3JV_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_3JV_selection","minDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_maxDeltaPhiPTj12_dEta_3JV_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_3JV_selection","maxDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_DeltaPhiPTj3_dEta_3JV_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_3JV_selection","DeltaPhiPTj3", 100, 0., TMath::Pi());
+
+    VBF_dPhi_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_dPhi_dEta_3JV_dPhiPTjj_selection","dPhi", 100, 0., TMath::Pi());
+    VBF_dEta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_dEta_dEta_3JV_dPhiPTjj_selection","dEta", 100, 0., 10.);
+    VBF_Mjj_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Mjj_dEta_3JV_dPhiPTjj_selection","Mjj", NbinsHT, HTmin, HTmax);
+    VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet1Pt_dEta_3JV_dPhiPTjj_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet2Pt_dEta_3JV_dPhiPTjj_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet3Pt_dEta_3JV_dPhiPTjj_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2.);
+    VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet1Eta_dEta_3JV_dPhiPTjj_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet2Eta_dEta_3JV_dPhiPTjj_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet3Eta_dEta_3JV_dPhiPTjj_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
+    VBF_PTjj_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_PTjj_dEta_3JV_dPhiPTjj_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_selection","minDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_selection","maxDeltaPhiPTj12", 100, 0., TMath::Pi());
+    VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_selection","DeltaPhiPTj3", 100, 0., TMath::Pi());
 
     // NJets
     NJets_baseline_withoutMET_sel = new TH1F("NJets_baseline_withoutMET_sel", "NJets baseline", 15, 0, 15);
@@ -380,7 +513,8 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     QCDPrediction.SetBranchAddress("Ntries",&Ntries);
     QCDPrediction.SetBranchAddress("NJets",&NJets);
     QCDPrediction.SetBranchAddress("BTags",&BTags);
-    QCDPrediction.SetBranchAddress("Weight",&weight);
+    QCDPrediction.SetBranchAddress("Weight",&weight0);
+    QCDPrediction.SetBranchAddress("TriggerWeight",&triggerWeight);
     QCDPrediction.SetBranchAddress("HT",&HT);
     QCDPrediction.SetBranchAddress("MHT",&MHT);
     QCDPrediction.SetBranchAddress("MET",&MET);
@@ -401,480 +535,631 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         QCDPrediction.GetEntry(i);
         if (i == 0 ) cout << "loaded first event successfully!" << endl;
 
+        float weight = weight0 * triggerWeight;
+
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << " (" << 100*double(i)/nentries << "%)"<< '\n';
-
-        //cout << "Ntries: " << Ntries <<endl;
-
-        //cout << "Pt1, Pt2, Pt3: " << JetPt->at(0) << ", " << JetPt->at(1) << ", " << JetPt->at(2) << endl;
-        //cout << "Eta1, Eta2, Eta3: " << JetEta->at(0) << ", " << JetEta->at(1) << ", " << JetEta->at(2) << endl;
-        //cout << "Phi1, Phi2, Phi3: " << JetPhi->at(0) << ", " << JetPhi->at(1) << ", " << JetPhi->at(2) << endl;
-        //cout << "Ntries, weight: " << Ntries << ", " << weight << endl;
 
         double Mjj = CalcMjj();
         double MHTjj = CalcMHTjj();
 
         // apply some baseline cuts as used for storing in result tree
-        if( HT > HTSave && MET > METSave && MHT > MHTSave && MHTjj > MHTjjSave && NJets >= NJetsSave && Mjj > MjjSave) {
+        if( HT > HTSave && MET > METSave && MHT > MHTSave && MHTjj > MHTjjSave && NJets >= NJetsSave && Mjj > MjjSave && CalcDeltaPhi() < dPhijjSave) {
 
-            double DPhiMHT = CalcDPhiMHT();
-            if (MjjJetSel() && MHTjj > 150.) {
-                if (Ntries > 0) {
-                    Mjj_NoDeltaPhi_pred_raw->Fill(Mjj, Ntries, weight);
-                    if (DPhiMHT > 1.) Mjj_DPhiMHT_NoDeltaPhi_pred_raw->Fill(Mjj, Ntries, weight);
-                } else if (Ntries == -2) {
-                    Mjj_NoDeltaPhi_sel->Fill(Mjj, weight);
-                    if (DPhiMHT > 1.) Mjj_DPhiMHT_NoDeltaPhi_sel->Fill(Mjj, weight);
-                }
-                if (CalcDeltaPhi() < 1.8 && CalcDeltaEta() > 4.6) {
-                    if (Ntries > 0) {
-                        Mjj_pred_raw->Fill(Mjj, Ntries, weight);
-                        if (DPhiMHT > 1.0) Mjj_DPhiMHT_pred_raw->Fill(Mjj, Ntries, weight);;
-                    } else if (Ntries == -2) {
-                        Mjj_sel->Fill(Mjj, weight);
-                        if (DPhiMHT > 1.0)  Mjj_DPhiMHT_sel->Fill(Mjj, weight);
-                    }
-                    if (Veto3rd()) {
-						//cout << "Pt1, Pt2, Pt3: " << JetPt->at(0) << ", " << JetPt->at(1) << ", " << JetPt->at(2) << endl;
-						//cout << "Eta1, Eta2, Eta3: " << JetEta->at(0) << ", " << JetEta->at(1) << ", " << JetEta->at(2) << endl;
-						//cout << "Phi1, Phi2, Phi3: " << JetPhi->at(0) << ", " << JetPhi->at(1) << ", " << JetPhi->at(2) << endl;
+            double DPhiMHTmin, DPhiMHTmax, DPhiMHT3;
+            CalcDPhiMHT(DPhiMHTmin, DPhiMHTmax, DPhiMHT3);
+            double DPhi = CalcDeltaPhi();
+            double DEta = CalcDeltaEta();
+
+            if (VBF) {
+
+                if (MjjJetSel() && MHTjj > 150. && DEta > 3.0 && DPhi < 2.5 && DPhi > 1.8) {
+
+                    if (Soft3rd() && Veto4th()) {
+
                         if (Ntries > 0) {
-                            Mjj_3rdVeto_pred_raw->Fill(Mjj, Ntries, weight);
-                            if (DPhiMHT > 1.0) Mjj_DPhiMHT_3rdVeto_pred_raw->Fill(Mjj, Ntries, weight);
+                            VBF_dPhi_presel_4JV_dPhiSide_pred_raw->Fill(DPhi, Ntries, weight);
+                            VBF_dEta_presel_4JV_dPhiSide_pred_raw->Fill(DEta, Ntries, weight);
+                            VBF_Mjj_presel_4JV_dPhiSide_pred_raw->Fill(Mjj, Ntries, weight);
+                            VBF_Jet1Pt_presel_4JV_dPhiSide_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                            VBF_Jet2Pt_presel_4JV_dPhiSide_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                            VBF_Jet3Pt_presel_4JV_dPhiSide_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                            VBF_Jet1Eta_presel_4JV_dPhiSide_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                            VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                            VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                            VBF_PTjj_presel_4JV_dPhiSide_pred_raw->Fill(MHTjj, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
+                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                        }  else if (Ntries == -2) {
+                            VBF_dPhi_presel_4JV_dPhiSide_sel->Fill(DPhi, weight);
+                            VBF_dEta_presel_4JV_dPhiSide_sel->Fill(DEta, weight);
+                            VBF_Mjj_presel_4JV_dPhiSide_sel->Fill(Mjj, weight);
+                            VBF_Jet1Pt_presel_4JV_dPhiSide_sel->Fill(JetPt->at(0), weight);
+                            VBF_Jet2Pt_presel_4JV_dPhiSide_sel->Fill(JetPt->at(1), weight);
+                            VBF_Jet3Pt_presel_4JV_dPhiSide_sel->Fill(JetPt->at(2), weight);
+                            VBF_Jet1Eta_presel_4JV_dPhiSide_sel->Fill(JetEta->at(0), weight);
+                            VBF_Jet2Eta_presel_4JV_dPhiSide_sel->Fill(JetEta->at(1), weight);
+                            VBF_Jet3Eta_presel_4JV_dPhiSide_sel->Fill(JetEta->at(2), weight);
+                            VBF_PTjj_presel_4JV_dPhiSide_sel->Fill(MHTjj, weight);
+                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMHTmin, weight);
+                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMHTmax, weight);
+                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Fill(DPhiMHT3, weight);
+                        }
+
+                    }
+
+                }
+
+                if (MjjJetSel() && MHTjj > 150. && DEta > 3.0 && DPhi < 1.8) {
+
+                    if (Soft3rd()) {
+
+                        if (Ntries > 0) {
+                            VBF_dPhi_presel_pred_raw->Fill(DPhi, Ntries, weight);
+                            VBF_dEta_presel_pred_raw->Fill(DEta, Ntries, weight);
+                            VBF_Mjj_presel_pred_raw->Fill(Mjj, Ntries, weight);
+                            VBF_Jet1Pt_presel_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                            VBF_Jet2Pt_presel_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                            VBF_Jet3Pt_presel_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                            VBF_Jet1Eta_presel_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                            VBF_Jet2Eta_presel_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                            VBF_Jet3Eta_presel_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                            VBF_PTjj_presel_pred_raw->Fill(MHTjj, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
+                            VBF_DeltaPhiPTj3_presel_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                        }  else if (Ntries == -2) {
+                            VBF_dPhi_presel_sel->Fill(DPhi, weight);
+                            VBF_dEta_presel_sel->Fill(DEta, weight);
+                            VBF_Mjj_presel_sel->Fill(Mjj, weight);
+                            VBF_Jet1Pt_presel_sel->Fill(JetPt->at(0), weight);
+                            VBF_Jet2Pt_presel_sel->Fill(JetPt->at(1), weight);
+                            VBF_Jet3Pt_presel_sel->Fill(JetPt->at(2), weight);
+                            VBF_Jet1Eta_presel_sel->Fill(JetEta->at(0), weight);
+                            VBF_Jet2Eta_presel_sel->Fill(JetEta->at(1), weight);
+                            VBF_Jet3Eta_presel_sel->Fill(JetEta->at(2), weight);
+                            VBF_PTjj_presel_sel->Fill(MHTjj, weight);
+                            VBF_minDeltaPhiPTj12_presel_sel->Fill(DPhiMHTmin, weight);
+                            VBF_maxDeltaPhiPTj12_presel_sel->Fill(DPhiMHTmax, weight);
+                            VBF_DeltaPhiPTj3_presel_sel->Fill(DPhiMHT3, weight);
+                        }
+
+                        if (DEta > 4.8) {
+
+                            if (Ntries > 0) {
+                                VBF_dPhi_dEta_pred_raw->Fill(DPhi, Ntries, weight);
+                                VBF_dEta_dEta_pred_raw->Fill(DEta, Ntries, weight);
+                                VBF_Mjj_dEta_pred_raw->Fill(Mjj, Ntries, weight);
+                                VBF_Jet1Pt_dEta_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                VBF_Jet2Pt_dEta_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                VBF_Jet3Pt_dEta_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                VBF_Jet1Eta_dEta_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                VBF_Jet2Eta_dEta_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                VBF_Jet3Eta_dEta_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                VBF_PTjj_dEta_pred_raw->Fill(MHTjj, Ntries, weight);
+                                VBF_minDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
+                                VBF_DeltaPhiPTj3_dEta_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                            }  else if (Ntries == -2) {
+                                VBF_dPhi_dEta_sel->Fill(DPhi, weight);
+                                VBF_dEta_dEta_sel->Fill(DEta, weight);
+                                VBF_Mjj_dEta_sel->Fill(Mjj, weight);
+                                VBF_Jet1Pt_dEta_sel->Fill(JetPt->at(0), weight);
+                                VBF_Jet2Pt_dEta_sel->Fill(JetPt->at(1), weight);
+                                VBF_Jet3Pt_dEta_sel->Fill(JetPt->at(2), weight);
+                                VBF_Jet1Eta_dEta_sel->Fill(JetEta->at(0), weight);
+                                VBF_Jet2Eta_dEta_sel->Fill(JetEta->at(1), weight);
+                                VBF_Jet3Eta_dEta_sel->Fill(JetEta->at(2), weight);
+                                VBF_PTjj_dEta_sel->Fill(MHTjj, weight);
+                                VBF_minDeltaPhiPTj12_dEta_sel->Fill(DPhiMHTmin, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_sel->Fill(DPhiMHTmax, weight);
+                                VBF_DeltaPhiPTj3_dEta_sel->Fill(DPhiMHT3, weight);
+                            }
+                        }
+
+                    }
+
+                    if (DEta > 4.8 && Veto3rd()) {
+
+                        if (Ntries > 0) {
+                            VBF_dPhi_dEta_3JV_pred_raw->Fill(DPhi, Ntries, weight);
+                            VBF_dEta_dEta_3JV_pred_raw->Fill(DEta, Ntries, weight);
+                            VBF_Mjj_dEta_3JV_pred_raw->Fill(Mjj, Ntries, weight);
+                            VBF_Jet1Pt_dEta_3JV_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                            VBF_Jet2Pt_dEta_3JV_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                            VBF_Jet3Pt_dEta_3JV_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                            VBF_Jet1Eta_dEta_3JV_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                            VBF_Jet2Eta_dEta_3JV_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                            VBF_Jet3Eta_dEta_3JV_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                            VBF_PTjj_dEta_3JV_pred_raw->Fill(MHTjj, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
+                            VBF_DeltaPhiPTj3_dEta_3JV_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                        }  else if (Ntries == -2) {
+                            VBF_dPhi_dEta_3JV_sel->Fill(DPhi, (!blindSR)*weight);
+                            VBF_dEta_dEta_3JV_sel->Fill(DEta, (!blindSR)*weight);
+                            VBF_Mjj_dEta_3JV_sel->Fill(Mjj, (!blindSR)*weight);
+                            VBF_Jet1Pt_dEta_3JV_sel->Fill(JetPt->at(0), (!blindSR)*weight);
+                            VBF_Jet2Pt_dEta_3JV_sel->Fill(JetPt->at(1), (!blindSR)*weight);
+                            VBF_Jet3Pt_dEta_3JV_sel->Fill(JetPt->at(2), (!blindSR)*weight);
+                            VBF_Jet1Eta_dEta_3JV_sel->Fill(JetEta->at(0), (!blindSR)*weight);
+                            VBF_Jet2Eta_dEta_3JV_sel->Fill(JetEta->at(1), (!blindSR)*weight);
+                            VBF_Jet3Eta_dEta_3JV_sel->Fill(JetEta->at(2), (!blindSR)*weight);
+                            VBF_PTjj_dEta_3JV_sel->Fill(MHTjj, (!blindSR)*weight);
+                            VBF_minDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMHTmin, (!blindSR)*weight);
+                            VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMHTmax, (!blindSR)*weight);
+                            VBF_DeltaPhiPTj3_dEta_3JV_sel->Fill(DPhiMHT3, (!blindSR)*weight);
+                        }
+
+                        if (DPhiMHTmin > 0.5) {
+
+                            if (Ntries > 0) {
+                                VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhi, Ntries, weight);
+                                VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw->Fill(DEta, Ntries, weight);
+                                VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw->Fill(Mjj, Ntries, weight);
+                                VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw->Fill(MHTjj, Ntries, weight);
+                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
+                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                            }  else if (Ntries == -2) {
+                                VBF_dPhi_dEta_3JV_dPhiPTjj_sel->Fill(DPhi, (!blindSR)*weight);
+                                VBF_dEta_dEta_3JV_dPhiPTjj_sel->Fill(DEta, (!blindSR)*weight);
+                                VBF_Mjj_dEta_3JV_dPhiPTjj_sel->Fill(Mjj, (!blindSR)*weight);
+                                VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel->Fill(JetPt->at(0), (!blindSR)*weight);
+                                VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel->Fill(JetPt->at(1), (!blindSR)*weight);
+                                VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel->Fill(JetPt->at(2), (!blindSR)*weight);
+                                VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel->Fill(JetEta->at(0), (!blindSR)*weight);
+                                VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel->Fill(JetEta->at(1), (!blindSR)*weight);
+                                VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel->Fill(JetEta->at(2), (!blindSR)*weight);
+                                VBF_PTjj_dEta_3JV_dPhiPTjj_sel->Fill(MHTjj, (!blindSR)*weight);
+                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHTmin, (!blindSR)*weight);
+                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHTmax, (!blindSR)*weight);
+                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHT3, (!blindSR)*weight);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if (HTMHT) {
+
+                // ------------------------------------------------------------- //
+                // fill preselection histos
+                // ------------------------------------------------------------- //
+
+                if( NJets >=2 ) {
+                    if (Ntries > 0) {
+                        HT_presel_pred_raw->Fill(HT, Ntries, weight);
+                        MHT_presel_pred_raw->Fill(MHT, Ntries, weight);
+                        MET_presel_pred_raw->Fill(MET, Ntries, weight);
+                        NJets_presel_pred_raw->Fill(NJets, Ntries, weight);
+                        NBJets_presel_pred_raw->Fill(BTags, Ntries, weight);
+                        Jet1Pt_presel_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                        Jet2Pt_presel_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                        Jet3Pt_presel_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                        Jet1Eta_presel_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                        Jet2Eta_presel_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                        Jet3Eta_presel_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                        DeltaPhi1_presel_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                        DeltaPhi2_presel_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                        DeltaPhi3_presel_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                    } else if (Ntries == -2) {
+                        HT_presel_sel->Fill(HT, weight);
+                        MHT_presel_sel->Fill(MHT, weight);
+                        MET_presel_sel->Fill(MET, weight);
+                        NJets_presel_sel->Fill(NJets, weight);
+                        NBJets_presel_sel->Fill(BTags, weight);
+                        Jet1Pt_presel_sel->Fill(JetPt->at(0), weight);
+                        Jet2Pt_presel_sel->Fill(JetPt->at(1), weight);
+                        Jet3Pt_presel_sel->Fill(JetPt->at(2), weight);
+                        Jet1Eta_presel_sel->Fill(JetEta->at(0), weight);
+                        Jet2Eta_presel_sel->Fill(JetEta->at(1), weight);
+                        Jet3Eta_presel_sel->Fill(JetEta->at(2), weight);
+                        DeltaPhi1_presel_sel->Fill(DeltaPhi->at(0), weight);
+                        DeltaPhi2_presel_sel->Fill(DeltaPhi->at(1), weight);
+                        DeltaPhi3_presel_sel->Fill(DeltaPhi->at(2), weight);
+                    }
+                }
+
+                // ------------------------------------------------------------- //
+                // baseline closure without deltaPhi
+                // ------------------------------------------------------------- //
+                // HT baseline cut
+                if( HT > 500. ) {
+                    if( NJets >= 4 ) {
+                        if (Ntries > 0) {
+                            NJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
+                            NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(BTags, Ntries, weight);
                         } else if (Ntries == -2) {
-                            Mjj_3rdVeto_sel->Fill(Mjj, weight);
-                            if (DPhiMHT > 1.0) Mjj_DPhiMHT_3rdVeto_sel->Fill(Mjj, weight);
+                            NJets_baseline_withoutDeltaPhi_withoutMET_sel->Fill(NJets, weight);
+                            NBJets_baseline_withoutDeltaPhi_withoutMET_sel->Fill(BTags, weight);
                         }
                     }
-                }
-            }
+                    if( NJets == 2 || NJets == 3 ) {
+                        if (Ntries > 0) {
+                            MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin1_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
+                            MET_JetBin1_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
+                        }
+                    }
+                    else if( NJets == 4 ||  NJets == 5 || NJets == 6) {
+                        if (Ntries > 0) {
+                            MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin2_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
+                            MET_JetBin2_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
+                        }
+                    }
+                    else if( NJets == 7  ||  NJets == 8 ) {
+                        if (Ntries > 0) {
+                            MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin3_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
+                            MET_JetBin3_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
+                        }
+                    }
+                    else if( NJets >= 9 ) {
+                        if (Ntries > 0) {
+                            MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin4_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
+                            MET_JetBin4_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
+                        }
+                    }
 
-            // ------------------------------------------------------------- //
-            // fill preselection histos
-            // ------------------------------------------------------------- //
-
-            if( NJets >=2 ) {
-                if (Ntries > 0) {
-                    HT_presel_pred_raw->Fill(HT, Ntries, weight);
-                    MHT_presel_pred_raw->Fill(MHT, Ntries, weight);
-                    MET_presel_pred_raw->Fill(MET, Ntries, weight);
-                    NJets_presel_pred_raw->Fill(NJets, Ntries, weight);
-                    NBJets_presel_pred_raw->Fill(BTags, Ntries, weight);
-                    Jet1Pt_presel_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                    Jet2Pt_presel_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                    Jet3Pt_presel_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                    Jet1Eta_presel_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                    Jet2Eta_presel_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                    Jet3Eta_presel_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                    DeltaPhi1_presel_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                    DeltaPhi2_presel_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                    DeltaPhi3_presel_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                } else if (Ntries == -2) {
-                    HT_presel_sel->Fill(HT, weight);
-                    MHT_presel_sel->Fill(MHT, weight);
-                    MET_presel_sel->Fill(MET, weight);
-                    NJets_presel_sel->Fill(NJets, weight);
-                    NBJets_presel_sel->Fill(BTags, weight);
-                    Jet1Pt_presel_sel->Fill(JetPt->at(0), weight);
-                    Jet2Pt_presel_sel->Fill(JetPt->at(1), weight);
-                    Jet3Pt_presel_sel->Fill(JetPt->at(2), weight);
-                    Jet1Eta_presel_sel->Fill(JetEta->at(0), weight);
-                    Jet2Eta_presel_sel->Fill(JetEta->at(1), weight);
-                    Jet3Eta_presel_sel->Fill(JetEta->at(2), weight);
-                    DeltaPhi1_presel_sel->Fill(DeltaPhi->at(0), weight);
-                    DeltaPhi2_presel_sel->Fill(DeltaPhi->at(1), weight);
-                    DeltaPhi3_presel_sel->Fill(DeltaPhi->at(2), weight);
-                }
-            }
-
-            // ------------------------------------------------------------- //
-            // baseline closure without deltaPhi
-            // ------------------------------------------------------------- //
-            // HT baseline cut
-            if( HT > 500. ) {
-                if( NJets >= 4 ) {
-                    if (Ntries > 0) {
-                        NJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
-                        NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(BTags, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        NJets_baseline_withoutDeltaPhi_withoutMET_sel->Fill(NJets, weight);
-                        NBJets_baseline_withoutDeltaPhi_withoutMET_sel->Fill(BTags, weight);
-                    }
-                }
-                if( NJets == 2 || NJets == 3 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin1_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
-                        MET_JetBin1_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
-                    }
-                }
-                else if( NJets == 4 ||  NJets == 5 || NJets == 6) {
-                    if (Ntries > 0) {
-                        MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin2_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
-                        MET_JetBin2_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
-                    }
-                }
-                else if( NJets == 7  ||  NJets == 8 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin3_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
-                        MET_JetBin3_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
-                    }
-                }
-                else if( NJets >= 9 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin4_baseline_withoutDeltaPhi_sel->Fill(MHT, weight);
-                        MET_JetBin4_baseline_withoutDeltaPhi_sel->Fill(MET, weight);
+                    // MHT baseline cut
+                    if( MET > 200. ) {
+                        if( NJets >= 4 ) {
+                            if (Ntries > 0) {
+                                NJets_baseline_withoutDeltaPhi_pred_raw->Fill(NJets, Ntries, weight);
+                                NBJets_baseline_withoutDeltaPhi_pred_raw->Fill(BTags, Ntries, weight);
+                            } else if (Ntries == -2) {
+                                NJets_baseline_withoutDeltaPhi_sel->Fill(NJets, weight);
+                                NBJets_baseline_withoutDeltaPhi_sel->Fill(BTags, weight);
+                            }
+                        }
+                        // jet bin 1
+                        if( NJets == 2 || NJets == 3) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
+                                Jet1Eta_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
+                                DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
+                            }
+                        }
+                        // jet bin 2
+                        else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
+                            }
+                        }
+                        // jet bin 3
+                        else if( NJets == 7  ||  NJets == 8 ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
+                            }
+                        }
+                        // jet bin 4
+                        else if( NJets >= 9 ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
+                            }
+                        }
                     }
                 }
 
                 // MHT baseline cut
                 if( MET > 200. ) {
-                    if( NJets >= 4 ) {
+                    if( NJets == 2 || NJets == 3 ) {
                         if (Ntries > 0) {
-                            NJets_baseline_withoutDeltaPhi_pred_raw->Fill(NJets, Ntries, weight);
-                            NBJets_baseline_withoutDeltaPhi_pred_raw->Fill(BTags, Ntries, weight);
+                            HT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
                         } else if (Ntries == -2) {
-                            NJets_baseline_withoutDeltaPhi_sel->Fill(NJets, weight);
-                            NBJets_baseline_withoutDeltaPhi_sel->Fill(BTags, weight);
+                            HT_JetBin1_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
                         }
                     }
+                    else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
+                        if (Ntries > 0) {
+                            HT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            HT_JetBin2_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
+                        }
+                    }
+                    else if(  NJets == 7  ||  NJets == 8 ) {
+                        if (Ntries > 0) {
+                            HT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            HT_JetBin3_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
+                        }
+                    }
+                    else if(  NJets >= 9 ) {
+                        if (Ntries > 0) {
+                            HT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            HT_JetBin4_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
+                        }
+                    }
+                }
+
+
+                // ------------------------------------------------------------- //
+                // check deltaPhi cut
+                if( DeltaPhiCut() ) {
+
+                    // ------------------------------------------------------------- //
+                    // fill histos after deltaPhi cut
+                    // ------------------------------------------------------------- //
+                    if( NJets >= 4 ) {
+                        if (Ntries > 0) {
+                            HT_deltaPhi_pred_raw->Fill(HT, Ntries, weight);
+                            MHT_deltaPhi_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_deltaPhi_pred_raw->Fill(MET, Ntries, weight);
+                            Jet1Pt_deltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                            Jet2Pt_deltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                            Jet3Pt_deltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                            Jet1Eta_deltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                            Jet2Eta_deltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                            Jet3Eta_deltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                        } else if (Ntries == -2) {
+                            HT_deltaPhi_sel->Fill(HT, weight);
+                            MHT_deltaPhi_sel->Fill(MHT, weight);
+                            MET_deltaPhi_sel->Fill(MET, weight);
+                            Jet1Pt_deltaPhi_sel->Fill(JetPt->at(0), weight);
+                            Jet2Pt_deltaPhi_sel->Fill(JetPt->at(1), weight);
+                            Jet3Pt_deltaPhi_sel->Fill(JetPt->at(2), weight);
+                            Jet1Eta_deltaPhi_sel->Fill(JetEta->at(0), weight);
+                            Jet2Eta_deltaPhi_sel->Fill(JetEta->at(1), weight);
+                            Jet3Eta_deltaPhi_sel->Fill(JetEta->at(2), weight);
+                        }
+
+                        // ------------------------------------------------------------- //
+                        // fill baseline histos
+                        // ------------------------------------------------------------- //
+                        if( HT > 500. ) {
+                            if (Ntries > 0) {
+                                MHT_baseline_pred_raw->Fill(MHT, Ntries, weight);
+                                MET_baseline_pred_raw->Fill(MET, Ntries, weight);
+                                NJets_baseline_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
+                                NBJets_baseline_withoutMET_pred_raw->Fill(BTags, Ntries, weight);
+                            } else if (Ntries == -2) {
+                                MHT_baseline_sel->Fill(MHT, weight);
+                                MET_baseline_sel->Fill(MET, weight);
+                                NJets_baseline_withoutMET_sel->Fill(NJets, weight);
+                                NBJets_baseline_withoutMET_sel->Fill(BTags, weight);
+                            }
+                            if( MET > 200. ) {
+                                if (Ntries > 0) {
+                                    NJets_baseline_pred_raw->Fill(NJets, Ntries, weight);
+                                    NBJets_baseline_pred_raw->Fill(BTags, Ntries, weight);
+                                } else if (Ntries == -2) {
+                                    NJets_baseline_sel->Fill(NJets, weight);
+                                    NBJets_baseline_sel->Fill(BTags, weight);
+                                }
+                            }
+                        }
+                        if( MET > 200. ) {
+                            if (Ntries > 0) {
+                                HT_baseline_pred_raw->Fill(HT, Ntries, weight);
+                            } else if (Ntries == -2) {
+                                HT_baseline_sel->Fill(HT, weight);
+                            }
+                        }
+                    }
+
+                    // ------------------------------------------------------------- //
+                    //  fill different jet multiplicity bins
+                    // ------------------------------------------------------------- //
                     // jet bin 1
                     if( NJets == 2 || NJets == 3) {
                         if (Ntries > 0) {
-                            Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                            MHT_JetBin1_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin1_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
-                            Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
-                            Jet1Eta_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin1_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
-                            DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
+                            MHT_JetBin1_HTinclusive_sel->Fill(MHT, weight);
+                            MET_JetBin1_HTinclusive_sel->Fill(MET, weight);
                         }
+
+                        if( MET > 200. ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet1Eta_JetBin1_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin1_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                DeltaPhi1_JetBin1_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin1_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin1_baseline_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin1_baseline_sel->Fill(JetPt->at(1), weight);
+                                Jet1Eta_JetBin1_baseline_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin1_baseline_sel->Fill(JetEta->at(1), weight);
+                                DeltaPhi1_JetBin1_baseline_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin1_baseline_sel->Fill(DeltaPhi->at(1), weight);
+                            }
+                        }
+
                     }
                     // jet bin 2
                     else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
                         if (Ntries > 0) {
-                            Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            MHT_JetBin2_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin2_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
-                            Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin2_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
+                            MHT_JetBin2_HTinclusive_sel->Fill(MHT, weight);
+                            MET_JetBin2_HTinclusive_sel->Fill(MET, weight);
                         }
-                    }
-                    // jet bin 3
-                    else if( NJets == 7  ||  NJets == 8 ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin3_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
-                        }
-                    }
-                    // jet bin 4
-                    else if( NJets >= 9 ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin4_baseline_withoutDeltaPhi_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel->Fill(DeltaPhi->at(2), weight);
-                        }
-                    }
-                }
-            }
 
-            // MHT baseline cut
-            if( MET > 200. ) {
-                if( NJets == 2 || NJets == 3 ) {
-                    if (Ntries > 0) {
-                        HT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        HT_JetBin1_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
-                    }
-                }
-                else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
-                    if (Ntries > 0) {
-                        HT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        HT_JetBin2_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
-                    }
-                }
-                else if(  NJets == 7  ||  NJets == 8 ) {
-                    if (Ntries > 0) {
-                        HT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        HT_JetBin3_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
-                    }
-                }
-                else if(  NJets >= 9 ) {
-                    if (Ntries > 0) {
-                        HT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        HT_JetBin4_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
-                    }
-                }
-            }
-
-
-            // ------------------------------------------------------------- //
-            // check deltaPhi cut
-            if( DeltaPhiCut() ) {
-
-                // ------------------------------------------------------------- //
-                // fill histos after deltaPhi cut
-                // ------------------------------------------------------------- //
-                if( NJets >= 4 ) {
-                    if (Ntries > 0) {
-                        HT_deltaPhi_pred_raw->Fill(HT, Ntries, weight);
-                        MHT_deltaPhi_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_deltaPhi_pred_raw->Fill(MET, Ntries, weight);
-                        Jet1Pt_deltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                        Jet2Pt_deltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                        Jet3Pt_deltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                        Jet1Eta_deltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                        Jet2Eta_deltaPhi_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                        Jet3Eta_deltaPhi_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                    } else if (Ntries == -2) {
-                        HT_deltaPhi_sel->Fill(HT, weight);
-                        MHT_deltaPhi_sel->Fill(MHT, weight);
-                        MET_deltaPhi_sel->Fill(MET, weight);
-                        Jet1Pt_deltaPhi_sel->Fill(JetPt->at(0), weight);
-                        Jet2Pt_deltaPhi_sel->Fill(JetPt->at(1), weight);
-                        Jet3Pt_deltaPhi_sel->Fill(JetPt->at(2), weight);
-                        Jet1Eta_deltaPhi_sel->Fill(JetEta->at(0), weight);
-                        Jet2Eta_deltaPhi_sel->Fill(JetEta->at(1), weight);
-                        Jet3Eta_deltaPhi_sel->Fill(JetEta->at(2), weight);
-                    }
-
-                    // ------------------------------------------------------------- //
-                    // fill baseline histos
-                    // ------------------------------------------------------------- //
-                    if( HT > 500. ) {
-                        if (Ntries > 0) {
-                            MHT_baseline_pred_raw->Fill(MHT, Ntries, weight);
-                            MET_baseline_pred_raw->Fill(MET, Ntries, weight);
-                            NJets_baseline_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
-                            NBJets_baseline_withoutMET_pred_raw->Fill(BTags, Ntries, weight);
-                        } else if (Ntries == -2) {
-                            MHT_baseline_sel->Fill(MHT, weight);
-                            MET_baseline_sel->Fill(MET, weight);
-                            NJets_baseline_withoutMET_sel->Fill(NJets, weight);
-                            NBJets_baseline_withoutMET_sel->Fill(BTags, weight);
-                        }
                         if( MET > 200. ) {
                             if (Ntries > 0) {
-                                NJets_baseline_pred_raw->Fill(NJets, Ntries, weight);
-                                NBJets_baseline_pred_raw->Fill(BTags, Ntries, weight);
+                                Jet1Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
                             } else if (Ntries == -2) {
-                                NJets_baseline_sel->Fill(NJets, weight);
-                                NBJets_baseline_sel->Fill(BTags, weight);
+                                Jet1Pt_JetBin2_baseline_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin2_baseline_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin2_baseline_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin2_baseline_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin2_baseline_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin2_baseline_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin2_baseline_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin2_baseline_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin2_baseline_sel->Fill(DeltaPhi->at(2), weight);
+                            }
+                        }
+
+                    }
+                    // jet bin 3
+                    else if(  NJets == 7  ||  NJets == 8 ) {
+                        if (Ntries > 0) {
+                            MHT_JetBin3_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin3_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin3_HTinclusive_sel->Fill(MHT, weight);
+                            MET_JetBin3_HTinclusive_sel->Fill(MET, weight);
+                        }
+
+                        if( MET > 200. ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin3_baseline_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin3_baseline_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin3_baseline_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin3_baseline_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin3_baseline_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin3_baseline_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin3_baseline_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin3_baseline_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin3_baseline_sel->Fill(DeltaPhi->at(2), weight);
+                            }
+                        }
+
+                    }
+                    // jet bin 4
+                    else if(  NJets >= 9 ) {
+                        if (Ntries > 0) {
+                            MHT_JetBin4_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
+                            MET_JetBin4_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
+                        } else if (Ntries == -2) {
+                            MHT_JetBin4_HTinclusive_sel->Fill(MHT, weight);
+                            MET_JetBin4_HTinclusive_sel->Fill(MET, weight);
+                        }
+
+                        if( MET > 200. ) {
+                            if (Ntries > 0) {
+                                Jet1Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
+                                Jet2Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
+                                Jet3Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
+                                Jet1Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
+                                Jet2Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
+                                Jet3Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
+                                DeltaPhi1_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
+                                DeltaPhi2_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
+                                DeltaPhi3_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
+                            } else if (Ntries == -2) {
+                                Jet1Pt_JetBin4_baseline_sel->Fill(JetPt->at(0), weight);
+                                Jet2Pt_JetBin4_baseline_sel->Fill(JetPt->at(1), weight);
+                                Jet3Pt_JetBin4_baseline_sel->Fill(JetPt->at(2), weight);
+                                Jet1Eta_JetBin4_baseline_sel->Fill(JetEta->at(0), weight);
+                                Jet2Eta_JetBin4_baseline_sel->Fill(JetEta->at(1), weight);
+                                Jet3Eta_JetBin4_baseline_sel->Fill(JetEta->at(2), weight);
+                                DeltaPhi1_JetBin4_baseline_sel->Fill(DeltaPhi->at(0), weight);
+                                DeltaPhi2_JetBin4_baseline_sel->Fill(DeltaPhi->at(1), weight);
+                                DeltaPhi3_JetBin4_baseline_sel->Fill(DeltaPhi->at(2), weight);
                             }
                         }
                     }
-                    if( MET > 200. ) {
-                        if (Ntries > 0) {
-                            HT_baseline_pred_raw->Fill(HT, Ntries, weight);
-                        } else if (Ntries == -2) {
-                            HT_baseline_sel->Fill(HT, weight);
-                        }
-                    }
                 }
-
-                // ------------------------------------------------------------- //
-                //  fill different jet multiplicity bins
-                // ------------------------------------------------------------- //
-                // jet bin 1
-                if( NJets == 2 || NJets == 3) {
-                    if (Ntries > 0) {
-                        MHT_JetBin1_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin1_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin1_HTinclusive_sel->Fill(MHT, weight);
-                        MET_JetBin1_HTinclusive_sel->Fill(MET, weight);
-                    }
-
-                    if( MET > 200. ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet1Eta_JetBin1_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin1_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            DeltaPhi1_JetBin1_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin1_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin1_baseline_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin1_baseline_sel->Fill(JetPt->at(1), weight);
-                            Jet1Eta_JetBin1_baseline_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin1_baseline_sel->Fill(JetEta->at(1), weight);
-                            DeltaPhi1_JetBin1_baseline_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin1_baseline_sel->Fill(DeltaPhi->at(1), weight);
-                        }
-                    }
-
-                }
-                // jet bin 2
-                else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin2_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin2_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin2_HTinclusive_sel->Fill(MHT, weight);
-                        MET_JetBin2_HTinclusive_sel->Fill(MET, weight);
-                    }
-
-                    if( MET > 200. ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin2_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin2_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin2_baseline_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin2_baseline_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin2_baseline_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin2_baseline_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin2_baseline_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin2_baseline_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin2_baseline_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin2_baseline_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin2_baseline_sel->Fill(DeltaPhi->at(2), weight);
-                        }
-                    }
-
-                }
-                // jet bin 3
-                else if(  NJets == 7  ||  NJets == 8 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin3_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin3_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin3_HTinclusive_sel->Fill(MHT, weight);
-                        MET_JetBin3_HTinclusive_sel->Fill(MET, weight);
-                    }
-
-                    if( MET > 200. ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin3_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin3_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin3_baseline_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin3_baseline_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin3_baseline_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin3_baseline_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin3_baseline_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin3_baseline_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin3_baseline_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin3_baseline_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin3_baseline_sel->Fill(DeltaPhi->at(2), weight);
-                        }
-                    }
-
-                }
-                // jet bin 4
-                else if(  NJets >= 9 ) {
-                    if (Ntries > 0) {
-                        MHT_JetBin4_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
-                        MET_JetBin4_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
-                    } else if (Ntries == -2) {
-                        MHT_JetBin4_HTinclusive_sel->Fill(MHT, weight);
-                        MET_JetBin4_HTinclusive_sel->Fill(MET, weight);
-                    }
-
-                    if( MET > 200. ) {
-                        if (Ntries > 0) {
-                            Jet1Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
-                            Jet2Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
-                            Jet3Pt_JetBin4_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
-                            Jet1Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
-                            Jet2Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(1), Ntries, weight);
-                            Jet3Eta_JetBin4_baseline_pred_raw->Fill(JetEta->at(2), Ntries, weight);
-                            DeltaPhi1_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(0), Ntries, weight);
-                            DeltaPhi2_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(1), Ntries, weight);
-                            DeltaPhi3_JetBin4_baseline_pred_raw->Fill(DeltaPhi->at(2), Ntries, weight);
-                        } else if (Ntries == -2) {
-                            Jet1Pt_JetBin4_baseline_sel->Fill(JetPt->at(0), weight);
-                            Jet2Pt_JetBin4_baseline_sel->Fill(JetPt->at(1), weight);
-                            Jet3Pt_JetBin4_baseline_sel->Fill(JetPt->at(2), weight);
-                            Jet1Eta_JetBin4_baseline_sel->Fill(JetEta->at(0), weight);
-                            Jet2Eta_JetBin4_baseline_sel->Fill(JetEta->at(1), weight);
-                            Jet3Eta_JetBin4_baseline_sel->Fill(JetEta->at(2), weight);
-                            DeltaPhi1_JetBin4_baseline_sel->Fill(DeltaPhi->at(0), weight);
-                            DeltaPhi2_JetBin4_baseline_sel->Fill(DeltaPhi->at(1), weight);
-                            DeltaPhi3_JetBin4_baseline_sel->Fill(DeltaPhi->at(2), weight);
-                        }
-                    }
-                }
-
             }
         }
     }
@@ -1009,12 +1294,75 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred_raw, DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel, 5);
     DoRebinning(DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred_raw, DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel, 5);
 
-    DoRebinning(Mjj_pred_raw, Mjj_sel, -3);
-    DoRebinning(Mjj_3rdVeto_pred_raw, Mjj_3rdVeto_sel, -3);
-    DoRebinning(Mjj_NoDeltaPhi_pred_raw, Mjj_NoDeltaPhi_sel, 2);
-    DoRebinning(Mjj_DPhiMHT_pred_raw, Mjj_DPhiMHT_sel, -3);
-    DoRebinning(Mjj_DPhiMHT_3rdVeto_pred_raw, Mjj_DPhiMHT_3rdVeto_sel, -3);
-    DoRebinning(Mjj_DPhiMHT_NoDeltaPhi_pred_raw, Mjj_DPhiMHT_NoDeltaPhi_sel, 2);
+    DoRebinning(VBF_dPhi_presel_pred_raw, VBF_dPhi_presel_sel, 5);
+    DoRebinning(VBF_dEta_presel_pred_raw, VBF_dEta_presel_sel, 5);
+    DoRebinning(VBF_Mjj_presel_pred_raw, VBF_Mjj_presel_sel, -3);
+    DoRebinning(VBF_Jet1Pt_presel_pred_raw, VBF_Jet1Pt_presel_sel, 2);
+    DoRebinning(VBF_Jet2Pt_presel_pred_raw, VBF_Jet2Pt_presel_sel, 2);
+    DoRebinning(VBF_Jet3Pt_presel_pred_raw, VBF_Jet3Pt_presel_sel, 2);
+    DoRebinning(VBF_Jet1Eta_presel_pred_raw, VBF_Jet1Eta_presel_sel, 5);
+    DoRebinning(VBF_Jet2Eta_presel_pred_raw, VBF_Jet2Eta_presel_sel, 5);
+    DoRebinning(VBF_Jet3Eta_presel_pred_raw, VBF_Jet3Eta_presel_sel, 5);
+    DoRebinning(VBF_PTjj_presel_pred_raw, VBF_PTjj_presel_sel, -2);
+    DoRebinning(VBF_minDeltaPhiPTj12_presel_pred_raw, VBF_minDeltaPhiPTj12_presel_sel, 5);
+    DoRebinning(VBF_maxDeltaPhiPTj12_presel_pred_raw, VBF_maxDeltaPhiPTj12_presel_sel, 5);
+    DoRebinning(VBF_DeltaPhiPTj3_presel_pred_raw, VBF_DeltaPhiPTj3_presel_sel, 5);
+
+    DoRebinning(VBF_dPhi_presel_4JV_dPhiSide_pred_raw, VBF_dPhi_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_dEta_presel_4JV_dPhiSide_pred_raw, VBF_dEta_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_Mjj_presel_4JV_dPhiSide_pred_raw, VBF_Mjj_presel_4JV_dPhiSide_sel, -3);
+    DoRebinning(VBF_Jet1Pt_presel_4JV_dPhiSide_pred_raw, VBF_Jet1Pt_presel_4JV_dPhiSide_sel, 2);
+    DoRebinning(VBF_Jet2Pt_presel_4JV_dPhiSide_pred_raw, VBF_Jet2Pt_presel_4JV_dPhiSide_sel, 2);
+    DoRebinning(VBF_Jet3Pt_presel_4JV_dPhiSide_pred_raw, VBF_Jet3Pt_presel_4JV_dPhiSide_sel, 2);
+    DoRebinning(VBF_Jet1Eta_presel_4JV_dPhiSide_pred_raw, VBF_Jet1Eta_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw, VBF_Jet2Eta_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw, VBF_Jet3Eta_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_PTjj_presel_4JV_dPhiSide_pred_raw, VBF_PTjj_presel_4JV_dPhiSide_sel, -2);
+    DoRebinning(VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw, VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw, VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel, 5);
+    DoRebinning(VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw, VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel, 5);
+
+    DoRebinning(VBF_dPhi_dEta_pred_raw, VBF_dPhi_dEta_sel, 5);
+    DoRebinning(VBF_dEta_dEta_pred_raw, VBF_dEta_dEta_sel, 5);
+    DoRebinning(VBF_Mjj_dEta_pred_raw, VBF_Mjj_dEta_sel, -3);
+    DoRebinning(VBF_Jet1Pt_dEta_pred_raw, VBF_Jet1Pt_dEta_sel, 2);
+    DoRebinning(VBF_Jet2Pt_dEta_pred_raw, VBF_Jet2Pt_dEta_sel, 2);
+    DoRebinning(VBF_Jet3Pt_dEta_pred_raw, VBF_Jet3Pt_dEta_sel, 2);
+    DoRebinning(VBF_Jet1Eta_dEta_pred_raw, VBF_Jet1Eta_dEta_sel, 5);
+    DoRebinning(VBF_Jet2Eta_dEta_pred_raw, VBF_Jet2Eta_dEta_sel, 5);
+    DoRebinning(VBF_Jet3Eta_dEta_pred_raw, VBF_Jet3Eta_dEta_sel, 5);
+    DoRebinning(VBF_PTjj_dEta_pred_raw, VBF_PTjj_dEta_sel, -2);
+    DoRebinning(VBF_minDeltaPhiPTj12_dEta_pred_raw, VBF_minDeltaPhiPTj12_dEta_sel, 5);
+    DoRebinning(VBF_maxDeltaPhiPTj12_dEta_pred_raw, VBF_maxDeltaPhiPTj12_dEta_sel, 5);
+    DoRebinning(VBF_DeltaPhiPTj3_dEta_pred_raw, VBF_DeltaPhiPTj3_dEta_sel, 5);
+
+    DoRebinning(VBF_dPhi_dEta_3JV_pred_raw, VBF_dPhi_dEta_3JV_sel, 5);
+    DoRebinning(VBF_dEta_dEta_3JV_pred_raw, VBF_dEta_dEta_3JV_sel, 5);
+    DoRebinning(VBF_Mjj_dEta_3JV_pred_raw, VBF_Mjj_dEta_3JV_sel, -3);
+    DoRebinning(VBF_Jet1Pt_dEta_3JV_pred_raw, VBF_Jet1Pt_dEta_3JV_sel, 2);
+    DoRebinning(VBF_Jet2Pt_dEta_3JV_pred_raw, VBF_Jet2Pt_dEta_3JV_sel, 2);
+    DoRebinning(VBF_Jet3Pt_dEta_3JV_pred_raw, VBF_Jet3Pt_dEta_3JV_sel, 2);
+    DoRebinning(VBF_Jet1Eta_dEta_3JV_pred_raw, VBF_Jet1Eta_dEta_3JV_sel, 5);
+    DoRebinning(VBF_Jet2Eta_dEta_3JV_pred_raw, VBF_Jet2Eta_dEta_3JV_sel, 5);
+    DoRebinning(VBF_Jet3Eta_dEta_3JV_pred_raw, VBF_Jet3Eta_dEta_3JV_sel, 5);
+    DoRebinning(VBF_PTjj_dEta_3JV_pred_raw, VBF_PTjj_dEta_3JV_sel, -2);
+    DoRebinning(VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw, VBF_minDeltaPhiPTj12_dEta_3JV_sel, 5);
+    DoRebinning(VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw, VBF_maxDeltaPhiPTj12_dEta_3JV_sel, 5);
+    DoRebinning(VBF_DeltaPhiPTj3_dEta_3JV_pred_raw, VBF_DeltaPhiPTj3_dEta_3JV_sel, 5);
+
+    DoRebinning(VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw, VBF_dPhi_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw, VBF_dEta_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw, VBF_Mjj_dEta_3JV_dPhiPTjj_sel, -3);
+    DoRebinning(VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel, 2);
+    DoRebinning(VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel, 2);
+    DoRebinning(VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel, 2);
+    DoRebinning(VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw, VBF_PTjj_dEta_3JV_dPhiPTjj_sel, -2);
+    DoRebinning(VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw, VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw, VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel, 5);
+    DoRebinning(VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw, VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel, 5);
 
     cout << "after rebinning all histograms" << endl;
     //----------------------------------------------------------//
@@ -1156,12 +1504,75 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     NBJets_baseline_withoutDeltaPhi_withoutMET_pred = CalcPrediction(NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw);
     NBJets_baseline_withoutDeltaPhi_pred = CalcPrediction(NBJets_baseline_withoutDeltaPhi_pred_raw);
 
-    Mjj_pred = CalcPrediction( Mjj_pred_raw);
-    Mjj_3rdVeto_pred = CalcPrediction( Mjj_3rdVeto_pred_raw);
-    Mjj_NoDeltaPhi_pred = CalcPrediction( Mjj_NoDeltaPhi_pred_raw);
-    Mjj_DPhiMHT_pred = CalcPrediction( Mjj_DPhiMHT_pred_raw);
-    Mjj_DPhiMHT_3rdVeto_pred = CalcPrediction( Mjj_DPhiMHT_3rdVeto_pred_raw);
-    Mjj_DPhiMHT_NoDeltaPhi_pred = CalcPrediction( Mjj_DPhiMHT_NoDeltaPhi_pred_raw);
+    VBF_dPhi_presel_pred = CalcPrediction( VBF_dPhi_presel_pred_raw);
+    VBF_dEta_presel_pred = CalcPrediction( VBF_dEta_presel_pred_raw);
+    VBF_Mjj_presel_pred = CalcPrediction( VBF_Mjj_presel_pred_raw);
+    VBF_Jet1Pt_presel_pred = CalcPrediction( VBF_Jet1Pt_presel_pred_raw);
+    VBF_Jet2Pt_presel_pred = CalcPrediction( VBF_Jet2Pt_presel_pred_raw);
+    VBF_Jet3Pt_presel_pred = CalcPrediction( VBF_Jet3Pt_presel_pred_raw);
+    VBF_Jet1Eta_presel_pred = CalcPrediction( VBF_Jet1Eta_presel_pred_raw);
+    VBF_Jet2Eta_presel_pred = CalcPrediction( VBF_Jet2Eta_presel_pred_raw);
+    VBF_Jet3Eta_presel_pred = CalcPrediction( VBF_Jet3Eta_presel_pred_raw);
+    VBF_PTjj_presel_pred = CalcPrediction( VBF_PTjj_presel_pred_raw);
+    VBF_minDeltaPhiPTj12_presel_pred = CalcPrediction( VBF_minDeltaPhiPTj12_presel_pred_raw);
+    VBF_maxDeltaPhiPTj12_presel_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_presel_pred_raw);
+    VBF_DeltaPhiPTj3_presel_pred = CalcPrediction( VBF_DeltaPhiPTj3_presel_pred_raw);
+
+    VBF_dPhi_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_dPhi_presel_4JV_dPhiSide_pred_raw);
+    VBF_dEta_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_dEta_presel_4JV_dPhiSide_pred_raw);
+    VBF_Mjj_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Mjj_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet1Pt_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet1Pt_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet2Pt_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet2Pt_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet3Pt_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet3Pt_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet1Eta_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet1Eta_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet2Eta_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw);
+    VBF_Jet3Eta_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw);
+    VBF_PTjj_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_PTjj_presel_4JV_dPhiSide_pred_raw);
+    VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw);
+    VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw);
+    VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw);
+
+    VBF_dPhi_dEta_pred = CalcPrediction( VBF_dPhi_dEta_pred_raw);
+    VBF_dEta_dEta_pred = CalcPrediction( VBF_dEta_dEta_pred_raw);
+    VBF_Mjj_dEta_pred = CalcPrediction( VBF_Mjj_dEta_pred_raw);
+    VBF_Jet1Pt_dEta_pred = CalcPrediction( VBF_Jet1Pt_dEta_pred_raw);
+    VBF_Jet2Pt_dEta_pred = CalcPrediction( VBF_Jet2Pt_dEta_pred_raw);
+    VBF_Jet3Pt_dEta_pred = CalcPrediction( VBF_Jet3Pt_dEta_pred_raw);
+    VBF_Jet1Eta_dEta_pred = CalcPrediction( VBF_Jet1Eta_dEta_pred_raw);
+    VBF_Jet2Eta_dEta_pred = CalcPrediction( VBF_Jet2Eta_dEta_pred_raw);
+    VBF_Jet3Eta_dEta_pred = CalcPrediction( VBF_Jet3Eta_dEta_pred_raw);
+    VBF_PTjj_dEta_pred = CalcPrediction( VBF_PTjj_dEta_pred_raw);
+    VBF_minDeltaPhiPTj12_dEta_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_pred_raw);
+    VBF_maxDeltaPhiPTj12_dEta_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_pred_raw);
+    VBF_DeltaPhiPTj3_dEta_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_pred_raw);
+
+    VBF_dPhi_dEta_3JV_pred = CalcPrediction( VBF_dPhi_dEta_3JV_pred_raw);
+    VBF_dEta_dEta_3JV_pred = CalcPrediction( VBF_dEta_dEta_3JV_pred_raw);
+    VBF_Mjj_dEta_3JV_pred = CalcPrediction( VBF_Mjj_dEta_3JV_pred_raw);
+    VBF_Jet1Pt_dEta_3JV_pred = CalcPrediction( VBF_Jet1Pt_dEta_3JV_pred_raw);
+    VBF_Jet2Pt_dEta_3JV_pred = CalcPrediction( VBF_Jet2Pt_dEta_3JV_pred_raw);
+    VBF_Jet3Pt_dEta_3JV_pred = CalcPrediction( VBF_Jet3Pt_dEta_3JV_pred_raw);
+    VBF_Jet1Eta_dEta_3JV_pred = CalcPrediction( VBF_Jet1Eta_dEta_3JV_pred_raw);
+    VBF_Jet2Eta_dEta_3JV_pred = CalcPrediction( VBF_Jet2Eta_dEta_3JV_pred_raw);
+    VBF_Jet3Eta_dEta_3JV_pred = CalcPrediction( VBF_Jet3Eta_dEta_3JV_pred_raw);
+    VBF_PTjj_dEta_3JV_pred = CalcPrediction( VBF_PTjj_dEta_3JV_pred_raw);
+    VBF_minDeltaPhiPTj12_dEta_3JV_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw);
+    VBF_maxDeltaPhiPTj12_dEta_3JV_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw);
+    VBF_DeltaPhiPTj3_dEta_3JV_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_3JV_pred_raw);
+
+    VBF_dPhi_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_dEta_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Mjj_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_PTjj_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw);
 
     cout << "after calculation of prediction" << endl;
     //----------------------------------------------------------//
@@ -1172,292 +1583,447 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
     // Save histograms: prediction
 
-    HT_presel_pred->Write();
-    MHT_presel_pred->Write();
-    MET_presel_pred->Write();
-    NJets_presel_pred->Write();
-    NBJets_presel_pred->Write();
-    Jet1Pt_presel_pred->Write();
-    Jet2Pt_presel_pred->Write();
-    Jet3Pt_presel_pred->Write();
-    Jet1Eta_presel_pred->Write();
-    Jet2Eta_presel_pred->Write();
-    Jet3Eta_presel_pred->Write();
+    if (HTMHT) {
+        HT_presel_pred->Write();
+        MHT_presel_pred->Write();
+        MET_presel_pred->Write();
+        NJets_presel_pred->Write();
+        NBJets_presel_pred->Write();
+        Jet1Pt_presel_pred->Write();
+        Jet2Pt_presel_pred->Write();
+        Jet3Pt_presel_pred->Write();
+        Jet1Eta_presel_pred->Write();
+        Jet2Eta_presel_pred->Write();
+        Jet3Eta_presel_pred->Write();
 
-    HT_deltaPhi_pred->Write();
-    MHT_deltaPhi_pred->Write();
-    MET_deltaPhi_pred->Write();
-    Jet1Pt_deltaPhi_pred->Write();
-    Jet2Pt_deltaPhi_pred->Write();
-    Jet3Pt_deltaPhi_pred->Write();
-    Jet1Eta_deltaPhi_pred->Write();
-    Jet2Eta_deltaPhi_pred->Write();
-    Jet3Eta_deltaPhi_pred->Write();
+        HT_deltaPhi_pred->Write();
+        MHT_deltaPhi_pred->Write();
+        MET_deltaPhi_pred->Write();
+        Jet1Pt_deltaPhi_pred->Write();
+        Jet2Pt_deltaPhi_pred->Write();
+        Jet3Pt_deltaPhi_pred->Write();
+        Jet1Eta_deltaPhi_pred->Write();
+        Jet2Eta_deltaPhi_pred->Write();
+        Jet3Eta_deltaPhi_pred->Write();
 
-    NJets_baseline_withoutMET_pred->Write();
-    NJets_baseline_pred->Write();
-    NJets_baseline_withoutDeltaPhi_withoutMET_pred->Write();
-    NJets_baseline_withoutDeltaPhi_pred ->Write();
+        NJets_baseline_withoutMET_pred->Write();
+        NJets_baseline_pred->Write();
+        NJets_baseline_withoutDeltaPhi_withoutMET_pred->Write();
+        NJets_baseline_withoutDeltaPhi_pred ->Write();
 
-    NBJets_baseline_withoutMET_pred->Write();
-    NBJets_baseline_pred->Write();
-    NBJets_baseline_withoutDeltaPhi_withoutMET_pred->Write();
-    NBJets_baseline_withoutDeltaPhi_pred ->Write();
+        NBJets_baseline_withoutMET_pred->Write();
+        NBJets_baseline_pred->Write();
+        NBJets_baseline_withoutDeltaPhi_withoutMET_pred->Write();
+        NBJets_baseline_withoutDeltaPhi_pred ->Write();
 
-    HT_baseline_pred->Write();
-    MHT_baseline_pred->Write();
-    MET_baseline_pred->Write();
+        HT_baseline_pred->Write();
+        MHT_baseline_pred->Write();
+        MET_baseline_pred->Write();
 
-    MHT_JetBin1_HTinclusive_pred->Write();
-    MHT_JetBin2_HTinclusive_pred->Write();
-    MHT_JetBin3_HTinclusive_pred->Write();
-    MHT_JetBin4_HTinclusive_pred->Write();
+        MHT_JetBin1_HTinclusive_pred->Write();
+        MHT_JetBin2_HTinclusive_pred->Write();
+        MHT_JetBin3_HTinclusive_pred->Write();
+        MHT_JetBin4_HTinclusive_pred->Write();
 
-    MET_JetBin1_HTinclusive_pred->Write();
-    MET_JetBin2_HTinclusive_pred->Write();
-    MET_JetBin3_HTinclusive_pred->Write();
-    MET_JetBin4_HTinclusive_pred->Write();
+        MET_JetBin1_HTinclusive_pred->Write();
+        MET_JetBin2_HTinclusive_pred->Write();
+        MET_JetBin3_HTinclusive_pred->Write();
+        MET_JetBin4_HTinclusive_pred->Write();
 
-    Jet1Pt_JetBin1_baseline_pred->Write();
-    Jet2Pt_JetBin1_baseline_pred->Write();
-    Jet1Eta_JetBin1_baseline_pred->Write();
-    Jet2Eta_JetBin1_baseline_pred->Write();
-    DeltaPhi1_JetBin1_baseline_pred->Write();
-    DeltaPhi2_JetBin1_baseline_pred->Write();
+        Jet1Pt_JetBin1_baseline_pred->Write();
+        Jet2Pt_JetBin1_baseline_pred->Write();
+        Jet1Eta_JetBin1_baseline_pred->Write();
+        Jet2Eta_JetBin1_baseline_pred->Write();
+        DeltaPhi1_JetBin1_baseline_pred->Write();
+        DeltaPhi2_JetBin1_baseline_pred->Write();
 
-    Jet1Pt_JetBin2_baseline_pred->Write();
-    Jet2Pt_JetBin2_baseline_pred->Write();
-    Jet3Pt_JetBin2_baseline_pred->Write();
-    Jet1Eta_JetBin2_baseline_pred->Write();
-    Jet2Eta_JetBin2_baseline_pred->Write();
-    Jet3Eta_JetBin2_baseline_pred->Write();
-    DeltaPhi1_JetBin2_baseline_pred->Write();
-    DeltaPhi2_JetBin2_baseline_pred->Write();
-    DeltaPhi3_JetBin2_baseline_pred->Write();
+        Jet1Pt_JetBin2_baseline_pred->Write();
+        Jet2Pt_JetBin2_baseline_pred->Write();
+        Jet3Pt_JetBin2_baseline_pred->Write();
+        Jet1Eta_JetBin2_baseline_pred->Write();
+        Jet2Eta_JetBin2_baseline_pred->Write();
+        Jet3Eta_JetBin2_baseline_pred->Write();
+        DeltaPhi1_JetBin2_baseline_pred->Write();
+        DeltaPhi2_JetBin2_baseline_pred->Write();
+        DeltaPhi3_JetBin2_baseline_pred->Write();
 
-    Jet1Pt_JetBin3_baseline_pred->Write();
-    Jet2Pt_JetBin3_baseline_pred->Write();
-    Jet3Pt_JetBin3_baseline_pred->Write();
-    Jet1Eta_JetBin3_baseline_pred->Write();
-    Jet2Eta_JetBin3_baseline_pred->Write();
-    Jet3Eta_JetBin3_baseline_pred->Write();
-    DeltaPhi1_JetBin3_baseline_pred->Write();
-    DeltaPhi2_JetBin3_baseline_pred->Write();
-    DeltaPhi3_JetBin3_baseline_pred->Write();
+        Jet1Pt_JetBin3_baseline_pred->Write();
+        Jet2Pt_JetBin3_baseline_pred->Write();
+        Jet3Pt_JetBin3_baseline_pred->Write();
+        Jet1Eta_JetBin3_baseline_pred->Write();
+        Jet2Eta_JetBin3_baseline_pred->Write();
+        Jet3Eta_JetBin3_baseline_pred->Write();
+        DeltaPhi1_JetBin3_baseline_pred->Write();
+        DeltaPhi2_JetBin3_baseline_pred->Write();
+        DeltaPhi3_JetBin3_baseline_pred->Write();
 
-    Jet1Pt_JetBin4_baseline_pred->Write();
-    Jet2Pt_JetBin4_baseline_pred->Write();
-    Jet3Pt_JetBin4_baseline_pred->Write();
-    Jet1Eta_JetBin4_baseline_pred->Write();
-    Jet2Eta_JetBin4_baseline_pred->Write();
-    Jet3Eta_JetBin4_baseline_pred->Write();
-    DeltaPhi1_JetBin4_baseline_pred->Write();
-    DeltaPhi2_JetBin4_baseline_pred->Write();
-    DeltaPhi3_JetBin4_baseline_pred->Write();
+        Jet1Pt_JetBin4_baseline_pred->Write();
+        Jet2Pt_JetBin4_baseline_pred->Write();
+        Jet3Pt_JetBin4_baseline_pred->Write();
+        Jet1Eta_JetBin4_baseline_pred->Write();
+        Jet2Eta_JetBin4_baseline_pred->Write();
+        Jet3Eta_JetBin4_baseline_pred->Write();
+        DeltaPhi1_JetBin4_baseline_pred->Write();
+        DeltaPhi2_JetBin4_baseline_pred->Write();
+        DeltaPhi3_JetBin4_baseline_pred->Write();
 
-    HT_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    MHT_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    MET_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        HT_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        MHT_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        MET_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Eta_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_pred->Write();
 
-    HT_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    MHT_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    MET_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        HT_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        MHT_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        MET_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Eta_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_pred->Write();
 
-    HT_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    MHT_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    MET_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        HT_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        MHT_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        MET_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Eta_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_pred->Write();
 
-    HT_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    MHT_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    MET_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred->Write();
-    DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        HT_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        MHT_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        MET_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet1Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet2Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        Jet3Eta_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_pred->Write();
+        DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_pred->Write();
 
-    Mjj_pred->Write();
-    Mjj_3rdVeto_pred->Write();
-    Mjj_NoDeltaPhi_pred->Write();
-    Mjj_DPhiMHT_pred->Write();
-    Mjj_DPhiMHT_3rdVeto_pred->Write();
-    Mjj_DPhiMHT_NoDeltaPhi_pred->Write();
+    }
+
+    if (VBF) {
+
+        VBF_dPhi_presel_pred->Write();
+        VBF_dEta_presel_pred->Write();
+        VBF_Mjj_presel_pred->Write();
+        VBF_Jet1Pt_presel_pred->Write();
+        VBF_Jet2Pt_presel_pred->Write();
+        VBF_Jet3Pt_presel_pred->Write();
+        VBF_Jet1Eta_presel_pred->Write();
+        VBF_Jet2Eta_presel_pred->Write();
+        VBF_Jet3Eta_presel_pred->Write();
+        VBF_PTjj_presel_pred->Write();
+        VBF_minDeltaPhiPTj12_presel_pred->Write();
+        VBF_maxDeltaPhiPTj12_presel_pred->Write();
+        VBF_DeltaPhiPTj3_presel_pred->Write();
+
+        VBF_dPhi_presel_4JV_dPhiSide_pred->Write();
+        VBF_dEta_presel_4JV_dPhiSide_pred->Write();
+        VBF_Mjj_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet1Pt_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet2Pt_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet3Pt_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet1Eta_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet2Eta_presel_4JV_dPhiSide_pred->Write();
+        VBF_Jet3Eta_presel_4JV_dPhiSide_pred->Write();
+        VBF_PTjj_presel_4JV_dPhiSide_pred->Write();
+        VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred->Write();
+        VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred->Write();
+        VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred->Write();
+
+        VBF_dPhi_dEta_pred->Write();
+        VBF_dEta_dEta_pred->Write();
+        VBF_Mjj_dEta_pred->Write();
+        VBF_Jet1Pt_dEta_pred->Write();
+        VBF_Jet2Pt_dEta_pred->Write();
+        VBF_Jet3Pt_dEta_pred->Write();
+        VBF_Jet1Eta_dEta_pred->Write();
+        VBF_Jet2Eta_dEta_pred->Write();
+        VBF_Jet3Eta_dEta_pred->Write();
+        VBF_PTjj_dEta_pred->Write();
+        VBF_minDeltaPhiPTj12_dEta_pred->Write();
+        VBF_maxDeltaPhiPTj12_dEta_pred->Write();
+        VBF_DeltaPhiPTj3_dEta_pred->Write();
+
+        VBF_dPhi_dEta_3JV_pred->Write();
+        VBF_dEta_dEta_3JV_pred->Write();
+        VBF_Mjj_dEta_3JV_pred->Write();
+        VBF_Jet1Pt_dEta_3JV_pred->Write();
+        VBF_Jet2Pt_dEta_3JV_pred->Write();
+        VBF_Jet3Pt_dEta_3JV_pred->Write();
+        VBF_Jet1Eta_dEta_3JV_pred->Write();
+        VBF_Jet2Eta_dEta_3JV_pred->Write();
+        VBF_Jet3Eta_dEta_3JV_pred->Write();
+        VBF_PTjj_dEta_3JV_pred->Write();
+        VBF_minDeltaPhiPTj12_dEta_3JV_pred->Write();
+        VBF_maxDeltaPhiPTj12_dEta_3JV_pred->Write();
+        VBF_DeltaPhiPTj3_dEta_3JV_pred->Write();
+
+        VBF_dPhi_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_dEta_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Mjj_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_PTjj_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred->Write();
+
+    }
 
     cout << "after saving predictions" << endl;
 
     // Save histograms: expectation
 
-    HT_presel_sel->Write();
-    MHT_presel_sel->Write();
-    MET_presel_sel->Write();
-    NJets_presel_sel->Write();
-    NBJets_presel_sel->Write();
-    Jet1Pt_presel_sel->Write();
-    Jet2Pt_presel_sel->Write();
-    Jet3Pt_presel_sel->Write();
-    Jet1Eta_presel_sel->Write();
-    Jet2Eta_presel_sel->Write();
-    Jet3Eta_presel_sel->Write();
-    HT_deltaPhi_sel->Write();
-    MHT_deltaPhi_sel->Write();
-    MET_deltaPhi_sel->Write();
-    Jet1Pt_deltaPhi_sel->Write();
-    Jet2Pt_deltaPhi_sel->Write();
-    Jet3Pt_deltaPhi_sel->Write();
-    Jet1Eta_deltaPhi_sel->Write();
-    Jet2Eta_deltaPhi_sel->Write();
-    Jet3Eta_deltaPhi_sel->Write();
+    if (HTMHT) {
 
-    NJets_baseline_withoutMET_sel->Write();
-    NJets_baseline_sel->Write();
-    NJets_baseline_withoutDeltaPhi_withoutMET_sel->Write();
-    NJets_baseline_withoutDeltaPhi_sel ->Write();
+        HT_presel_sel->Write();
+        MHT_presel_sel->Write();
+        MET_presel_sel->Write();
+        NJets_presel_sel->Write();
+        NBJets_presel_sel->Write();
+        Jet1Pt_presel_sel->Write();
+        Jet2Pt_presel_sel->Write();
+        Jet3Pt_presel_sel->Write();
+        Jet1Eta_presel_sel->Write();
+        Jet2Eta_presel_sel->Write();
+        Jet3Eta_presel_sel->Write();
+        HT_deltaPhi_sel->Write();
+        MHT_deltaPhi_sel->Write();
+        MET_deltaPhi_sel->Write();
+        Jet1Pt_deltaPhi_sel->Write();
+        Jet2Pt_deltaPhi_sel->Write();
+        Jet3Pt_deltaPhi_sel->Write();
+        Jet1Eta_deltaPhi_sel->Write();
+        Jet2Eta_deltaPhi_sel->Write();
+        Jet3Eta_deltaPhi_sel->Write();
 
-    NBJets_baseline_withoutMET_sel->Write();
-    NBJets_baseline_sel->Write();
-    NBJets_baseline_withoutDeltaPhi_withoutMET_sel->Write();
-    NBJets_baseline_withoutDeltaPhi_sel ->Write();
+        NJets_baseline_withoutMET_sel->Write();
+        NJets_baseline_sel->Write();
+        NJets_baseline_withoutDeltaPhi_withoutMET_sel->Write();
+        NJets_baseline_withoutDeltaPhi_sel ->Write();
 
-    HT_baseline_sel->Write();
-    MHT_baseline_sel->Write();
-    MET_baseline_sel->Write();
+        NBJets_baseline_withoutMET_sel->Write();
+        NBJets_baseline_sel->Write();
+        NBJets_baseline_withoutDeltaPhi_withoutMET_sel->Write();
+        NBJets_baseline_withoutDeltaPhi_sel ->Write();
 
-    MHT_JetBin1_HTinclusive_sel->Write();
-    MHT_JetBin2_HTinclusive_sel->Write();
-    MHT_JetBin3_HTinclusive_sel->Write();
-    MHT_JetBin4_HTinclusive_sel->Write();
+        HT_baseline_sel->Write();
+        MHT_baseline_sel->Write();
+        MET_baseline_sel->Write();
 
-    MET_JetBin1_HTinclusive_sel->Write();
-    MET_JetBin2_HTinclusive_sel->Write();
-    MET_JetBin3_HTinclusive_sel->Write();
-    MET_JetBin4_HTinclusive_sel->Write();
+        MHT_JetBin1_HTinclusive_sel->Write();
+        MHT_JetBin2_HTinclusive_sel->Write();
+        MHT_JetBin3_HTinclusive_sel->Write();
+        MHT_JetBin4_HTinclusive_sel->Write();
 
-    Jet1Pt_JetBin1_baseline_sel->Write();
-    Jet2Pt_JetBin1_baseline_sel->Write();
-    Jet1Eta_JetBin1_baseline_sel->Write();
-    Jet2Eta_JetBin1_baseline_sel->Write();
-    DeltaPhi1_JetBin1_baseline_sel->Write();
-    DeltaPhi2_JetBin1_baseline_sel->Write();
+        MET_JetBin1_HTinclusive_sel->Write();
+        MET_JetBin2_HTinclusive_sel->Write();
+        MET_JetBin3_HTinclusive_sel->Write();
+        MET_JetBin4_HTinclusive_sel->Write();
 
-    Jet1Pt_JetBin2_baseline_sel->Write();
-    Jet2Pt_JetBin2_baseline_sel->Write();
-    Jet3Pt_JetBin2_baseline_sel->Write();
-    Jet1Eta_JetBin2_baseline_sel->Write();
-    Jet2Eta_JetBin2_baseline_sel->Write();
-    Jet3Eta_JetBin2_baseline_sel->Write();
-    DeltaPhi1_JetBin2_baseline_sel->Write();
-    DeltaPhi2_JetBin2_baseline_sel->Write();
-    DeltaPhi3_JetBin2_baseline_sel->Write();
+        Jet1Pt_JetBin1_baseline_sel->Write();
+        Jet2Pt_JetBin1_baseline_sel->Write();
+        Jet1Eta_JetBin1_baseline_sel->Write();
+        Jet2Eta_JetBin1_baseline_sel->Write();
+        DeltaPhi1_JetBin1_baseline_sel->Write();
+        DeltaPhi2_JetBin1_baseline_sel->Write();
 
-    Jet1Pt_JetBin3_baseline_sel->Write();
-    Jet2Pt_JetBin3_baseline_sel->Write();
-    Jet3Pt_JetBin3_baseline_sel->Write();
-    Jet1Eta_JetBin3_baseline_sel->Write();
-    Jet2Eta_JetBin3_baseline_sel->Write();
-    Jet3Eta_JetBin3_baseline_sel->Write();
-    DeltaPhi1_JetBin3_baseline_sel->Write();
-    DeltaPhi2_JetBin3_baseline_sel->Write();
-    DeltaPhi3_JetBin3_baseline_sel->Write();
+        Jet1Pt_JetBin2_baseline_sel->Write();
+        Jet2Pt_JetBin2_baseline_sel->Write();
+        Jet3Pt_JetBin2_baseline_sel->Write();
+        Jet1Eta_JetBin2_baseline_sel->Write();
+        Jet2Eta_JetBin2_baseline_sel->Write();
+        Jet3Eta_JetBin2_baseline_sel->Write();
+        DeltaPhi1_JetBin2_baseline_sel->Write();
+        DeltaPhi2_JetBin2_baseline_sel->Write();
+        DeltaPhi3_JetBin2_baseline_sel->Write();
 
-    Jet1Pt_JetBin4_baseline_sel->Write();
-    Jet2Pt_JetBin4_baseline_sel->Write();
-    Jet3Pt_JetBin4_baseline_sel->Write();
-    Jet1Eta_JetBin4_baseline_sel->Write();
-    Jet2Eta_JetBin4_baseline_sel->Write();
-    Jet3Eta_JetBin4_baseline_sel->Write();
-    DeltaPhi1_JetBin4_baseline_sel->Write();
-    DeltaPhi2_JetBin4_baseline_sel->Write();
-    DeltaPhi3_JetBin4_baseline_sel->Write();
+        Jet1Pt_JetBin3_baseline_sel->Write();
+        Jet2Pt_JetBin3_baseline_sel->Write();
+        Jet3Pt_JetBin3_baseline_sel->Write();
+        Jet1Eta_JetBin3_baseline_sel->Write();
+        Jet2Eta_JetBin3_baseline_sel->Write();
+        Jet3Eta_JetBin3_baseline_sel->Write();
+        DeltaPhi1_JetBin3_baseline_sel->Write();
+        DeltaPhi2_JetBin3_baseline_sel->Write();
+        DeltaPhi3_JetBin3_baseline_sel->Write();
 
-    HT_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    MHT_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    MET_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Eta_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Eta_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Pt_JetBin4_baseline_sel->Write();
+        Jet2Pt_JetBin4_baseline_sel->Write();
+        Jet3Pt_JetBin4_baseline_sel->Write();
+        Jet1Eta_JetBin4_baseline_sel->Write();
+        Jet2Eta_JetBin4_baseline_sel->Write();
+        Jet3Eta_JetBin4_baseline_sel->Write();
+        DeltaPhi1_JetBin4_baseline_sel->Write();
+        DeltaPhi2_JetBin4_baseline_sel->Write();
+        DeltaPhi3_JetBin4_baseline_sel->Write();
 
-    HT_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    MHT_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    MET_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        HT_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        MHT_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        MET_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Pt_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Pt_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Eta_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Eta_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi1_JetBin1_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi2_JetBin1_baseline_withoutDeltaPhi_sel->Write();
 
-    HT_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    MHT_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    MET_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        HT_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        MHT_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        MET_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Pt_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Eta_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi1_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi2_JetBin2_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi3_JetBin2_baseline_withoutDeltaPhi_sel->Write();
 
-    HT_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    MHT_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    MET_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet1Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet2Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    Jet3Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel->Write();
-    DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        HT_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        MHT_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        MET_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Pt_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Eta_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi1_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi2_JetBin3_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi3_JetBin3_baseline_withoutDeltaPhi_sel->Write();
 
-    Mjj_sel->Write();
-    Mjj_3rdVeto_sel->Write();
-    Mjj_NoDeltaPhi_sel->Write();
-    Mjj_DPhiMHT_sel->Write();
-    Mjj_DPhiMHT_3rdVeto_sel->Write();
-    Mjj_DPhiMHT_NoDeltaPhi_sel->Write();
+        HT_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        MHT_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        MET_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Pt_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet1Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet2Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        Jet3Eta_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi1_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi2_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+        DeltaPhi3_JetBin4_baseline_withoutDeltaPhi_sel->Write();
+
+    }
+
+    if (VBF) {
+
+        VBF_dPhi_presel_sel->Write();
+        VBF_dEta_presel_sel->Write();
+        VBF_Mjj_presel_sel->Write();
+        VBF_Jet1Pt_presel_sel->Write();
+        VBF_Jet2Pt_presel_sel->Write();
+        VBF_Jet3Pt_presel_sel->Write();
+        VBF_Jet1Eta_presel_sel->Write();
+        VBF_Jet2Eta_presel_sel->Write();
+        VBF_Jet3Eta_presel_sel->Write();
+        VBF_PTjj_presel_sel->Write();
+        VBF_minDeltaPhiPTj12_presel_sel->Write();
+        VBF_maxDeltaPhiPTj12_presel_sel->Write();
+        VBF_DeltaPhiPTj3_presel_sel->Write();
+
+        VBF_dPhi_presel_4JV_dPhiSide_sel->Write();
+        VBF_dEta_presel_4JV_dPhiSide_sel->Write();
+        VBF_Mjj_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet1Pt_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet2Pt_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet3Pt_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet1Eta_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet2Eta_presel_4JV_dPhiSide_sel->Write();
+        VBF_Jet3Eta_presel_4JV_dPhiSide_sel->Write();
+        VBF_PTjj_presel_4JV_dPhiSide_sel->Write();
+        VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Write();
+        VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Write();
+        VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Write();
+
+        VBF_dPhi_dEta_sel->Write();
+        VBF_dEta_dEta_sel->Write();
+        VBF_Mjj_dEta_sel->Write();
+        VBF_Jet1Pt_dEta_sel->Write();
+        VBF_Jet2Pt_dEta_sel->Write();
+        VBF_Jet3Pt_dEta_sel->Write();
+        VBF_Jet1Eta_dEta_sel->Write();
+        VBF_Jet2Eta_dEta_sel->Write();
+        VBF_Jet3Eta_dEta_sel->Write();
+        VBF_PTjj_dEta_sel->Write();
+        VBF_minDeltaPhiPTj12_dEta_sel->Write();
+        VBF_maxDeltaPhiPTj12_dEta_sel->Write();
+        VBF_DeltaPhiPTj3_dEta_sel->Write();
+
+        VBF_dPhi_dEta_3JV_sel->Write();
+        VBF_dEta_dEta_3JV_sel->Write();
+        VBF_Mjj_dEta_3JV_sel->Write();
+        VBF_Jet1Pt_dEta_3JV_sel->Write();
+        VBF_Jet2Pt_dEta_3JV_sel->Write();
+        VBF_Jet3Pt_dEta_3JV_sel->Write();
+        VBF_Jet1Eta_dEta_3JV_sel->Write();
+        VBF_Jet2Eta_dEta_3JV_sel->Write();
+        VBF_Jet3Eta_dEta_3JV_sel->Write();
+        VBF_PTjj_dEta_3JV_sel->Write();
+        VBF_minDeltaPhiPTj12_dEta_3JV_sel->Write();
+        VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Write();
+        VBF_DeltaPhiPTj3_dEta_3JV_sel->Write();
+
+        VBF_dPhi_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_dEta_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Mjj_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_PTjj_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Write();
+
+    }
 
     cout << "after saving expectation" << endl;
 
     prediction_histos->Write();
 
-    cout << "end" << endl;
+    double value, error;
+    cout << "Yields from R+S in QCD VRs:" << endl << endl;
+    
+    value = VBF_Mjj_presel_4JV_dPhiSide_pred->IntegralAndError (2, 6, error);
+    cout << "VR3: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_pred->IntegralAndError (2, 6, error);
+    cout << "VR5: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_presel_pred->IntegralAndError (2, 6, error);
+    cout << "VR6: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (2, 6, error);
+    cout << "SR: " << value << "+-" << error << endl;
+
 }
 
 
@@ -1498,31 +2064,37 @@ double Prediction::CalcMjj() {
     v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
     TLorentzVector v2(0., 0., 0., 0.);
     v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
-    //cout << "Mjj Jet1 (pT, eta, phi): " << v1.Pt() << ", " << v1.Eta() << ", " << v1.Phi() << endl;
-    //cout << "Mjj Jet2 (pT, eta, phi): " << v2.Pt() << ", " << v2.Eta() << ", " << v2.Phi() << endl;
     double result = (v1+v2).M();
-    //cout << "Mjj: " << result << endl;
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
-double Prediction::CalcDPhiMHT() {
+bool Prediction::CalcDPhiMHT(double& DPhiMHTmin, double& DPhiMHTmax, double& DPhiMHT3) {
     TLorentzVector v1(0., 0., 0., 0.);
     v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
     TLorentzVector v2(0., 0., 0., 0.);
     v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
+    TLorentzVector v3(0., 0., 0., 0.);
+    v3.SetPtEtaPhiM(JetPt->at(2), JetEta->at(2), JetPhi->at(2), JetM->at(2));
     TLorentzVector MHT(0., 0., 0., 0.);
-    MHT += v1;
-    MHT += v2;
-    double result = fabs(MHT.DeltaPhi(v1));
-    double result2 = fabs(MHT.DeltaPhi(v2));
-    if (result2 < result) result = result2;
-    //cout << "MHT Jet1 (pT, eta, phi): " << v1.Pt() << ", " << v1.Eta() << ", " << v1.Phi() << endl;
-    //cout << "MHT Jet2 (pT, eta, phi): " << v2.Pt() << ", " << v2.Eta() << ", " << v2.Phi() << endl;
-    //cout << "MHT Jet3 (pT, eta, phi): " << v3.Pt() << ", " << v3.Eta() << ", " << v3.Phi() << endl;
-    //cout << "DPhiMHT: " << result << endl;
-    return result;
+    MHT -= v1;
+    MHT -= v2;
+    double DPhiMHT1 = fabs(MHT.DeltaPhi(v1));
+    double DPhiMHT2 = fabs(MHT.DeltaPhi(v2));
+    if (JetPt->at(2) > 0) {
+        DPhiMHT3 = fabs(MHT.DeltaPhi(v3));
+    } else {
+        DPhiMHT3 = 999;
+    }
+    if (DPhiMHT1 < DPhiMHT2) {
+        DPhiMHTmin = DPhiMHT1;
+        DPhiMHTmax = DPhiMHT2;
+    } else {
+        DPhiMHTmin = DPhiMHT2;
+        DPhiMHTmax = DPhiMHT1;
+    }
+    return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1532,7 +2104,7 @@ double Prediction::CalcDeltaPhi() {
     v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
     TLorentzVector v2(0., 0., 0., 0.);
     v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
-    double result = v1.DeltaPhi(v2);
+    double result = fabs(v1.DeltaPhi(v2));
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1549,15 +2121,29 @@ double Prediction::CalcDeltaEta() {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
+bool Prediction::Soft3rd() {
+    bool result = (JetPt->at(2) > 25. && JetPt->at(2) < 50. && fabs(JetEta->at(2)) < 4.5);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::Veto3rd() {
-    bool result = (JetPt->at(2) < 25.);
+    bool result = (JetPt->at(2) < 25. || fabs(JetEta->at(2)) > 4.5);
+    return result;
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////
+bool Prediction::Veto4th() {
+    bool result = (JetPt->at(3) < 25. || fabs(JetEta->at(3)) > 4.5);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::MjjJetSel() {
-    bool result = (JetPt->at(0) > 80. && JetPt->at(1) > 50.);
+    bool result = (JetPt->at(0) > 80. && JetPt->at(1) > 50. && fabs(JetEta->at(0)) < 4.5 && fabs(JetEta->at(1)) < 4.5 && (JetEta->at(0)*JetEta->at(1)) < 0.);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -1633,7 +2219,7 @@ void Prediction::DoRebinning(TH2F* prediction_raw, TH1F* selection_raw, int Nbin
     if (Nbins == -3) {
 
         int nbins = 6;
-        double vbins[7] = { 0., 600., 1000., 1500., 2000., 5000., 5500.};
+        double vbins[7] = { 0., 600., 1000., 1500., 2000., 3000., 4000.};
 
         prediction_raw->GetXaxis()->Set(nbins, &vbins[0]);
         for (int j = 0; j <= prediction_raw->GetYaxis()->GetNbins() + 1; ++j) {
@@ -1871,12 +2457,75 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "NBJets_baseline_withoutDeltaPhi_withoutMET") return NBJets_baseline_withoutDeltaPhi_withoutMET_sel;
     if ( type == "NBJets_baseline_withoutDeltaPhi") return NBJets_baseline_withoutDeltaPhi_sel;
 
-    if ( type == "Mjj") return Mjj_sel;
-    if ( type == "Mjj_3rdVeto") return Mjj_3rdVeto_sel;
-    if ( type == "Mjj_NoDeltaPhi") return Mjj_NoDeltaPhi_sel;
-    if ( type == "Mjj_DPhiMHT") return Mjj_DPhiMHT_sel;
-    if ( type == "Mjj_DPhiMHT_3rdVeto") return Mjj_DPhiMHT_3rdVeto_sel;
-    if ( type == "Mjj_DPhiMHT_NoDeltaPhi") return Mjj_DPhiMHT_NoDeltaPhi_sel;
+    if ( type == "VBF_dPhi_presel") return VBF_dPhi_presel_sel;
+    if ( type == "VBF_dEta_presel") return VBF_dEta_presel_sel;
+    if ( type == "VBF_Mjj_presel") return VBF_Mjj_presel_sel;
+    if ( type == "VBF_Jet1Pt_presel") return VBF_Jet1Pt_presel_sel;
+    if ( type == "VBF_Jet2Pt_presel") return VBF_Jet2Pt_presel_sel;
+    if ( type == "VBF_Jet3Pt_presel") return VBF_Jet3Pt_presel_sel;
+    if ( type == "VBF_Jet1Eta_presel") return VBF_Jet1Eta_presel_sel;
+    if ( type == "VBF_Jet2Eta_presel") return VBF_Jet2Eta_presel_sel;
+    if ( type == "VBF_Jet3Eta_presel") return VBF_Jet3Eta_presel_sel;
+    if ( type == "VBF_PTjj_presel") return VBF_PTjj_presel_sel;
+    if ( type == "VBF_minDeltaPhiPTj12_presel") return VBF_minDeltaPhiPTj12_presel_sel;
+    if ( type == "VBF_maxDeltaPhiPTj12_presel") return VBF_maxDeltaPhiPTj12_presel_sel;
+    if ( type == "VBF_DeltaPhiPTj3_presel") return VBF_DeltaPhiPTj3_presel_sel;
+
+    if ( type == "VBF_dPhi_presel_4JV_dPhiSide") return VBF_dPhi_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_dEta_presel_4JV_dPhiSide") return VBF_dEta_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Mjj_presel_4JV_dPhiSide") return VBF_Mjj_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet1Pt_presel_4JV_dPhiSide") return VBF_Jet1Pt_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet2Pt_presel_4JV_dPhiSide") return VBF_Jet2Pt_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet3Pt_presel_4JV_dPhiSide") return VBF_Jet3Pt_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet1Eta_presel_4JV_dPhiSide") return VBF_Jet1Eta_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet2Eta_presel_4JV_dPhiSide") return VBF_Jet2Eta_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_Jet3Eta_presel_4JV_dPhiSide") return VBF_Jet3Eta_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_PTjj_presel_4JV_dPhiSide") return VBF_PTjj_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_DeltaPhiPTj3_presel_4JV_dPhiSide") return VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel;
+
+    if ( type == "VBF_dPhi_dEta") return VBF_dPhi_dEta_sel;
+    if ( type == "VBF_dEta_dEta") return VBF_dEta_dEta_sel;
+    if ( type == "VBF_Mjj_dEta") return VBF_Mjj_dEta_sel;
+    if ( type == "VBF_Jet1Pt_dEta") return VBF_Jet1Pt_dEta_sel;
+    if ( type == "VBF_Jet2Pt_dEta") return VBF_Jet2Pt_dEta_sel;
+    if ( type == "VBF_Jet3Pt_dEta") return VBF_Jet3Pt_dEta_sel;
+    if ( type == "VBF_Jet1Eta_dEta") return VBF_Jet1Eta_dEta_sel;
+    if ( type == "VBF_Jet2Eta_dEta") return VBF_Jet2Eta_dEta_sel;
+    if ( type == "VBF_Jet3Eta_dEta") return VBF_Jet3Eta_dEta_sel;
+    if ( type == "VBF_PTjj_dEta") return VBF_PTjj_dEta_sel;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta") return VBF_minDeltaPhiPTj12_dEta_sel;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta") return VBF_maxDeltaPhiPTj12_dEta_sel;
+    if ( type == "VBF_DeltaPhiPTj3_dEta") return VBF_DeltaPhiPTj3_dEta_sel;
+
+    if ( type == "VBF_dPhi_dEta_3JV") return VBF_dPhi_dEta_3JV_sel;
+    if ( type == "VBF_dEta_dEta_3JV") return VBF_dEta_dEta_3JV_sel;
+    if ( type == "VBF_Mjj_dEta_3JV") return VBF_Mjj_dEta_3JV_sel;
+    if ( type == "VBF_Jet1Pt_dEta_3JV") return VBF_Jet1Pt_dEta_3JV_sel;
+    if ( type == "VBF_Jet2Pt_dEta_3JV") return VBF_Jet2Pt_dEta_3JV_sel;
+    if ( type == "VBF_Jet3Pt_dEta_3JV") return VBF_Jet3Pt_dEta_3JV_sel;
+    if ( type == "VBF_Jet1Eta_dEta_3JV") return VBF_Jet1Eta_dEta_3JV_sel;
+    if ( type == "VBF_Jet2Eta_dEta_3JV") return VBF_Jet2Eta_dEta_3JV_sel;
+    if ( type == "VBF_Jet3Eta_dEta_3JV") return VBF_Jet3Eta_dEta_3JV_sel;
+    if ( type == "VBF_PTjj_dEta_3JV") return VBF_PTjj_dEta_3JV_sel;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV") return VBF_minDeltaPhiPTj12_dEta_3JV_sel;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV") return VBF_maxDeltaPhiPTj12_dEta_3JV_sel;
+    if ( type == "VBF_DeltaPhiPTj3_dEta_3JV") return VBF_DeltaPhiPTj3_dEta_3JV_sel;
+
+    if ( type == "VBF_dPhi_dEta_3JV_dPhiPTjj") return VBF_dPhi_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_dEta_dEta_3JV_dPhiPTjj") return VBF_dEta_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Mjj_dEta_3JV_dPhiPTjj") return VBF_Mjj_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet1Pt_dEta_3JV_dPhiPTjj") return VBF_Jet1Pt_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet2Pt_dEta_3JV_dPhiPTjj") return VBF_Jet2Pt_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet3Pt_dEta_3JV_dPhiPTjj") return VBF_Jet3Pt_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet1Eta_dEta_3JV_dPhiPTjj") return VBF_Jet1Eta_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet2Eta_dEta_3JV_dPhiPTjj") return VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_Jet3Eta_dEta_3JV_dPhiPTjj") return VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_PTjj_dEta_3JV_dPhiPTjj") return VBF_PTjj_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj") return VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel;
 
     else {
         cout << "Error: No valid hist type" << endl;
@@ -2024,12 +2673,75 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "NBJets_baseline_withoutDeltaPhi_withoutMET") return NBJets_baseline_withoutDeltaPhi_withoutMET_pred;
     if ( type == "NBJets_baseline_withoutDeltaPhi") return NBJets_baseline_withoutDeltaPhi_pred;
 
-    if ( type == "Mjj") return Mjj_pred;
-    if ( type == "Mjj_3rdVeto") return Mjj_3rdVeto_pred;
-    if ( type == "Mjj_NoDeltaPhi") return Mjj_NoDeltaPhi_pred;
-    if ( type == "Mjj_DPhiMHT") return Mjj_DPhiMHT_pred;
-    if ( type == "Mjj_DPhiMHT_3rdVeto") return Mjj_DPhiMHT_3rdVeto_pred;
-    if ( type == "Mjj_DPhiMHT_NoDeltaPhi") return Mjj_DPhiMHT_NoDeltaPhi_pred;
+    if ( type == "VBF_dPhi_presel") return VBF_dPhi_presel_pred;
+    if ( type == "VBF_dEta_presel") return VBF_dEta_presel_pred;
+    if ( type == "VBF_Mjj_presel") return VBF_Mjj_presel_pred;
+    if ( type == "VBF_Jet1Pt_presel") return VBF_Jet1Pt_presel_pred;
+    if ( type == "VBF_Jet2Pt_presel") return VBF_Jet2Pt_presel_pred;
+    if ( type == "VBF_Jet3Pt_presel") return VBF_Jet3Pt_presel_pred;
+    if ( type == "VBF_Jet1Eta_presel") return VBF_Jet1Eta_presel_pred;
+    if ( type == "VBF_Jet2Eta_presel") return VBF_Jet2Eta_presel_pred;
+    if ( type == "VBF_Jet3Eta_presel") return VBF_Jet3Eta_presel_pred;
+    if ( type == "VBF_PTjj_presel") return VBF_PTjj_presel_pred;
+    if ( type == "VBF_minDeltaPhiPTj12_presel") return VBF_minDeltaPhiPTj12_presel_pred;
+    if ( type == "VBF_maxDeltaPhiPTj12_presel") return VBF_maxDeltaPhiPTj12_presel_pred;
+    if ( type == "VBF_DeltaPhiPTj3_presel") return VBF_DeltaPhiPTj3_presel_pred;
+
+    if ( type == "VBF_dPhi_presel_4JV_dPhiSide") return VBF_dPhi_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_dEta_presel_4JV_dPhiSide") return VBF_dEta_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Mjj_presel_4JV_dPhiSide") return VBF_Mjj_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet1Pt_presel_4JV_dPhiSide") return VBF_Jet1Pt_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet2Pt_presel_4JV_dPhiSide") return VBF_Jet2Pt_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet3Pt_presel_4JV_dPhiSide") return VBF_Jet3Pt_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet1Eta_presel_4JV_dPhiSide") return VBF_Jet1Eta_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet2Eta_presel_4JV_dPhiSide") return VBF_Jet2Eta_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_Jet3Eta_presel_4JV_dPhiSide") return VBF_Jet3Eta_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_PTjj_presel_4JV_dPhiSide") return VBF_PTjj_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_DeltaPhiPTj3_presel_4JV_dPhiSide") return VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred;
+
+    if ( type == "VBF_dPhi_dEta") return VBF_dPhi_dEta_pred;
+    if ( type == "VBF_dEta_dEta") return VBF_dEta_dEta_pred;
+    if ( type == "VBF_Mjj_dEta") return VBF_Mjj_dEta_pred;
+    if ( type == "VBF_Jet1Pt_dEta") return VBF_Jet1Pt_dEta_pred;
+    if ( type == "VBF_Jet2Pt_dEta") return VBF_Jet2Pt_dEta_pred;
+    if ( type == "VBF_Jet3Pt_dEta") return VBF_Jet3Pt_dEta_pred;
+    if ( type == "VBF_Jet1Eta_dEta") return VBF_Jet1Eta_dEta_pred;
+    if ( type == "VBF_Jet2Eta_dEta") return VBF_Jet2Eta_dEta_pred;
+    if ( type == "VBF_Jet3Eta_dEta") return VBF_Jet3Eta_dEta_pred;
+    if ( type == "VBF_PTjj_dEta") return VBF_PTjj_dEta_pred;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta") return VBF_minDeltaPhiPTj12_dEta_pred;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta") return VBF_maxDeltaPhiPTj12_dEta_pred;
+    if ( type == "VBF_DeltaPhiPTj3_dEta") return VBF_DeltaPhiPTj3_dEta_pred;
+
+    if ( type == "VBF_dPhi_dEta_3JV") return VBF_dPhi_dEta_3JV_pred;
+    if ( type == "VBF_dEta_dEta_3JV") return VBF_dEta_dEta_3JV_pred;
+    if ( type == "VBF_Mjj_dEta_3JV") return VBF_Mjj_dEta_3JV_pred;
+    if ( type == "VBF_Jet1Pt_dEta_3JV") return VBF_Jet1Pt_dEta_3JV_pred;
+    if ( type == "VBF_Jet2Pt_dEta_3JV") return VBF_Jet2Pt_dEta_3JV_pred;
+    if ( type == "VBF_Jet3Pt_dEta_3JV") return VBF_Jet3Pt_dEta_3JV_pred;
+    if ( type == "VBF_Jet1Eta_dEta_3JV") return VBF_Jet1Eta_dEta_3JV_pred;
+    if ( type == "VBF_Jet2Eta_dEta_3JV") return VBF_Jet2Eta_dEta_3JV_pred;
+    if ( type == "VBF_Jet3Eta_dEta_3JV") return VBF_Jet3Eta_dEta_3JV_pred;
+    if ( type == "VBF_PTjj_dEta_3JV") return VBF_PTjj_dEta_3JV_pred;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV") return VBF_minDeltaPhiPTj12_dEta_3JV_pred;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV") return VBF_maxDeltaPhiPTj12_dEta_3JV_pred;
+    if ( type == "VBF_DeltaPhiPTj3_dEta_3JV") return VBF_DeltaPhiPTj3_dEta_3JV_pred;
+
+    if ( type == "VBF_dPhi_dEta_3JV_dPhiPTjj") return VBF_dPhi_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_dEta_dEta_3JV_dPhiPTjj") return VBF_dEta_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Mjj_dEta_3JV_dPhiPTjj") return VBF_Mjj_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet1Pt_dEta_3JV_dPhiPTjj") return VBF_Jet1Pt_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet2Pt_dEta_3JV_dPhiPTjj") return VBF_Jet2Pt_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet3Pt_dEta_3JV_dPhiPTjj") return VBF_Jet3Pt_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet1Eta_dEta_3JV_dPhiPTjj") return VBF_Jet1Eta_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet2Eta_dEta_3JV_dPhiPTjj") return VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_Jet3Eta_dEta_3JV_dPhiPTjj") return VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_PTjj_dEta_3JV_dPhiPTjj") return VBF_PTjj_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj") return VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred;
 
     else {
         cout << "Error: No valid hist type" << endl;

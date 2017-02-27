@@ -178,12 +178,12 @@ void MyResolution::Begin(TTree * /*tree*/)
 	
 	//// Not very elegant! TODO: Store this info in and read from file
 
-	// [v2]
-	AvailableEvents[361022] = 1993647;
-	AvailableEvents[361023] = 6940495;
-	AvailableEvents[361024] = 7380100;
-	AvailableEvents[361025] = 7607600;
-	AvailableEvents[361026] = 1893400;
+	// [v1]
+	AvailableEvents[361022] = 1235408;
+	AvailableEvents[361023] = 5314496;
+	AvailableEvents[361024] = 5360900;
+	AvailableEvents[361025] = 6388300;
+	AvailableEvents[361026] = 1743400;
 
 }
 
@@ -308,6 +308,7 @@ Bool_t MyResolution::Process(Long64_t entry)
         }
         if (MuonIsSignal->at(i) && MuonIsIso->at(i)) {
             std::cout << "Reject event because of isolated muon!" << std::endl;
+            return 1;
         }
         if (MuonIsSignal->at(i)) {
             TLorentzVector muon(0.,0.,0.,0.);

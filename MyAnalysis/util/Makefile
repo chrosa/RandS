@@ -13,11 +13,13 @@ RLXX=$(LFLAGS) $(ROOTLIBS)
 SRC0= RandS.o MyJet.o SmearFunction.o
 SRC1= MyResolution.o MyJet.o
 SRC2= Prediction.o
+SRC3= MyMETStudies.o MyJet.o
+SRC4= MyTriggerStudies.o MyJet.o
 
 %.o: %.C %.h
 	$(C) $(RCXX) -c $<
 
-all: GetPrediction RunMyResolution RunRandS
+all: GetPrediction RunMyResolution RunMyMETStudies RunMyTriggerStudies RunRandS
 
 RunRandS: $(SRC0) RunRandS.o
 	$(LD) $(SRC0) RunRandS.o $(RLXX) -l TreePlayer -L./TKinFitter -lkinfitter -o RunRandS.x
@@ -27,6 +29,14 @@ RunMyResolution: $(SRC1) RunMyResolution.o
 	$(LD) $(SRC1) RunMyResolution.o $(RLXX) -l TreePlayer -o RunMyResolution.x
 	@echo '-> RunMyResolution.x created!'
 
+RunMyMETStudies: $(SRC3) RunMyMETStudies.o
+	$(LD) $(SRC3) RunMyMETStudies.o $(RLXX) -l TreePlayer -o RunMyMETStudies.x
+	@echo '-> RunMyMETStudies.x created!'
+
+RunMyTriggerStudies: $(SRC4) RunMyTriggerStudies.o
+	$(LD) $(SRC4) RunMyTriggerStudies.o $(RLXX) -l TreePlayer -o RunMyTriggerStudies.x
+	@echo '-> RunMyTriggerStudies.x created!'
+
 GetPrediction: $(SRC2) GetPrediction.o
 	$(LD) $(SRC2) GetPrediction.o $(RLXX) -o GetPrediction.x
 	@echo '-> GetPrediction.x created!'
@@ -35,6 +45,12 @@ RunRandS.o: RunRandS.C
 	$(C) $(RCXX) -c $<
 
 RunMyResolution.o: RunMyResolution.C
+	$(C) $(RCXX) -c $<
+
+RunMyMETStudies.o: RunMyMETStudies.C
+	$(C) $(RCXX) -c $<
+
+RunMyTriggerStudies.o: RunMyTriggerStudies.C
 	$(C) $(RCXX) -c $<
 
 GetPrediction.o: GetPrediction.C

@@ -77,6 +77,7 @@ class NtupleMaker : public EL::Algorithm
         typedef struct myElectron {
             LorentzVector momentum;
             int charge;
+            bool isSignal;
         } myElectron;
 
         typedef struct myMuon {
@@ -103,6 +104,8 @@ class NtupleMaker : public EL::Algorithm
         Float_t weight_; //!
 		UInt_t dsid_;
 		bool pvtx_;
+		bool xe90triggered_;
+		bool xe110triggered_;
 
         std::vector<Float_t>  JetPt_; //!
 		std::vector<Float_t> * JetPt_n = &JetPt_; //!
@@ -173,6 +176,8 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<Float_t> * EleEta_n = &EleEta_; //!
         std::vector<Float_t>  ElePhi_; //!
 		std::vector<Float_t> * ElePhi_n = &ElePhi_; //!
+        std::vector<bool>  EleIsSignal_; //!
+		std::vector<bool> * EleIsSignal_n = &EleIsSignal_; //!
 
         std::vector<Float_t>  PhotonPt_; //!
 		std::vector<Float_t> * PhotonPt_n = &PhotonPt_; //!

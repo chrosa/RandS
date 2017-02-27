@@ -23,7 +23,7 @@ class MyJet: public TLorentzVector {
         };
         virtual ~MyJet();
 
-        void SetJVT(int j) {
+        void SetJVT(double j) {
             jvt = j;
         };
 

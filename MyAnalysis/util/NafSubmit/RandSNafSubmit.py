@@ -9,14 +9,14 @@ def submit_job(index, jobDir):
 	system("cp filelist_mc.txt /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
 	system("cp run.sh /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
 	system("cd /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
-	system("qsub -cwd -o /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -e /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -S /bin/bash -l h_cpu=6:00:00 -l h_vmem=2000M -l distro=sld6 run.sh");
+	system("qsub -cwd -o /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -e /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -S /bin/bash -l h_cpu=12:00:00 -l h_vmem=4000M -l distro=sld6 run.sh");
 	system("cd /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/NafSubmit")
 
 #filelist = open("../filelist_mc_all.txt")
 filelist = open("../filelist_data_all.txt")
 line = "init"
-jobDir = "MyTestData_v2"
-Nevts_max = 1000000
+jobDir = "MyTest_mc_TailUP_CoreUP_v4"
+Nevts_max = 500000
 
 system("mkdir /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir)
 # loop over ntuple files

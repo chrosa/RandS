@@ -14,6 +14,7 @@ void NtupleMakerSubmit( const std::string& submitDir ) {
     SH::addGrid (sh, "data16_13TeV.periodF.physics_Main.PhysCont.DAOD_SUSY11.grp16_v01_p2689");
     SH::addGrid (sh, "data16_13TeV.periodG.physics_Main.PhysCont.DAOD_SUSY11.grp16_v01_p2769");
     SH::addGrid (sh, "data16_13TeV.periodI.physics_Main.PhysCont.DAOD_SUSY11.grp16_v01_p2769");
+    SH::addGrid (sh, "data16_13TeV.periodK.physics_Main.PhysCont.DAOD_SUSY11.grp16_v01_p2769");
 
 
     // Set the name of the input TTree. It's always "CollectionTree"
@@ -44,7 +45,7 @@ void NtupleMakerSubmit( const std::string& submitDir ) {
     
     // Run the job using the local/direct driver:
 	EL::PrunDriver driver;
-    driver.options()->setString("nc_outputSampleName", "user.csander.NtupleMaker_v5.%in:name[2]%.%in:name[6]%");
+    driver.options()->setString("nc_outputSampleName", "user.csander.NtupleMaker_data_v2.%in:name[2]%.%in:name[6]%");
     driver.submitOnly( job, submitDir );
 
 

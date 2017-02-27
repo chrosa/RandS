@@ -24,6 +24,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include <TSystem.h>
 
 
@@ -122,6 +124,8 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("Weight",&weight_);
     EventTree->Branch("DatasetID",&dsid_);
     EventTree->Branch("PrimaryVtx",&pvtx_);
+    EventTree->Branch("xe90triggered",&xe90triggered_);
+    EventTree->Branch("xe110triggered",&xe110triggered_);
 
     EventTree->Branch("JetPt", "std::vector<Float_t>", &JetPt_n);
     EventTree->Branch("JetEta", "std::vector<Float_t>", &JetEta_n);
@@ -131,13 +135,13 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("JetJVT", "std::vector<Float_t>", &JetJVT_n);
     EventTree->Branch("JetGood", "std::vector<bool>", &JetGood_n);
 
-    EventTree->Branch("JetNoMuPt", "std::vector<Float_t>", &JetPt_n);
-    EventTree->Branch("JetNoMuEta", "std::vector<Float_t>", &JetEta_n);
-    EventTree->Branch("JetNoMuPhi", "std::vector<Float_t>", &JetPhi_n);
-    EventTree->Branch("JetNoMuM", "std::vector<Float_t>", &JetM_n);
-    EventTree->Branch("JetNoMuBtag", "std::vector<bool>", &JetBtag_n);
-    EventTree->Branch("JetNoMuJVT", "std::vector<Float_t>", &JetJVT_n);
-    EventTree->Branch("JetNoMuGood", "std::vector<bool>", &JetGood_n);
+    EventTree->Branch("JetNoMuPt", "std::vector<Float_t>", &JetNoMuPt_n);
+    EventTree->Branch("JetNoMuEta", "std::vector<Float_t>", &JetNoMuEta_n);
+    EventTree->Branch("JetNoMuPhi", "std::vector<Float_t>", &JetNoMuPhi_n);
+    EventTree->Branch("JetNoMuM", "std::vector<Float_t>", &JetNoMuM_n);
+    EventTree->Branch("JetNoMuBtag", "std::vector<bool>", &JetNoMuBtag_n);
+    EventTree->Branch("JetNoMuJVT", "std::vector<Float_t>", &JetNoMuJVT_n);
+    EventTree->Branch("JetNoMuGood", "std::vector<bool>", &JetNoMuGood_n);
 
     EventTree->Branch("GenJetPt","std::vector<Float_t>", &GenJetPt_n);
     EventTree->Branch("GenJetEta","std::vector<Float_t>", &GenJetEta_n);
@@ -160,6 +164,7 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("ElePt","std::vector<Float_t>", &ElePt_n);
     EventTree->Branch("EleEta","std::vector<Float_t>", &EleEta_n);
     EventTree->Branch("ElePhi","std::vector<Float_t>", &ElePhi_n);
+    EventTree->Branch("EleIsSignal","std::vector<bool>", &EleIsSignal_n);
 
     EventTree->Branch("PhotonPt","std::vector<Float_t>", &PhotonPt_n);
     EventTree->Branch("PhotonEta","std::vector<Float_t>", &PhotonEta_n);
@@ -258,9 +263,10 @@ EL::StatusCode NtupleMaker :: initialize ()
     std::vector<std::string> prw_lumicalc;
     ilumicalc_file_ = "DUMMY";
     if (ilumicalc_file_ == "DUMMY") {
-        prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root");
-        prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
-
+        //prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root");
+        //prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
+        prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+        prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
     } else {
         prw_lumicalc = getTokens2(ilumicalc_file_, ",");
         //prw_lumicalc.push_back(ilumicalc_file_);
@@ -355,16 +361,30 @@ EL::StatusCode NtupleMaker :: execute ()
         //std::cout << "eventWeight = " << eventWeight << std::endl;
     }
     weight_ = eventWeight;
+    
+    if (!isMC) { // it's data!
 
-    if(!isMC) { // it's data!
+        // No dataset ID for data
+        dsid_ = eventInfo->runNumber();;
 
-		// No dataset ID for data
-		dsid_ = eventInfo->runNumber();;
 
         // check if event passes GRL
-        if(!m_grl->passRunLB(*eventInfo)) {
+        if (!m_grl->passRunLB(*eventInfo)) {
             return EL::StatusCode::SUCCESS;
         }
+
+        // event cleaning
+        bool eventPassesCleaning(true);
+        eventPassesCleaning = !((eventInfo->errorState(xAOD::EventInfo::LAr)  == xAOD::EventInfo::Error ) ||
+                                (eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error ) ||
+                                (eventInfo->errorState(xAOD::EventInfo::SCT)  == xAOD::EventInfo::Error ) ||
+                                (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) ));
+
+        if (!eventPassesCleaning) {
+            return EL::StatusCode::SUCCESS;
+        }
+        m_numCleanEvents++;
+
 
         //// Get list of single jet triggers
 
@@ -394,7 +414,16 @@ EL::StatusCode NtupleMaker :: execute ()
             //// use susytools or your favourite tool to test if each single jet trigger has fired
             triggersPass.push_back(objTool->IsTrigPassed(sjt));
         }
-
+        
+        xe90triggered_ = false;
+        xe110triggered_ = false;
+        if (dsid_ <= 304008) {
+			xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
+		}
+		if (dsid_ > 304008) {
+			xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE50");
+		}
+				
         //// retrieve the HLT jets
         const xAOD::JetContainer * hlt_jet = 0;
         TString mc_name="HLT_xAOD__JetContainer_a4tcemsubjesFS";
@@ -446,31 +475,26 @@ EL::StatusCode NtupleMaker :: execute ()
                 eventWeight = cg->getPrescale();
             }
         }
-        
+
         weight_ = eventWeight;
 
-    } // end if not MC
+	// end if not MC
+
+    } else {
+    
+        // it's MC!
+        
+		xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
+		xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE60");
+
+	}
 
     pvtx_ = true;
     if (objTool->GetPrimVtx() == nullptr) {
         Info("execute()" , "No PV found for this event! ...");
         pvtx_ = false;
+        return EL::StatusCode::SUCCESS;
     }
-
-    //------------------------------------------------------------
-    // Apply event cleaning to remove events due to
-    // problematic regions of the detector
-    // or incomplete events.
-    // Apply to data.
-    //------------------------------------------------------------
-    // reject event if:
-    if(!isMC) {
-        if( (eventInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::Tile)==xAOD::EventInfo::Error ) || (eventInfo->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error ) || (eventInfo->isEventFlagBitSet(xAOD::EventInfo::Core, 18) ) )
-        {
-            return EL::StatusCode::SUCCESS; // go to the next event
-        } // end if event flags check
-    } // end if the event is data
-    m_numCleanEvents++;
 
     // Electrons
     xAOD::ElectronContainer* electrons_nominal(0);
@@ -541,13 +565,18 @@ EL::StatusCode NtupleMaker :: execute ()
     float el_z0cut = 0.5;
     float el_etacut = 2.47;
     for (const auto& ele : *electrons_nominal) {
+        if (!(ele->auxdata<char>("baseline") == 1 )) continue;
+        myElectron newElectron;
+        newElectron.momentum = ele->p4();
+        newElectron.isSignal = false;
         if (objTool->IsSignalElectron(*ele, el_etcut, el_d0sigcut, el_z0cut, el_etacut)) {
-            myElectron newElectron;
-            newElectron.momentum = ele->p4();
-            ElePt_n->push_back(newElectron.momentum.Pt()/1000.);
-            EleEta_n->push_back(newElectron.momentum.Eta());
-            ElePhi_n->push_back(newElectron.momentum.Phi());
-        }
+			newElectron.isSignal = true;
+		}
+		ElePt_n->push_back(newElectron.momentum.Pt()/1000.);
+		EleEta_n->push_back(newElectron.momentum.Eta());
+		ElePhi_n->push_back(newElectron.momentum.Phi());
+		EleIsSignal_n->push_back(newElectron.isSignal);
+
     }
 
     //// photon vector
@@ -563,7 +592,6 @@ EL::StatusCode NtupleMaker :: execute ()
             PhotonPhi_n->push_back(newPhoton.momentum.Phi());
         }
     }
-
 
     // Calculate MET
     //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,electrons_nominal,muons_nominal,photons_nominal) );
@@ -689,7 +717,15 @@ EL::StatusCode NtupleMaker :: execute ()
         if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) MHTtotal -= it->momentum;
     }
 
+	bool VBFremoved = false;
+	bool hasBadJet = false;
+
     LorentzVector MHTNoMutotal(0,0,0,0);
+    LorentzVector MHTNoMutotalNoJVT(0,0,0,0);
+    LorentzVector FirstJet(0,0,0,0);
+    LorentzVector SecondJet(0,0,0,0);
+    bool first = false;
+    bool second = false;
     for (std::vector<myJet>::iterator it = JetsNoMu_rec.begin(); it != JetsNoMu_rec.end(); ++it) {
         JetNoMuPt_n->push_back(it->momentum.Pt()/1000.);
         JetNoMuEta_n->push_back(it->momentum.Eta());
@@ -698,8 +734,32 @@ EL::StatusCode NtupleMaker :: execute ()
         JetNoMuBtag_n->push_back(it->btag);
         JetNoMuJVT_n->push_back(it->jvt);
         JetNoMuGood_n->push_back(it->good);
-        if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) MHTNoMutotal -= it->momentum;
+        if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) {
+			MHTNoMutotal -= it->momentum;
+		}
+        if (it->good) {
+			MHTNoMutotalNoJVT -= it->momentum;
+		} else if (it->momentum.Pt()>20000.) {
+			hasBadJet = true;
+		}
+		if (!first) {
+			FirstJet.SetPtEtaPhiM(it->momentum.Pt(),it->momentum.Eta(),it->momentum.Phi(),it->momentum.M());
+			first = true;
+		} else if (!second) {
+			SecondJet.SetPtEtaPhiM(it->momentum.Pt(),it->momentum.Eta(),it->momentum.Phi(),it->momentum.M());
+			second = true;
+		}
     }
+
+	double dPhi = TMath::Pi();
+	if (second) {
+		dPhi = FirstJet.DeltaPhi(SecondJet);
+	}
+
+	//if (fabs(dPhi) < 2.1 ){
+	//	if ( fabs(MHTNoMutotalNoJVT.Pt() -  MHTNoMutotal.Pt()) > 100000.) VBFremoved = true;
+	//	std::cout << "MHT triggered hasBadJet VBFremoved: " << MHTNoMutotalNoJVT.Pt() / 1000. << " " << isMHTtriggered << " " << hasBadJet << " " << VBFremoved << std::endl;
+	//}
 
     LorentzVector METtotal(0,0,0,0);
     METtotal.SetPxPyPzE((*mettst_nominal)["Final"]->mpx(), (*mettst_nominal)["Final"]->mpy(), 0, (*mettst_nominal)["Final"]->met() );
@@ -861,6 +921,7 @@ EL::StatusCode NtupleMaker :: execute ()
     ElePt_n->clear();
     EleEta_n->clear();
     ElePhi_n->clear();
+    EleIsSignal_n->clear();
 
     MuonPt_n->clear();
     MuonEta_n->clear();
@@ -874,14 +935,14 @@ EL::StatusCode NtupleMaker :: execute ()
     PhotonPhi_n->clear();
 
     // The containers created by the shallow copy are owned by you. Remember to delete them
-    delete jets_nominal; // not these, we put them in the store!
-    delete jets_nominal_aux;
-    delete muons_nominal;
-    delete muons_nominal_aux;
-    delete electrons_nominal;
-    delete electrons_nominal_aux;
-    delete photons_nominal;
-    delete photons_nominal_aux;
+    //delete jets_nominal; // not these, we put them in the store!
+    //delete jets_nominal_aux;
+    //delete muons_nominal;
+    //delete muons_nominal_aux;
+    //delete electrons_nominal;
+    //delete electrons_nominal_aux;
+    //delete photons_nominal;
+    //delete photons_nominal_aux;
     delete mettst_nominal;
     delete mettst_nominal_aux;
 
