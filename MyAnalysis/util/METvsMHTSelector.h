@@ -70,7 +70,6 @@ class METvsMHTSelector : public TSelector {
         TTreeReaderValue<std::vector<Float_t>> MuonPhi = {fReader, "MuonPhi"};
         TTreeReaderValue<std::vector<bool>> MuonIsBad = {fReader, "MuonIsBad"};
         TTreeReaderValue<std::vector<bool>> MuonIsSignal = {fReader, "MuonIsSignal"};
-        TTreeReaderValue<std::vector<bool>> MuonIsIso = {fReader, "MuonIsIso"};
         TTreeReaderValue<Float_t> MET_pt = {fReader, "MET_pt"};
         TTreeReaderValue<Float_t> MET_phi = {fReader, "MET_phi"};
         TTreeReaderValue<Float_t> METmu_pt = {fReader, "METmu_pt"};

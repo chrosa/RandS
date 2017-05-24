@@ -49,8 +49,8 @@ class NtupleMaker : public EL::Algorithm
 		std::string ilumicalc_file_;
 
 		// trigger tools member variables
-		Trig::TrigDecisionTool *m_trigDecisionTool; //!
-		TrigConf::xAODConfigTool *m_trigConfigTool; //!
+		//Trig::TrigDecisionTool *m_trigDecisionTool; //!
+		//TrigConf::xAODConfigTool *m_trigConfigTool; //!
 
         // variables that don't get filled at submission time should be
         // protected from being send from the submission node to the worker
@@ -68,25 +68,40 @@ class NtupleMaker : public EL::Algorithm
             bool btag;
             bool good;
             float jvt;
+            float fjvt;
+            float tw;
+            int ntracks;
+            float sumpt;
+            bool OR;
         } myJet;
 
         typedef struct myPhoton {
             LorentzVector momentum;
+            bool isSignal;
+            bool OR;
         } myPhoton;
 
         typedef struct myElectron {
             LorentzVector momentum;
             int charge;
             bool isSignal;
+            bool OR;
         } myElectron;
 
         typedef struct myMuon {
             LorentzVector momentum;
             bool isSignal;
             bool isBad;
-            bool isIso;
             int charge;
+            bool OR;
         } myMuon;
+
+        typedef struct myTau {
+            LorentzVector momentum;
+            int charge;
+            bool isSignal;
+            bool OR;
+        } myTau;
 
         // these are the functions inherited from Algorithm
         virtual EL::StatusCode setupJob (EL::Job& job);
@@ -100,12 +115,13 @@ class NtupleMaker : public EL::Algorithm
         virtual EL::StatusCode histFinalize ();
 
         TTree *EventTree; //!
-        //UShort_t NVtx_; //!
+        UShort_t NVtx_; //!
         Float_t weight_; //!
-		UInt_t dsid_;
-		bool pvtx_;
-		bool xe90triggered_;
-		bool xe110triggered_;
+		UInt_t dsid_;  //!
+		UInt_t evtno_;  //!
+		bool pvtx_;  //!
+		bool xe90triggered_;  //!
+		bool xe110triggered_;  //!
 
         std::vector<Float_t>  JetPt_; //!
 		std::vector<Float_t> * JetPt_n = &JetPt_; //!
@@ -119,24 +135,19 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<bool> * JetBtag_n = &JetBtag_; //!
         std::vector<Float_t>  JetJVT_; //!
 		std::vector<Float_t> * JetJVT_n = &JetJVT_; //!
+        std::vector<Float_t>  JetFJVT_; //!
+		std::vector<Float_t> * JetFJVT_n = &JetFJVT_; //!
         std::vector<bool>  JetGood_; //!
 		std::vector<bool> * JetGood_n = &JetGood_; //!
-
-        std::vector<Float_t>  JetNoMuPt_; //!
-		std::vector<Float_t> * JetNoMuPt_n = &JetNoMuPt_; //!
-        std::vector<Float_t>  JetNoMuEta_; //!
-		std::vector<Float_t> * JetNoMuEta_n = &JetNoMuEta_; //!
-        std::vector<Float_t>  JetNoMuPhi_; //!
-		std::vector<Float_t> * JetNoMuPhi_n = &JetNoMuPhi_; //!
-        std::vector<Float_t>  JetNoMuM_; //!
-		std::vector<Float_t> * JetNoMuM_n = &JetNoMuM_; //!
-        std::vector<bool>  JetNoMuBtag_; //!
-		std::vector<bool> * JetNoMuBtag_n = &JetNoMuBtag_; //!
-        std::vector<Float_t>  JetNoMuJVT_; //!
-		std::vector<Float_t> * JetNoMuJVT_n = &JetNoMuJVT_; //!
-        std::vector<bool>  JetNoMuGood_; //!
-		std::vector<bool> * JetNoMuGood_n = &JetNoMuGood_; //!
-
+        std::vector<bool>  JetPassOR_; //!
+		std::vector<bool> * JetPassOR_n = &JetPassOR_; //!
+        std::vector<UShort_t>  JetNTracks_; //!
+		std::vector<UShort_t> * JetNTracks_n = &JetNTracks_; //!
+        std::vector<Float_t>  JetSumPtTracks_; //!
+		std::vector<Float_t> * JetSumPtTracks_n = &JetSumPtTracks_; //!
+        std::vector<Float_t>  JetTrackWidth_; //!
+		std::vector<Float_t> * JetTrackWidth_n = &JetTrackWidth_; //!
+		
         std::vector<Float_t>  GenJetPt_; //!
 		std::vector<Float_t> * GenJetPt_n = &GenJetPt_; //!
         std::vector<Float_t>  GenJetEta_; //!
@@ -148,16 +159,16 @@ class NtupleMaker : public EL::Algorithm
         std::vector<bool>  GenJetBtag_; //!
 		std::vector<bool> * GenJetBtag_n = &GenJetBtag_; //!
 
-        //std::vector<Float_t>  GenJetNoNuPt_; //!
-		//std::vector<Float_t> * GenJetNoNuPt_n = &GenJetNoNuPt_; //!
-        //std::vector<Float_t>  GenJetNoNuEta_; //!
-		//std::vector<Float_t> * GenJetNoNuEta_n = &GenJetNoNuEta_; //!
-        //std::vector<Float_t>  GenJetNoNuPhi_; //!
-		//std::vector<Float_t> * GenJetNoNuPhi_n = &GenJetNoNuPhi_; //!
-        //std::vector<Float_t>  GenJetNoNuM_; //!
-		//std::vector<Float_t> * GenJetNoNuM_n = &GenJetNoNuM_; //!
-        //std::vector<bool>  GenJetNoNuBtag_; //!
-		//std::vector<bool> * GenJetNoNuBtag_n = &GenJetNoNuBtag_; //!
+        std::vector<Float_t>  GenJetNoNuPt_; //!
+		std::vector<Float_t> * GenJetNoNuPt_n = &GenJetNoNuPt_; //!
+        std::vector<Float_t>  GenJetNoNuEta_; //!
+		std::vector<Float_t> * GenJetNoNuEta_n = &GenJetNoNuEta_; //!
+        std::vector<Float_t>  GenJetNoNuPhi_; //!
+		std::vector<Float_t> * GenJetNoNuPhi_n = &GenJetNoNuPhi_; //!
+        std::vector<Float_t>  GenJetNoNuM_; //!
+		std::vector<Float_t> * GenJetNoNuM_n = &GenJetNoNuM_; //!
+        std::vector<bool>  GenJetNoNuBtag_; //!
+		std::vector<bool> * GenJetNoNuBtag_n = &GenJetNoNuBtag_; //!
 
         std::vector<Float_t>  GenJetNoNuMuPt_; //!
 		std::vector<Float_t> * GenJetNoNuMuPt_n = &GenJetNoNuMuPt_; //!
@@ -178,13 +189,11 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<Float_t> * ElePhi_n = &ElePhi_; //!
         std::vector<bool>  EleIsSignal_; //!
 		std::vector<bool> * EleIsSignal_n = &EleIsSignal_; //!
+		std::vector<Int_t> EleCharge_; //!
+		std::vector<Int_t> * EleCharge_n = &EleCharge_; //!
+		std::vector<bool>  ElePassOR_; //!
+		std::vector<bool> * ElePassOR_n = &ElePassOR_; //!
 
-        std::vector<Float_t>  PhotonPt_; //!
-		std::vector<Float_t> * PhotonPt_n = &PhotonPt_; //!
-        std::vector<Float_t>  PhotonEta_; //!
-		std::vector<Float_t> * PhotonEta_n = &PhotonEta_; //!
-        std::vector<Float_t>  PhotonPhi_; //!
-		std::vector<Float_t> * PhotonPhi_n = &PhotonPhi_; //!
 
         std::vector<Float_t>  MuonPt_; //!
 		std::vector<Float_t> * MuonPt_n = &MuonPt_; //!
@@ -196,8 +205,34 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<bool> * MuonIsBad_n = &MuonIsBad_; //!
         std::vector<bool>  MuonIsSignal_; //!
 		std::vector<bool> * MuonIsSignal_n = &MuonIsSignal_; //!
-		std::vector<bool>  MuonIsIso_; //!
-		std::vector<bool> * MuonIsIso_n = &MuonIsIso_; //!
+		std::vector<Int_t> MuonCharge_; //!
+		std::vector<Int_t> * MuonCharge_n = &MuonCharge_; //!
+		std::vector<bool>  MuonPassOR_; //!
+		std::vector<bool> * MuonPassOR_n = &MuonPassOR_; //!
+
+        std::vector<Float_t>  TauPt_; //!
+		std::vector<Float_t> * TauPt_n = &TauPt_; //!
+        std::vector<Float_t>  TauEta_; //!
+		std::vector<Float_t> * TauEta_n = &TauEta_; //!
+        std::vector<Float_t>  TauPhi_; //!
+		std::vector<Float_t> * TauPhi_n = &TauPhi_; //!
+        std::vector<bool>  TauIsSignal_; //!
+		std::vector<bool> * TauIsSignal_n = &TauIsSignal_; //!
+		std::vector<Int_t> TauCharge_; //!
+		std::vector<Int_t> * TauCharge_n = &TauCharge_; //!
+		std::vector<bool>  TauPassOR_; //!
+		std::vector<bool> * TauPassOR_n = &TauPassOR_; //!
+
+        std::vector<Float_t>  PhotonPt_; //!
+		std::vector<Float_t> * PhotonPt_n = &PhotonPt_; //!
+        std::vector<Float_t>  PhotonEta_; //!
+		std::vector<Float_t> * PhotonEta_n = &PhotonEta_; //!
+        std::vector<Float_t>  PhotonPhi_; //!
+		std::vector<Float_t> * PhotonPhi_n = &PhotonPhi_; //!
+        std::vector<bool>  PhotonIsSignal_; //!
+		std::vector<bool> * PhotonIsSignal_n = &PhotonIsSignal_; //!
+		std::vector<bool>  PhotonPassOR_; //!
+		std::vector<bool> * PhotonPassOR_n = &PhotonPassOR_; //!
 
 		float MET_pt_;
 		float MET_phi_;

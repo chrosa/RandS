@@ -5,7 +5,7 @@ CHRISTIAN_DEFAULT_PATH = "/afs/desy.de/user/c/cluedtke/NEWLINKS"
 KILIAN_DEFAULT_PATH = "/afs/desy.de/user/k/krosbach/NEWLINKS"
 PHILIPP_DEFAULT_PATH = "/afs/desy.de/user/p/pmogg/storage/public/CxAOD/NEWLINKS"
 MICHAEL_DEFAULT_PATH = "/afs/desy.de/user/m/mischube/NEWLINKS"
-CSANDER_DEFAULT_PATH = "/afs/desy.de/user/c/csander/NEWLINKS"
+CSANDER_DEFAULT_PATH = "/afs/desy.de/user/c/csander/sonas/NEWLINKS"
 
 parser = argparse.ArgumentParser(description='Look up the path to each file of a sample and create a symbolic link to it.\nIMPORTANT NOTE: You need a valid grid token and rucio set up for this script, this is not checked by the script.')
 parser.add_argument('samples', type=str,

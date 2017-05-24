@@ -19,6 +19,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODMuon/Muon.h"
+#include "xAODTau/TauJetContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -120,9 +121,10 @@ EL::StatusCode NtupleMaker :: histInitialize ()
 
     // set branches for output tree
 
-    //EventTree->Branch("NVtx", &NVtx_);
+    EventTree->Branch("NVtx", &NVtx_);
     EventTree->Branch("Weight",&weight_);
     EventTree->Branch("DatasetID",&dsid_);
+    EventTree->Branch("EventNo",&evtno_);
     EventTree->Branch("PrimaryVtx",&pvtx_);
     EventTree->Branch("xe90triggered",&xe90triggered_);
     EventTree->Branch("xe110triggered",&xe110triggered_);
@@ -133,15 +135,12 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("JetM", "std::vector<Float_t>", &JetM_n);
     EventTree->Branch("JetBtag", "std::vector<bool>", &JetBtag_n);
     EventTree->Branch("JetJVT", "std::vector<Float_t>", &JetJVT_n);
+    EventTree->Branch("JetFJVT", "std::vector<Float_t>", &JetFJVT_n);
     EventTree->Branch("JetGood", "std::vector<bool>", &JetGood_n);
-
-    EventTree->Branch("JetNoMuPt", "std::vector<Float_t>", &JetNoMuPt_n);
-    EventTree->Branch("JetNoMuEta", "std::vector<Float_t>", &JetNoMuEta_n);
-    EventTree->Branch("JetNoMuPhi", "std::vector<Float_t>", &JetNoMuPhi_n);
-    EventTree->Branch("JetNoMuM", "std::vector<Float_t>", &JetNoMuM_n);
-    EventTree->Branch("JetNoMuBtag", "std::vector<bool>", &JetNoMuBtag_n);
-    EventTree->Branch("JetNoMuJVT", "std::vector<Float_t>", &JetNoMuJVT_n);
-    EventTree->Branch("JetNoMuGood", "std::vector<bool>", &JetNoMuGood_n);
+    EventTree->Branch("JetPassOR", "std::vector<bool>", &JetPassOR_n);
+    EventTree->Branch("JetNTracks", "std::vector<UShort_t>", &JetNTracks_n);
+    EventTree->Branch("JetSumPtTracks", "std::vector<Float_t>", &JetSumPtTracks_n);
+    EventTree->Branch("JetTrackWidth", "std::vector<Float_t>", &JetTrackWidth_n);
 
     EventTree->Branch("GenJetPt","std::vector<Float_t>", &GenJetPt_n);
     EventTree->Branch("GenJetEta","std::vector<Float_t>", &GenJetEta_n);
@@ -149,11 +148,11 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("GenJetM","std::vector<Float_t>", &GenJetM_n);
     EventTree->Branch("GenJetBtag","std::vector<bool>", &GenJetBtag_n);
 
-    //EventTree->Branch("GenJetNoNuPt","std::vector<Float_t>", &GenJetNoNuPt_n);
-    //EventTree->Branch("GenJetNoNuEta","std::vector<Float_t>", &GenJetNoNuEta_n);
-    //EventTree->Branch("GenJetNoNuPhi","std::vector<Float_t>", &GenJetNoNuPhi_n);
-    //EventTree->Branch("GenJetNoNuM","std::vector<Float_t>", &GenJetNoNuM_n);
-    //EventTree->Branch("GenJetNoNuBtag","std::vector<bool>", &GenJetNoNuBtag_n);
+    EventTree->Branch("GenJetNoNuPt","std::vector<Float_t>", &GenJetNoNuPt_n);
+    EventTree->Branch("GenJetNoNuEta","std::vector<Float_t>", &GenJetNoNuEta_n);
+    EventTree->Branch("GenJetNoNuPhi","std::vector<Float_t>", &GenJetNoNuPhi_n);
+    EventTree->Branch("GenJetNoNuM","std::vector<Float_t>", &GenJetNoNuM_n);
+    EventTree->Branch("GenJetNoNuBtag","std::vector<bool>", &GenJetNoNuBtag_n);
 
     EventTree->Branch("GenJetNoNuMuPt","std::vector<Float_t>", &GenJetNoNuMuPt_n);
     EventTree->Branch("GenJetNoNuMuEta","std::vector<Float_t>", &GenJetNoNuMuEta_n);
@@ -165,18 +164,29 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("EleEta","std::vector<Float_t>", &EleEta_n);
     EventTree->Branch("ElePhi","std::vector<Float_t>", &ElePhi_n);
     EventTree->Branch("EleIsSignal","std::vector<bool>", &EleIsSignal_n);
+    EventTree->Branch("EleCharge","std::vector<Int_t>", &EleCharge_n);
+    EventTree->Branch("ElePassOR", "std::vector<bool>", &ElePassOR_n);
 
     EventTree->Branch("PhotonPt","std::vector<Float_t>", &PhotonPt_n);
     EventTree->Branch("PhotonEta","std::vector<Float_t>", &PhotonEta_n);
     EventTree->Branch("PhotonPhi","std::vector<Float_t>", &PhotonPhi_n);
+    EventTree->Branch("PhotonIsSignal","std::vector<bool>", &PhotonIsSignal_n);
+    EventTree->Branch("PhotonPassOR", "std::vector<bool>", &PhotonPassOR_n);
 
     EventTree->Branch("MuonPt","std::vector<Float_t>", &MuonPt_n);
     EventTree->Branch("MuonEta","std::vector<Float_t>", &MuonEta_n);
     EventTree->Branch("MuonPhi","std::vector<Float_t>", &MuonPhi_n);
     EventTree->Branch("MuonIsBad","std::vector<bool>", &MuonIsBad_n);
     EventTree->Branch("MuonIsSignal","std::vector<bool>", &MuonIsSignal_n);
-    EventTree->Branch("MuonIsIso","std::vector<bool>", &MuonIsIso_n);
+    EventTree->Branch("MuonCharge","std::vector<Int_t>", &MuonCharge_n);
+    EventTree->Branch("MuonPassOR", "std::vector<bool>", &MuonPassOR_n);
 
+    EventTree->Branch("TauPt","std::vector<Float_t>", &TauPt_n);
+    EventTree->Branch("TauEta","std::vector<Float_t>", &TauEta_n);
+    EventTree->Branch("TauPhi","std::vector<Float_t>", &TauPhi_n);
+    EventTree->Branch("TauIsSignal","std::vector<bool>", &TauIsSignal_n);
+    EventTree->Branch("TauCharge","std::vector<Int_t>", &TauCharge_n);
+    EventTree->Branch("TauPassOR", "std::vector<bool>", &TauPassOR_n);
 
     EventTree->Branch("MET_pt", &MET_pt_);
     EventTree->Branch("MET_phi", &MET_phi_);
@@ -251,8 +261,7 @@ EL::StatusCode NtupleMaker :: initialize ()
     prw_file_ = "DUMMY";
     std::vector<std::string> prw_conf;
     if (prw_file_ == "DUMMY") {
-        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root");
     }
     else {
         prw_conf = getTokens2(prw_file_,",");
@@ -263,13 +272,9 @@ EL::StatusCode NtupleMaker :: initialize ()
     std::vector<std::string> prw_lumicalc;
     ilumicalc_file_ = "DUMMY";
     if (ilumicalc_file_ == "DUMMY") {
-        //prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_276262-284154_IBLOFF.root");
-        //prw_lumicalc.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ilumicalc_histograms_None_297730-299243.root");
-        prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
-        prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+        prw_lumicalc.push_back(PathResolverFindCalibFile("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20161101/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
     } else {
         prw_lumicalc = getTokens2(ilumicalc_file_, ",");
-        //prw_lumicalc.push_back(ilumicalc_file_);
     }
     EL_RETURN_CHECK("initialize", objTool->setProperty("PRWLumiCalcFiles", prw_lumicalc) );
 
@@ -285,7 +290,7 @@ EL::StatusCode NtupleMaker :: initialize ()
     EL_RETURN_CHECK("initialize", objTool->initialize() );
 
     // SUSYTools cross section data base
-    my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
+    my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/xsdb/mc15_13TeV/"));
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
@@ -298,13 +303,13 @@ EL::StatusCode NtupleMaker :: initialize ()
     EL_RETURN_CHECK("initialize()",m_grl->initialize());
 
     // Initialize and configure trigger tools
-    m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
-    EL_RETURN_CHECK("initialize",  m_trigConfigTool->initialize() );
-    ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
-    m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
-    EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
-    EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
-    EL_RETURN_CHECK("initialize", m_trigDecisionTool->initialize() );
+    //m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
+    //EL_RETURN_CHECK("initialize",  m_trigConfigTool->initialize() );
+    //ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
+    //m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
+    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
+    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
+    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->initialize() );
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -335,7 +340,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     // check if the event is data or MC
     // (many tools are applied either to data or MC)
-    bool isMC = false;
+    bool isMC = true;
     // check if the event is MC
     double eventWeight = 1;
 
@@ -345,6 +350,7 @@ EL::StatusCode NtupleMaker :: execute ()
         isMC = true; // can do something with this later
         //extra event-level information you might need:
         dsid_ =  eventInfo->mcChannelNumber();
+        evtno_ = eventInfo->eventNumber();
         const std::vector< float > weights = eventInfo->mcEventWeights();
         if( weights.size() > 0 ) eventWeight = weights[0];
         double XS =  my_XsecDB->rawxsect(dsid_);
@@ -361,11 +367,12 @@ EL::StatusCode NtupleMaker :: execute ()
         //std::cout << "eventWeight = " << eventWeight << std::endl;
     }
     weight_ = eventWeight;
-    
+
     if (!isMC) { // it's data!
 
         // No dataset ID for data
-        dsid_ = eventInfo->runNumber();;
+        dsid_ = eventInfo->runNumber();
+        evtno_ = eventInfo->eventNumber();
 
 
         // check if event passes GRL
@@ -388,7 +395,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
         //// Get list of single jet triggers
 
-        auto chainGroup = m_trigDecisionTool->getChainGroup("HLT_j.*");
+        auto chainGroup = objTool->GetTrigChainGroup("HLT_j.*");
         std::map<int, std::string> PresenTriggers;
         for (auto &trig : chainGroup->getListOfTriggers()) {
             std::string thisTrig = trig;
@@ -414,16 +421,16 @@ EL::StatusCode NtupleMaker :: execute ()
             //// use susytools or your favourite tool to test if each single jet trigger has fired
             triggersPass.push_back(objTool->IsTrigPassed(sjt));
         }
-        
+
         xe90triggered_ = false;
         xe110triggered_ = false;
         if (dsid_ <= 304008) {
-			xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
-		}
-		if (dsid_ > 304008) {
-			xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE50");
-		}
-				
+            xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
+        }
+        if (dsid_ > 304008) {
+            xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE50");
+        }
+
         //// retrieve the HLT jets
         const xAOD::JetContainer * hlt_jet = 0;
         TString mc_name="HLT_xAOD__JetContainer_a4tcemsubjesFS";
@@ -466,11 +473,11 @@ EL::StatusCode NtupleMaker :: execute ()
         } else {
             //// else event weight = prescale
             //// examine the HLT_jxxx.* chains, see if they passed/failed and their total prescale
-            auto chainGroup = m_trigDecisionTool->getChainGroup(single_jet_triggers.at(i_highest_fire));
+            auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i_highest_fire));
             std::map<std::string,int> triggerCounts;
             for (auto &trig : chainGroup->getListOfTriggers()) {
-                auto cg = m_trigDecisionTool->getChainGroup(trig);
-                std::string thisTrig = trig;
+                auto cg = objTool->GetTrigChainGroup(trig);
+                //std::string thisTrig = trig;
                 //Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
                 eventWeight = cg->getPrescale();
             }
@@ -478,22 +485,35 @@ EL::StatusCode NtupleMaker :: execute ()
 
         weight_ = eventWeight;
 
-	// end if not MC
+        // end if not MC
 
     } else {
-    
-        // it's MC!
-        
-		xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
-		xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE60");
 
-	}
+        // it's MC!
+
+        xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
+        xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE60");
+
+    }
 
     pvtx_ = true;
     if (objTool->GetPrimVtx() == nullptr) {
         Info("execute()" , "No PV found for this event! ...");
         pvtx_ = false;
         return EL::StatusCode::SUCCESS;
+    }
+
+    NVtx_ = 0;
+    const xAOD::VertexContainer* vertices(0);
+    if ( event->retrieve( vertices, "PrimaryVertices" ).isSuccess() ) {
+        for ( const auto& vx : *vertices ) {
+            if (vx->vertexType() == xAOD::VxType::PileUp) {
+                //ATH_MSG_DEBUG("PrimaryVertex found with z=" << vx->z());
+                ++NVtx_;
+            }
+        }
+    } else {
+        ATH_MSG_WARNING("Failed to retrieve VertexContainer \"PrimaryVertices\", returning NULL");
     }
 
     // Electrons
@@ -511,6 +531,11 @@ EL::StatusCode NtupleMaker :: execute ()
     xAOD::ShallowAuxContainer* muons_nominal_aux(0);
     EL_RETURN_CHECK("execute()", objTool->GetMuons(muons_nominal, muons_nominal_aux) );
 
+    // Taus
+    xAOD::TauJetContainer* taus_nominal(0);
+    xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal, taus_nominal_aux) );
+
     // Jets
     xAOD::JetContainer* jets_nominal(0);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
@@ -522,8 +547,18 @@ EL::StatusCode NtupleMaker :: execute ()
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
 
+	//Generic pointers for either nominal or systematics copy
+	xAOD::ElectronContainer* electrons(electrons_nominal);
+	xAOD::PhotonContainer* photons(photons_nominal);
+	xAOD::MuonContainer* muons(muons_nominal);
+	xAOD::JetContainer* jets(jets_nominal);
+	xAOD::TauJetContainer* taus(taus_nominal);
+	xAOD::MissingETContainer* mettst(mettst_nominal);
+	// Aux containers too
+	//xAOD::MissingETAuxContainer* mettst_aux(mettst_nominal_aux);
+
     // Call Overlap Removal
-    //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons_nominal, muons_nominal, jets_nominal) );
+    EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons, muons, jets, photons) );
 
     //// muon vector
     //std::vector<myMuon> Muons;
@@ -531,29 +566,31 @@ EL::StatusCode NtupleMaker :: execute ()
     float mu_d0sigcut = 3.;
     float mu_z0cut = 0.5;
     float mu_etacut = 2.7;
-    for (const auto& mu : *muons_nominal) {
-        if (!(objTool->IsBaselineMuon(*mu))) continue;
+    for (const auto& mu : *muons) {
+        if (!(mu->auxdata<char>("baseline") == 1 )) continue;
         myMuon newMuon;
         newMuon.momentum = mu->p4();
         newMuon.isSignal = false;
-        if (objTool->IsNoIsoSignalMuon(*mu, mu_ptcut, mu_d0sigcut, mu_z0cut, mu_etacut)) {
-            newMuon.isSignal = true;
-        }
-        newMuon.isIso = false;
         if (objTool->IsSignalMuon(*mu, mu_ptcut, mu_d0sigcut, mu_z0cut, mu_etacut)) {
-            newMuon.isIso = true;
+            newMuon.isSignal = true;
         }
         newMuon.isBad = false;
         if (objTool->IsBadMuon(*mu, 0.2)) {
             newMuon.isBad = true;
         }
+        bool passOR = false;
+        if ( mu->auxdata<char>("passOR") == 1 ) {
+			passOR = true;
+		}
+
         if (newMuon.momentum.Pt() > mu_ptcut && fabs (newMuon.momentum.Eta()) < mu_etacut) {
             MuonPt_n->push_back(newMuon.momentum.Pt()/1000.);
             MuonEta_n->push_back(newMuon.momentum.Eta());
             MuonPhi_n->push_back(newMuon.momentum.Phi());
-            MuonIsIso_n->push_back(newMuon.isIso);
             MuonIsSignal_n->push_back(newMuon.isSignal);
             MuonIsBad_n->push_back(newMuon.isBad);
+            MuonCharge_n->push_back(mu->charge());
+            MuonPassOR_n->push_back(passOR);
         }
     }
 
@@ -564,41 +601,81 @@ EL::StatusCode NtupleMaker :: execute ()
     float el_d0sigcut = 5.;
     float el_z0cut = 0.5;
     float el_etacut = 2.47;
-    for (const auto& ele : *electrons_nominal) {
+    for (const auto& ele : *electrons) {
         if (!(ele->auxdata<char>("baseline") == 1 )) continue;
         myElectron newElectron;
         newElectron.momentum = ele->p4();
         newElectron.isSignal = false;
         if (objTool->IsSignalElectron(*ele, el_etcut, el_d0sigcut, el_z0cut, el_etacut)) {
-			newElectron.isSignal = true;
+            newElectron.isSignal = true;
+        }
+        bool passOR = false;
+        if ( ele->auxdata<char>("passOR") == 1 ) {
+			passOR = true;
 		}
-		ElePt_n->push_back(newElectron.momentum.Pt()/1000.);
-		EleEta_n->push_back(newElectron.momentum.Eta());
-		ElePhi_n->push_back(newElectron.momentum.Phi());
-		EleIsSignal_n->push_back(newElectron.isSignal);
 
+        ElePt_n->push_back(newElectron.momentum.Pt()/1000.);
+        EleEta_n->push_back(newElectron.momentum.Eta());
+        ElePhi_n->push_back(newElectron.momentum.Phi());
+        EleIsSignal_n->push_back(newElectron.isSignal);
+        EleCharge_n->push_back(ele->charge());
+        ElePassOR_n->push_back(passOR);
+    }
+
+    //// tau vector
+    //std::vector<myTau> Taus;
+    float tau_ptcut = 20000;
+    float tau_etacut = 2.5;
+    for (const auto& tau : *taus) {
+        if (!(tau->auxdata<char>("baseline") == 1 )) continue;
+        myTau newTau;
+        newTau.momentum = tau->p4();
+        newTau.isSignal = false;
+        if (objTool->IsSignalTau(*tau, tau_ptcut, tau_etacut)) {
+            newTau.isSignal = true;
+        }
+        bool passOR = false;
+        if ( tau->auxdata<char>("passOR") == 1 ) {
+			passOR = true;
+		}
+
+        TauPt_n->push_back(newTau.momentum.Pt()/1000.);
+        TauEta_n->push_back(newTau.momentum.Eta());
+        TauPhi_n->push_back(newTau.momentum.Phi());
+        TauIsSignal_n->push_back(newTau.isSignal);
+        TauCharge_n->push_back(tau->charge());
+        TauPassOR_n->push_back(passOR);
     }
 
     //// photon vector
     //std::vector<myPhoton> Photons;
     float pho_ptcut = 20000.;
     float pho_etacut = 2.5;
-    for (const auto& pho : *photons_nominal) {
-        if (objTool->IsSignalPhoton(*pho, pho_ptcut, pho_etacut)) {
-            myPhoton newPhoton;
-            newPhoton.momentum = pho->p4();
-            PhotonPt_n->push_back(newPhoton.momentum.Pt()/1000.);
-            PhotonEta_n->push_back(newPhoton.momentum.Eta());
-            PhotonPhi_n->push_back(newPhoton.momentum.Phi());
-        }
+    for (const auto& pho : *photons) {
+        bool isSignal = false;
+        if (objTool->IsSignalPhoton(*pho, pho_ptcut, pho_etacut)) isSignal = true;
+        bool passOR = false;
+        if ( pho->auxdata<char>("passOR") == 1 ) {
+			passOR = true;
+		}
+		
+        if (!isSignal && !passOR) continue;
+
+        myPhoton newPhoton;
+        newPhoton.momentum = pho->p4();
+        PhotonPt_n->push_back(newPhoton.momentum.Pt()/1000.);
+        PhotonEta_n->push_back(newPhoton.momentum.Eta());
+        PhotonPhi_n->push_back(newPhoton.momentum.Phi());
+        PhotonIsSignal_n->push_back(isSignal);
+        PhotonPassOR_n->push_back(passOR);
+
     }
 
     // Calculate MET
-    //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,electrons_nominal,muons_nominal,photons_nominal) );
-    EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst_nominal,jets_nominal,0,muons_nominal) );
+    EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst,jets,electrons,muons,photons,0,true) );
 
     std::vector<myJet> GenJets;
-    //std::vector<myJet> GenJetsNoNu;
+    std::vector<myJet> GenJetsNoNu;
     std::vector<myJet> GenJetsNoNuMu;
 
     // get truth container of interest
@@ -614,7 +691,7 @@ EL::StatusCode NtupleMaker :: execute ()
         // CAREFUL: for now particles can be assigned to more than one truth jet
         for ( const auto& genjet : *genjets ) {
             myJet newGenJet;
-            //myJet newGenJetNoNu;
+            myJet newGenJetNoNu;
             myJet newGenJetNoNuMu;
             TLorentzVector nuActivity(0., 0., 0., 0.);
             TLorentzVector muActivity(0., 0., 0., 0.);
@@ -635,18 +712,18 @@ EL::StatusCode NtupleMaker :: execute ()
                 }
             }
             newGenJet.momentum = genjet->p4() + nuActivity  + muActivity;
-            //newGenJetNoNu.momentum = genjet->p4() + muActivity;
+            newGenJetNoNu.momentum = genjet->p4() + muActivity;
             newGenJetNoNuMu.momentum = genjet->p4();
             newGenJet.btag = false;
-            //newGenJetNoNu.btag = false;
+            newGenJetNoNu.btag = false;
             newGenJetNoNuMu.btag = false;
             if (abs(genjet->getAttribute<int>("PartonTruthLabelID")) == 5) {
                 newGenJet.btag = true;
-                //newGenJetNoNu.btag = true;
+                newGenJetNoNu.btag = true;
                 newGenJetNoNuMu.btag = true;
             }
             GenJets.push_back(newGenJet);
-            //GenJetsNoNu.push_back(newGenJetNoNu);
+            GenJetsNoNu.push_back(newGenJetNoNu);
             GenJetsNoNuMu.push_back(newGenJetNoNuMu);
 
             GenJetPt_n->push_back(newGenJet.momentum.Pt()/1000.);
@@ -654,6 +731,12 @@ EL::StatusCode NtupleMaker :: execute ()
             GenJetPhi_n->push_back(newGenJet.momentum.Phi());
             GenJetM_n->push_back(newGenJet.momentum.M()/1000.);
             GenJetBtag_n->push_back(newGenJet.btag);
+
+            GenJetNoNuPt_n->push_back(newGenJetNoNu.momentum.Pt()/1000.);
+            GenJetNoNuEta_n->push_back(newGenJetNoNu.momentum.Eta());
+            GenJetNoNuPhi_n->push_back(newGenJetNoNu.momentum.Phi());
+            GenJetNoNuM_n->push_back(newGenJetNoNu.momentum.M()/1000.);
+            GenJetNoNuBtag_n->push_back(newGenJetNoNu.btag);
 
             GenJetNoNuMuPt_n->push_back(newGenJetNoNuMu.momentum.Pt()/1000.);
             GenJetNoNuMuEta_n->push_back(newGenJetNoNuMu.momentum.Eta());
@@ -667,42 +750,67 @@ EL::StatusCode NtupleMaker :: execute ()
 
     GreaterByPt2<myJet> ptComparator_;
     std::sort(GenJets.begin(), GenJets.end(), ptComparator_);
-    //std::sort(GenJetsNoNu.begin(), GenJetsNoNu.end(), ptComparator_);
+    std::sort(GenJetsNoNu.begin(), GenJetsNoNu.end(), ptComparator_);
     std::sort(GenJetsNoNuMu.begin(), GenJetsNoNuMu.end(), ptComparator_);
 
     // Fill reco jets to simplified jet container
-    std::vector<myJet> JetsNoMu_rec;
-    for ( const auto& jet : *jets_nominal) {
+    std::vector<myJet> Jets_rec;
+    for ( const auto& jet : *jets) {
         myJet newJet;
         newJet.momentum = jet->p4();
         newJet.btag = false;
         if (objTool->IsBJet(*jet)) newJet.btag = true;
+        if ( jet->auxdata<char>("passOR") == 1 ) {
+			newJet.OR = true;
+		} else {
+			newJet.OR = false;
+		}
         newJet.jvt = jet->auxdata<float>("Jvt");
+
+        // forward jet tagging
+        //std::vector<float> JVFLoose_vec;
+        //JVFLoose_vec = jet->getAttribute<std::vector<float>>("JVFLoose");
+        //xAOD::Vertex HighestJVFLooseVtx = jet->getAttribute<xAOD::Vertex>("HighestJVFLooseVtx");
+        //float fjvt;
+        //if (JVFLoose_vec.size() > 0) {
+        //    fjvt = JVFLoose_vec[HighestJVFLooseVtx.index()];
+        //} else {
+        //    fjvt = 0;
+        //}
+        //newJet.fjvt = fjvt;
+        newJet.fjvt = 0;
+
+        // number of charged tracks within a jet
+        std::vector<int> numtrk_vec;
+        numtrk_vec = jet->getAttribute<std::vector<int>>("NumTrkPt500");
+
+        // momentum fraction carried by charged tracks
+        std::vector<float> sumpttrk_vec;
+        sumpttrk_vec = jet->getAttribute<std::vector<float>>("SumPtTrkPt500");
+
+        // width charged tracks
+        std::vector<float> trkwidth_vec;
+        trkwidth_vec = jet->getAttribute<std::vector<float>>("TrackWidthPt1000");
+
+        float sumpttrk;
+        float trkwidth;
+        int numtrk;
+        if (sumpttrk_vec.size() > 0 && objTool->GetPrimVtx()) {
+            sumpttrk = sumpttrk_vec[objTool->GetPrimVtx()->index()];
+            numtrk = numtrk_vec[objTool->GetPrimVtx()->index()];
+            trkwidth = trkwidth_vec[objTool->GetPrimVtx()->index()];
+        } else {
+            sumpttrk = 0;
+            numtrk = 0;
+            trkwidth = 0.;
+        }
+
+        newJet.ntracks = numtrk;
+        newJet.sumpt = sumpttrk;
+        newJet.tw = trkwidth;
         newJet.good = true;
         if (objTool->IsBadJet(*jet)) newJet.good = false;
-        JetsNoMu_rec.push_back(newJet);
-    }
-
-    //// Modify reco jets momentum by reconstruced muons in jet cone
-    std::vector<myJet> Jets_rec = JetsNoMu_rec;
-    if (AddMuToJets_) {
-        for ( const auto& muon : *muons_nominal) {
-            float mu_ptcut = 5000.;
-            float mu_d0sigcut = 3.;
-            float mu_z0cut = 0.5;
-            float mu_etacut = 2.7;
-            //// Add only high quality muons (without isolation requirement)
-            if (!(objTool->IsNoIsoSignalMuon(*muon, mu_ptcut, mu_d0sigcut, mu_z0cut, mu_etacut)) || objTool->IsBadMuon(*muon, 0.2)) continue;
-            bool muonAdded = false;
-            for (std::vector<myJet>::iterator it = Jets_rec.begin(); (it != Jets_rec.end() && !muonAdded); ++it) {
-                if (muon->p4().DeltaR(it->momentum) < 0.4) {
-                    //std::cout << "vorher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << std::endl;
-                    it->momentum += muon->p4();
-                    //std::cout << "nacher (pT, eta): " << it->momentum.Pt() << ", " << it->momentum.Eta() << std::endl;
-                    muonAdded = true;
-                }
-            }
-        }
+        Jets_rec.push_back(newJet);
     }
 
     LorentzVector MHTtotal(0,0,0,0);
@@ -713,86 +821,47 @@ EL::StatusCode NtupleMaker :: execute ()
         JetM_n->push_back(it->momentum.M()/1000.);
         JetBtag_n->push_back(it->btag);
         JetJVT_n->push_back(it->jvt);
+        JetFJVT_n->push_back(it->fjvt);
         JetGood_n->push_back(it->good);
+        JetPassOR_n->push_back(it->OR);
+        JetNTracks_n->push_back(it->ntracks);
+        JetSumPtTracks_n->push_back(it->sumpt);
+        JetTrackWidth_n->push_back(it->tw);
         if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) MHTtotal -= it->momentum;
     }
 
-	bool VBFremoved = false;
-	bool hasBadJet = false;
-
-    LorentzVector MHTNoMutotal(0,0,0,0);
-    LorentzVector MHTNoMutotalNoJVT(0,0,0,0);
-    LorentzVector FirstJet(0,0,0,0);
-    LorentzVector SecondJet(0,0,0,0);
-    bool first = false;
-    bool second = false;
-    for (std::vector<myJet>::iterator it = JetsNoMu_rec.begin(); it != JetsNoMu_rec.end(); ++it) {
-        JetNoMuPt_n->push_back(it->momentum.Pt()/1000.);
-        JetNoMuEta_n->push_back(it->momentum.Eta());
-        JetNoMuPhi_n->push_back(it->momentum.Phi());
-        JetNoMuM_n->push_back(it->momentum.M()/1000.);
-        JetNoMuBtag_n->push_back(it->btag);
-        JetNoMuJVT_n->push_back(it->jvt);
-        JetNoMuGood_n->push_back(it->good);
-        if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) {
-			MHTNoMutotal -= it->momentum;
-		}
-        if (it->good) {
-			MHTNoMutotalNoJVT -= it->momentum;
-		} else if (it->momentum.Pt()>20000.) {
-			hasBadJet = true;
-		}
-		if (!first) {
-			FirstJet.SetPtEtaPhiM(it->momentum.Pt(),it->momentum.Eta(),it->momentum.Phi(),it->momentum.M());
-			first = true;
-		} else if (!second) {
-			SecondJet.SetPtEtaPhiM(it->momentum.Pt(),it->momentum.Eta(),it->momentum.Phi(),it->momentum.M());
-			second = true;
-		}
-    }
-
-	double dPhi = TMath::Pi();
-	if (second) {
-		dPhi = FirstJet.DeltaPhi(SecondJet);
-	}
-
-	//if (fabs(dPhi) < 2.1 ){
-	//	if ( fabs(MHTNoMutotalNoJVT.Pt() -  MHTNoMutotal.Pt()) > 100000.) VBFremoved = true;
-	//	std::cout << "MHT triggered hasBadJet VBFremoved: " << MHTNoMutotalNoJVT.Pt() / 1000. << " " << isMHTtriggered << " " << hasBadJet << " " << VBFremoved << std::endl;
-	//}
-
     LorentzVector METtotal(0,0,0,0);
-    METtotal.SetPxPyPzE((*mettst_nominal)["Final"]->mpx(), (*mettst_nominal)["Final"]->mpy(), 0, (*mettst_nominal)["Final"]->met() );
+    METtotal.SetPxPyPzE((*mettst)["Final"]->mpx(), (*mettst)["Final"]->mpy(), 0, (*mettst)["Final"]->met() );
     //std::cout << "METtotal (pt, phi): " << METtotal.Pt() << ", " << METtotal.Phi() << std::endl;
     MET_pt_ = METtotal.Pt() / 1000.;
     MET_phi_ = METtotal.Phi();
 
     LorentzVector METjet(0,0,0,0);
-    METjet.SetPxPyPzE((*mettst_nominal)["RefJet"]->mpx(), (*mettst_nominal)["RefJet"]->mpy(), 0, (*mettst_nominal)["RefJet"]->met() );
+    METjet.SetPxPyPzE((*mettst)["RefJet"]->mpx(), (*mettst)["RefJet"]->mpy(), 0, (*mettst)["RefJet"]->met() );
     //std::cout << "METjet (pt, phi): " << METjet.Pt() << ", " << METjet.Phi() << std::endl;
     METjet_pt_ = METjet.Pt() / 1000.;
     METjet_phi_ = METjet.Phi();
 
     LorentzVector METmuon(0,0,0,0);
-    METmuon.SetPxPyPzE((*mettst_nominal)["Muons"]->mpx(), (*mettst_nominal)["Muons"]->mpy(), 0, (*mettst_nominal)["Muons"]->met() );
+    METmuon.SetPxPyPzE((*mettst)["Muons"]->mpx(), (*mettst)["Muons"]->mpy(), 0, (*mettst)["Muons"]->met() );
     //std::cout << "METmuon (pt, phi): " << METmuon.Pt() << ", " << METmuon.Phi() << std::endl;
     METmu_pt_ = METmuon.Pt() / 1000.;
     METmu_phi_ = METmuon.Phi();
 
     LorentzVector METele(0,0,0,0);
-    //METele.SetPxPyPzE((*mettst_nominal)["RefEle"]->mpx(), (*mettst_nominal)["RefEle"]->mpy(), 0, (*mettst_nominal)["RefEle"]->met() );
+    METele.SetPxPyPzE((*mettst)["RefEle"]->mpx(), (*mettst)["RefEle"]->mpy(), 0, (*mettst)["RefEle"]->met() );
     //std::cout << "METele (pt, phi): " << METele.Pt() << ", " << METele.Phi() << std::endl;
     METele_pt_ = METele.Pt() / 1000.;
     METele_phi_ = METele.Phi();
 
     LorentzVector METgamma(0,0,0,0);
-    //METgamma.SetPxPyPzE((*mettst_nominal)["RefGamma"]->mpx(), (*mettst_nominal)["RefGamma"]->mpy(), 0, (*mettst_nominal)["RefGamma"]->met() );
+    METgamma.SetPxPyPzE((*mettst)["RefGamma"]->mpx(), (*mettst)["RefGamma"]->mpy(), 0, (*mettst)["RefGamma"]->met() );
     //std::cout << "METgamma (pt, phi): " << METgamma.Pt() << ", " << METgamma.Phi() << std::endl;
     METgamma_pt_ = METgamma.Pt() / 1000.;
     METgamma_phi_ = METgamma.Phi();
 
     LorentzVector METtrack(0,0,0,0);
-    METtrack.SetPxPyPzE((*mettst_nominal)[3]->mpx(), (*mettst_nominal)[3]->mpy(), 0, (*mettst_nominal)[3]->met() );
+    METtrack.SetPxPyPzE((*mettst)[5]->mpx(), (*mettst)[5]->mpy(), 0, (*mettst)[5]->met() );
     //std::cout << "METtrack (pt, phi): " << METtrack.Pt() << ", " << METtrack.Phi() << std::endl;
     METtrack_pt_ = METtrack.Pt() / 1000.;
     METtrack_phi_ = METtrack.Phi();
@@ -826,68 +895,6 @@ EL::StatusCode NtupleMaker :: execute ()
     TrueMHT_pt_ = vtrueMHTreb.Pt() / 1000.;
     TrueMHT_phi_ = vtrueMHTreb.Phi();
 
-
-    //// what is going on with soft and muonic MET term
-    if (( MET_pt_>100 || MHTtotal.Pt() > 100000) && debug_ >= 1 && isMC) {
-        std::cout << "MHTtotal (pt, phi): " << MHTtotal.Pt() << ", " << MHTtotal.Phi() << std::endl;
-        std::cout << "MHTNoMutotal (pt, phi): " << MHTNoMutotal.Pt() << ", " << MHTNoMutotal.Phi() << std::endl;
-        std::cout << "METgamma (pt, phi): " << METgamma.Pt() << ", " << METgamma.Phi() << std::endl;
-        std::cout << "METele (pt, phi): " << METele.Pt() << ", " << METele.Phi() << std::endl;
-        std::cout << "METtrack (pt, phi): " << METtrack.Pt() << ", " << METtrack.Phi() << std::endl;
-        std::cout << "METmuon (pt, phi): " << METmuon.Pt() << ", " << METmuon.Phi() << std::endl;
-        std::cout << "METjet (pt, phi): " << METjet.Pt() << ", " << METjet.Phi() << std::endl;
-        std::cout << "METtotal (pt, phi): " << METtotal.Pt()<< ", " << METtotal.Phi() << std::endl;
-        int index = 0;
-        for ( const auto& jet : *jets_nominal) {
-            if (jet->pt() > 10000.) {
-                std::cout << "Jet (" << index << ") (pt, eta, phi): " << jet->pt() << ", " << jet->eta() << ", " << jet->phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for (std::vector<myJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-            if (it->momentum.Pt() > 10.) {
-                std::cout << "MyRecoJet (" << index << ") (pt, eta, phi): " << it->momentum.Pt() << ", " << it->momentum.Eta() << ", " << it->momentum.Phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for ( const auto& genjet : *genjets ) {
-            if (genjet->pt() > 10000.) {
-                std::cout << "GenJet (" << index << ") (pt, eta, phi): " << genjet->pt() << ", " << genjet->eta() << ", " << genjet->phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for (std::vector<myJet>::iterator it = GenJets.begin(); it != GenJets.end(); ++it) {
-            if (it->momentum.Pt() > 10.) {
-                std::cout << "MyGenJet (" << index << ") (pt, eta, phi): " << it->momentum.Pt() << ", " << it->momentum.Eta() << ", " << it->momentum.Phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for ( const auto& photon : *photons_nominal) {
-            if (photon->pt() > 5000.) {
-                std::cout << "Photon (" << index << ") (pt, eta, phi): " << photon->pt() << ", " << photon->eta() << ", " << photon->phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for ( const auto& muons : *muons_nominal) {
-            if (muons->pt() > 5000.) {
-                std::cout << "Muon (" << index << ") (pt, eta, phi): " << muons->pt() << ", " << muons->eta() << ", " << muons->phi() << std::endl;
-                ++index;
-            }
-        }
-        index = 0;
-        for ( const auto& electrons : *electrons_nominal) {
-            if (electrons->pt() > 5000.) {
-                std::cout << "Electrons (" << index << ") (pt, eta, phi): " << electrons->pt() << ", " << electrons->eta() << ", " << electrons->phi() << std::endl;
-                ++index;
-            }
-        }
-    }
-
     EventTree->Fill();
 
     GenJetPt_n->clear();
@@ -895,6 +902,12 @@ EL::StatusCode NtupleMaker :: execute ()
     GenJetPhi_n->clear();
     GenJetM_n->clear();
     GenJetBtag_n->clear();
+
+    GenJetNoNuPt_n->clear();
+    GenJetNoNuEta_n->clear();
+    GenJetNoNuPhi_n->clear();
+    GenJetNoNuM_n->clear();
+    GenJetNoNuBtag_n->clear();
 
     GenJetNoNuMuPt_n->clear();
     GenJetNoNuMuEta_n->clear();
@@ -908,31 +921,40 @@ EL::StatusCode NtupleMaker :: execute ()
     JetM_n->clear();
     JetBtag_n->clear();
     JetJVT_n->clear();
+    JetFJVT_n->clear();
     JetGood_n->clear();
-
-    JetNoMuPt_n->clear();
-    JetNoMuEta_n->clear();
-    JetNoMuPhi_n->clear();
-    JetNoMuM_n->clear();
-    JetNoMuBtag_n->clear();
-    JetNoMuJVT_n->clear();
-    JetNoMuGood_n->clear();
+    JetPassOR_n->clear();
+    JetNTracks_n->clear();
+    JetSumPtTracks_n->clear();
+    JetTrackWidth_n->clear();
 
     ElePt_n->clear();
     EleEta_n->clear();
     ElePhi_n->clear();
     EleIsSignal_n->clear();
+    EleCharge_n->clear();
+    ElePassOR_n->clear();
 
     MuonPt_n->clear();
     MuonEta_n->clear();
     MuonPhi_n->clear();
     MuonIsBad_n->clear();
-    MuonIsIso_n->clear();
     MuonIsSignal_n->clear();
+    MuonCharge_n->clear();
+    MuonPassOR_n->clear();
+
+    TauPt_n->clear();
+    TauEta_n->clear();
+    TauPhi_n->clear();
+    TauIsSignal_n->clear();
+    TauCharge_n->clear();
+    TauPassOR_n->clear();
 
     PhotonPt_n->clear();
     PhotonEta_n->clear();
     PhotonPhi_n->clear();
+    PhotonIsSignal_n->clear();
+    PhotonPassOR_n->clear();
 
     // The containers created by the shallow copy are owned by you. Remember to delete them
     //delete jets_nominal; // not these, we put them in the store!
@@ -994,14 +1016,14 @@ EL::StatusCode NtupleMaker :: finalize ()
     delete objTool;
 
     // cleaning up trigger tools
-    if( m_trigConfigTool ) {
-        delete m_trigConfigTool;
-        m_trigConfigTool = 0;
-    }
-    if( m_trigDecisionTool ) {
-        delete m_trigDecisionTool;
-        m_trigDecisionTool = 0;
-    }
+    //if( m_trigConfigTool ) {
+    //    delete m_trigConfigTool;
+    //    m_trigConfigTool = 0;
+    //}
+    //if( m_trigDecisionTool ) {
+    //    delete m_trigDecisionTool;
+    //    m_trigDecisionTool = 0;
+    //}
 
     return EL::StatusCode::SUCCESS;
 }

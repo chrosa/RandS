@@ -194,16 +194,13 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
             std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
-        //if (MuonIsSignal->at(i) && MuonIsIso->at(i)) {
         if (MuonIsSignal->at(i)) {
             std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
         }
-        //if (MuonIsSignal->at(i)) {
         TLorentzVector muon(0.,0.,0.,0.);
         muon.SetPtEtaPhiM(pt, eta, phi, 0.1057);
         recoMuons.push_back(muon);
-        //}
     }
     GreaterByPt<TLorentzVector> ptComparator2_;
     std::sort(recoMuons.begin(), recoMuons.end(), ptComparator2_);
