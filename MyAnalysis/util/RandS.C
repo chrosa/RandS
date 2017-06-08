@@ -79,7 +79,7 @@ void RandS::Begin(TTree * /*tree*/)
     useTrueMETsoftForRebalance_ = false; // only possible on simulated events, for testing purposes (best performance)
     useTriggerTurnOn_ = true; //save event weight from trigger turn on
     METsoftResolutionFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/METsoft_resolutions.root";
-    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_VBF_noJVT.root";
+    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_VBF_noJVT_mc.root";
     controlPlots_ = false;
     debug_ = 0;
     outputfile_ = "RandS.root";
@@ -179,12 +179,12 @@ void RandS::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [OR_v4]
-    AvailableEvents[361022] = 1893694;
-    AvailableEvents[361023] = 7804494;
-    AvailableEvents[361024] = 7859900;
-    AvailableEvents[361025] = 7837600;
-    AvailableEvents[361026] = 1813400;
+    // [v2]
+    AvailableEvents[361022] = 499750;
+    AvailableEvents[361023] = 6445895;
+    AvailableEvents[361024] = 7439800;
+    AvailableEvents[361025] = 7619000;
+    AvailableEvents[361026] = 1683400;
 
 }
 
@@ -235,26 +235,39 @@ Bool_t RandS::Process(Long64_t entry)
 
     std::vector<MyJet> Jets_gen;
     std::vector<MyJet> Jets_rec;
-    std::vector<TLorentzVector> recoElectrons;
-    std::vector<TLorentzVector> recoMuons;
-    std::vector<TLorentzVector> recoPhotons;
+    std::vector<MyElectron> Electrons_rec;
+    std::vector<MyMuon> Muons_rec;
+    std::vector<MyTau> Taus_rec;
+    std::vector<MyPhoton> Photons_rec;
 
     int NJets = JetPt->size();
     //std::cout << "Njets: " << NJets << std::endl;
 
     for (int i = 0; i < NJets; ++i) {
+        bool OR = JetPassOR->at(i);
         float pt = JetPt->at(i);
         float eta = JetEta->at(i);
         float phi = JetPhi->at(i);
         float m = JetM->at(i);
         float jvt = JetJVT->at(i);
         if (smearCollection_ == "Gen") jvt = 1.;
+        bool fjvt = JetFJVT->at(i);
+        if (smearCollection_ == "Gen") fjvt = true;
+        float sumpt = JetSumPtTracks->at(i);
+        float tw = JetTrackWidth->at(i);
+        unsigned short ntracks = JetNTracks->at(i);
         bool btag = JetBtag->at(i);
         bool good = JetGood->at(i);
+
         MyJet jet(pt, eta, phi,m);
         jet.SetJVT(jvt);
+        jet.SetFJVT(fjvt);
+        jet.SetSumPtTracks(sumpt);
+        jet.SetTrackWidth(tw);
+        jet.SetNTracks(ntracks);
         jet.SetBTag(btag);
         jet.SetJetID(good);
+        jet.SetPassOR(OR);
 
         //// To avoid that after R+S bad jets may end up in MHT ...
         if (jet.Pt() > 20. && jet.IsBad()) {
@@ -280,14 +293,8 @@ Bool_t RandS::Process(Long64_t entry)
                 return 1;
             }
         }
-        //if (jet.Pt() > 60. && jet.IsPU(jvtcut_)) {
-        //	std::cout << "Reject event because of high pT pile up jet!" << std::endl;
-        //	std::cout << "Pt, Eta, Phi, jvt: " << pt << ", " << eta << ", " << phi << ", " << jet.GetJVT() <<std::endl;
-        //    return 1;
-        //}
 
-        // Keep all jets (important for rebalancing)
-        //if ( jet.IsNoPU(jvtcut_) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 ) Jets_rec.push_back(jet);
+        // Keep all jets (important for rebalancing, and not critical since also PU events should be balanced in pT)
         if (jet.IsGood()) Jets_rec.push_back(jet);
 
     }
@@ -312,47 +319,122 @@ Bool_t RandS::Process(Long64_t entry)
     }
     std::sort(Jets_gen.begin(), Jets_gen.end(), ptComparator_);
 
+    //// Muons ////////////////
 
     int NMuons = MuonPt->size();
     //std::cout << "NMuons: " << NMuons << std::endl;
 
     for (int i = 0; i < NMuons; ++i) {
+        bool OR = MuonPassOR->at(i);
+        bool signal = MuonIsSignal->at(i);
+        bool bad = MuonIsBad->at(i);
         float pt = MuonPt->at(i);
         float eta = MuonEta->at(i);
         float phi = MuonPhi->at(i);
-        if (MuonIsBad->at(i)) {
-            std::cout << "Reject event because of bad muon!" << std::endl;
+        int q = MuonCharge->at(i);
+
+        if (bad) {
+            //std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
-        if (MuonIsSignal->at(i)) {
-            std::cout << "Reject event because of isolated muon!" << std::endl;
+
+        if (signal) {
+            //std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
+
         }
-        if (MuonIsSignal->at(i)) {
-            TLorentzVector muon(0.,0.,0.,0.);
-            muon.SetPtEtaPhiM(pt, eta, phi, 0.1057);
-            recoMuons.push_back(muon);
-        }
+
+        /*
+                if (OR) {
+                    //std::cout << "Reject event because of baseline muon!" << std::endl;
+                    lv = true;
+                    if (!cutFlowStudies) return 1;
+                }
+        */
+
+        MyMuon muon(pt, eta, phi);
+        muon.SetIsSignal(signal);
+        muon.SetPassOR(OR);
+        muon.SetIsBad(bad);
+        muon.SetCharge(q);
+        Muons_rec.push_back(muon);
     }
+    GreaterByPt<MyMuon> ptComparator2_;
+    std::sort(Muons_rec.begin(), Muons_rec.end(), ptComparator2_);
+
+    //// Electrons ////////////////
 
     int NElectrons = ElePt->size();
     //std::cout << "NElectrons: " << NElectrons << std::endl;
 
     for (int i = 0; i < NElectrons; ++i) {
-        if (EleIsSignal->at(i)) {
-            std::cout << "Reject event because of isolated electon!" << std::endl;
-            return 1;
-        }
-    }
-
-    for (int i = 0; i < NElectrons; ++i) {
+        bool OR = ElePassOR->at(i);
+        bool signal = EleIsSignal->at(i);
         float pt = ElePt->at(i);
         float eta = EleEta->at(i);
         float phi = ElePhi->at(i);
-        TLorentzVector electron(0.,0.,0.,0.);
-        electron.SetPtEtaPhiM(pt, eta, phi, 0.000511);
-        recoElectrons.push_back(electron);
+        int q = EleCharge->at(i);
+
+        if (signal) {
+            //std::cout << "Reject event because of isolated electon!" << std::endl;
+            return 1;
+        }
+
+        /*
+                if (OR) {
+                    //std::cout << "Reject event because of baseline electon!" << std::endl;
+                    lv = true;
+                    if (!cutFlowStudies) return 1;
+                }
+        */
+
+        MyElectron electron(pt, eta, phi);
+        electron.SetIsSignal(signal);
+        electron.SetPassOR(OR);
+        electron.SetCharge(q);
+        Electrons_rec.push_back(electron);
     }
+    GreaterByPt<MyElectron> ptComparator3_;
+    std::sort(Electrons_rec.begin(), Electrons_rec.end(), ptComparator3_);
+
+    //// Taus ////////////////
+
+    int NTaus = TauPt->size();
+    //std::cout << "NTaus: " << NTaus << std::endl;
+
+    for (int i = 0; i < NTaus; ++i) {
+        bool OR = TauPassOR->at(i);
+        bool signal = TauIsSignal->at(i);
+        float pt = TauPt->at(i);
+        float eta = TauEta->at(i);
+        float phi = TauPhi->at(i);
+        int q = TauCharge->at(i);
+        MyTau tau(pt, eta, phi);
+        tau.SetIsSignal(signal);
+        tau.SetPassOR(OR);
+        tau.SetCharge(q);
+        Taus_rec.push_back(tau);
+    }
+    GreaterByPt<MyTau> ptComparator4_;
+    std::sort(Taus_rec.begin(), Taus_rec.end(), ptComparator4_);
+
+    //// Photons ////////////////
+
+    int NPhotons = PhotonPt->size();
+    //std::cout << "NPhoton: " << NPhotons << std::endl;
+    for (int i = 0; i < NPhotons; ++i) {
+        bool OR = PhotonPassOR->at(i);
+        bool signal = PhotonIsSignal->at(i);
+        float pt = PhotonPt->at(i);
+        float eta = PhotonEta->at(i);
+        float phi = PhotonPhi->at(i);
+        MyPhoton photon(pt, eta, phi);
+        photon.SetIsSignal(signal);
+        photon.SetPassOR(OR);
+        Photons_rec.push_back(photon);
+    }
+    GreaterByPt<MyPhoton> ptComparator5_;
+    std::sort(Photons_rec.begin(), Photons_rec.end(), ptComparator5_);
 
     //// Calculate some MET related quantities
 

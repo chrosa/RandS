@@ -25,6 +25,10 @@
 //
 
 #include "MyJet.h"
+#include "MyElectron.h"
+#include "MyPhoton.h"
+#include "MyMuon.h"
+#include "MyTau.h"
 #include "MyMETStudies.h"
 
 void MyMETStudies::Begin(TTree * /*tree*/)
@@ -35,7 +39,7 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("METStudiesOutput_0L.root","RECREATE");
+    outputfile = new TFile("METStudiesOutput_0LL.root","RECREATE");
 
     m_MatchingCone = 0.1;
     m_jvtcut = 0.59;
@@ -179,12 +183,12 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [OR_v4]
-    AvailableEvents[361022] = 1893694;
-    AvailableEvents[361023] = 7804494;
-    AvailableEvents[361024] = 7859900;
-    AvailableEvents[361025] = 7837600;
-    AvailableEvents[361026] = 1813400;
+    // [v2]
+    AvailableEvents[361022] = 499750;
+    AvailableEvents[361023] = 6445895;
+    AvailableEvents[361024] = 7439800;
+    AvailableEvents[361025] = 7619000;
+    AvailableEvents[361026] = 1683400;
 
 }
 
@@ -239,10 +243,10 @@ Bool_t MyMETStudies::Process(Long64_t entry)
 
     std::vector<MyJet> genJets;
     std::vector<MyJet> recoJets;
-    std::vector<TLorentzVector> recoElectrons;
-    std::vector<TLorentzVector> recoMuons;
-    std::vector<TLorentzVector> recoTaus;
-    std::vector<TLorentzVector> recoPhotons;
+    std::vector<MyElectron> recoElectrons;
+    std::vector<MyMuon> recoMuons;
+    std::vector<MyTau> recoTaus;
+    std::vector<MyPhoton> recoPhotons;
 
     //// Jets ////////////////
 
@@ -250,13 +254,13 @@ Bool_t MyMETStudies::Process(Long64_t entry)
     //std::cout << "Njets: " << NJets << std::endl;
 
     for (int i = 0; i < NJets; ++i) {
-		if (JetPassOR->at(i) == false ) continue;
+        bool OR = JetPassOR->at(i);
         float pt = JetPt->at(i);
         float eta = JetEta->at(i);
         float phi = JetPhi->at(i);
         float m = JetM->at(i);
         float jvt = JetJVT->at(i);
-        float fjvt = JetFJVT->at(i);
+        bool fjvt = JetFJVT->at(i);
         float sumpt = JetSumPtTracks->at(i);
         float tw = JetTrackWidth->at(i);
         unsigned short ntracks = JetNTracks->at(i);
@@ -270,6 +274,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         jet.SetNTracks(ntracks);
         jet.SetBTag(btag);
         jet.SetJetID(good);
+        jet.SetPassOR(OR);
 
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) < 2.4) {
             if (jet.IsBad() && jet.IsNoPU(m_jvtcut)) {
@@ -322,27 +327,42 @@ Bool_t MyMETStudies::Process(Long64_t entry)
     //std::cout << "NMuons: " << NMuons << std::endl;
 
     for (int i = 0; i < NMuons; ++i) {
-		if (MuonPassOR->at(i) == false ) continue;
+        bool OR = MuonPassOR->at(i);
+        bool signal = MuonIsSignal->at(i);
+        bool bad = MuonIsBad->at(i);
         float pt = MuonPt->at(i);
         float eta = MuonEta->at(i);
         float phi = MuonPhi->at(i);
-        if (MuonIsBad->at(i)) {
+        int q = MuonCharge->at(i);
+
+        if (bad) {
             //std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
-        if (MuonIsSignal->at(i)) {
+
+        if (signal) {
             //std::cout << "Reject event because of isolated muon!" << std::endl;
             lv = true;
             if (!cutFlowStudies) return 1;
 
         }
-        //if (MuonIsSignal->at(i)) {
-        TLorentzVector muon(0.,0.,0.,0.);
-        muon.SetPtEtaPhiM(pt, eta, phi, 0.1057);
+
+/*
+        if (OR) {
+            //std::cout << "Reject event because of baseline muon!" << std::endl;
+            lv = true;
+            if (!cutFlowStudies) return 1;
+        }
+*/
+
+        MyMuon muon(pt, eta, phi);
+        muon.SetIsSignal(signal);
+        muon.SetPassOR(OR);
+        muon.SetIsBad(bad);
+        muon.SetCharge(q);
         recoMuons.push_back(muon);
-        //}
     }
-    GreaterByPt<TLorentzVector> ptComparator2_;
+    GreaterByPt<MyMuon> ptComparator2_;
     std::sort(recoMuons.begin(), recoMuons.end(), ptComparator2_);
     double PtMu = 0;
     if (recoMuons.size() > 0) PtMu = recoMuons.at(0).Pt();
@@ -353,23 +373,35 @@ Bool_t MyMETStudies::Process(Long64_t entry)
     //std::cout << "NElectrons: " << NElectrons << std::endl;
 
     for (int i = 0; i < NElectrons; ++i) {
-        if (EleIsSignal->at(i)) {
+        bool OR = ElePassOR->at(i);
+        bool signal = EleIsSignal->at(i);
+        float pt = ElePt->at(i);
+        float eta = EleEta->at(i);
+        float phi = ElePhi->at(i);
+        int q = EleCharge->at(i);
+
+        if (signal) {
             //std::cout << "Reject event because of isolated electon!" << std::endl;
             lv = true;
             if (!cutFlowStudies) return 1;
         }
-    }
 
-    for (int i = 0; i < NElectrons; ++i) {
-		if (ElePassOR->at(i) == false ) continue;
-        float pt = ElePt->at(i);
-        float eta = EleEta->at(i);
-        float phi = ElePhi->at(i);
-        TLorentzVector electron(0.,0.,0.,0.);
-        electron.SetPtEtaPhiM(pt, eta, phi, 0.000511);
+/*
+        if (OR) {
+            //std::cout << "Reject event because of baseline electon!" << std::endl;
+            lv = true;
+            if (!cutFlowStudies) return 1;
+        }
+*/
+
+        MyElectron electron(pt, eta, phi);
+        electron.SetIsSignal(signal);
+        electron.SetPassOR(OR);
+        electron.SetCharge(q);
         recoElectrons.push_back(electron);
     }
-    std::sort(recoElectrons.begin(), recoElectrons.end(), ptComparator2_);
+    GreaterByPt<MyElectron> ptComparator3_;
+    std::sort(recoElectrons.begin(), recoElectrons.end(), ptComparator3_);
     double PtEle = 0;
     if (recoElectrons.size() > 0) PtEle = recoElectrons.at(0).Pt();
 
@@ -379,34 +411,38 @@ Bool_t MyMETStudies::Process(Long64_t entry)
     //std::cout << "NTaus: " << NTaus << std::endl;
 
     for (int i = 0; i < NTaus; ++i) {
-		if (TauPassOR->at(i) == false ) continue;
-        if (TauIsSignal->at(i)) {
-            float pt = TauPt->at(i);
-            float eta = TauEta->at(i);
-            float phi = TauPhi->at(i);
-            TLorentzVector tau(0.,0.,0.,0.);
-            tau.SetPtEtaPhiM(pt, eta, phi, 0.000511);
-            recoTaus.push_back(tau);
-        }
+        bool OR = TauPassOR->at(i);
+        bool signal = TauIsSignal->at(i);
+        float pt = TauPt->at(i);
+        float eta = TauEta->at(i);
+        float phi = TauPhi->at(i);
+        int q = TauCharge->at(i);
+        MyTau tau(pt, eta, phi);
+        tau.SetIsSignal(signal);
+        tau.SetPassOR(OR);
+        tau.SetCharge(q);
+        recoTaus.push_back(tau);
     }
-    std::sort(recoTaus.begin(), recoTaus.end(), ptComparator2_);
+    GreaterByPt<MyTau> ptComparator4_;
+    std::sort(recoTaus.begin(), recoTaus.end(), ptComparator4_);
 
     //// Photons ////////////////
 
     int NPhotons = PhotonPt->size();
     //std::cout << "NPhoton: " << NPhotons << std::endl;
     for (int i = 0; i < NPhotons; ++i) {
-		if (PhotonPassOR->at(i) == false ) continue;
-        //if (PhotonIsSignal->at(i)) {
-            float pt = PhotonPt->at(i);
-            float eta = PhotonEta->at(i);
-            float phi = PhotonPhi->at(i);
-            TLorentzVector photon(0.,0.,0.,0.);
-            photon.SetPtEtaPhiM(pt, eta, phi, 0.);
-            recoPhotons.push_back(photon);
-        //}
+        bool OR = PhotonPassOR->at(i);
+        bool signal = PhotonIsSignal->at(i);
+        float pt = PhotonPt->at(i);
+        float eta = PhotonEta->at(i);
+        float phi = PhotonPhi->at(i);
+        MyPhoton photon(pt, eta, phi);
+        photon.SetIsSignal(signal);
+        photon.SetPassOR(OR);
+        recoPhotons.push_back(photon);
     }
-    std::sort(recoPhotons.begin(), recoPhotons.end(), ptComparator2_);
+    GreaterByPt<MyPhoton> ptComparator5_;
+    std::sort(recoPhotons.begin(), recoPhotons.end(), ptComparator5_);
     double PtPho = 0;
     if (recoPhotons.size() > 0) PtPho = recoPhotons.at(0).Pt();
 
@@ -744,6 +780,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         h_TruthMET->Fill(genMET.Pt(), eventWeight);
 
         TLorentzVector MHT(0.,0.,0.,0.);
+        TLorentzVector MHTjets(0.,0.,0.,0.);
         TLorentzVector NoJVTMHT(0.,0.,0.,0.);
         TLorentzVector JVTjets(0.,0.,0.,0.);
         TLorentzVector TruthMHTmatched(0.,0.,0.,0.);
@@ -783,7 +820,8 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             if (jet.IsGood() && (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4)) {
                 if (GoodJetCount == 0) firstJet = &jet;
                 if (GoodJetCount == 1) secondJet = &jet;
-                MHT-=jet;
+                if (jet.PassOR()) MHT-=jet;
+                MHTjets-=jet;
                 MyJet* matchedJet = 0;
                 double dRmin = 999.;
                 for ( auto& genjet : genJets ) {
@@ -805,33 +843,32 @@ Bool_t MyMETStudies::Process(Long64_t entry)
 
             ++JetCount;
         }
-        
-		for ( auto& mu : recoMuons) {
-			MHT-=mu;
-			TruthMHTmatched -= mu;
-		}
 
-		for ( auto& ele : recoElectrons) {
-			MHT-=ele;
-			TruthMHTmatched -= ele;
-		}
+        for ( auto& mu : recoMuons) {
+            if (mu.PassOR()) MHT-=mu;
+        }
 
-		for ( auto& pho : recoPhotons) {
-			MHT-=pho;
-			TruthMHTmatched -= pho;
-		}
+        for ( auto& ele : recoElectrons) {
+            if (ele.PassOR()) MHT-=ele;
+        }
+
+        for ( auto& pho : recoPhotons) {
+            if (pho.PassOR()) MHT-=pho;
+        }
 
         if (GoodJetCount > 1) {
 
             //if (firstJet->Pt() > 80. && secondJet->Pt() > 50. && fabs(firstJet->Eta() - secondJet->Eta()) > 3.5 && (firstJet->Eta()*secondJet->Eta()) < 0. ) {
-            // if ( (MET.Pt() - MHT.Pt()) > 200) {
-            if ( METgamma.Pt() > 200 ) {
+            if ( MET.Pt() > 100 ) {
+				//if ( fabs(MET.Pt() - MHTjets.Pt()) > 200) {
+                //if ( METgamma.Pt() > 100 ) {
                 //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
                 //if ( MET.Pt() > 150 && ( (JVTjets.Pt() > 100) ) ){
                 //if ( MET.Pt() > 400 && METele.Pt() > 400.){
                 //if ( MHT.Pt() < 100 && MET.Pt() > 200 && ( (METtrack.Pt() > 300) ) ) {
 
                 std::cout << "----------------------" << std::endl;
+                std::cout << "EventNo, DatasetID/RunNo: " << *EventNo << ", " << *DatasetID << std::endl;
                 std::cout << "MET            = " << MET.Pt() << ", " << MET.Phi() << std::endl;
                 std::cout << "METjet         = " << METjet.Pt() << ", " << METjet.Phi() << std::endl;
                 std::cout << "METmu          = " << METmu.Pt() << ", " << METmu.Phi() << std::endl;
@@ -840,29 +877,30 @@ Bool_t MyMETStudies::Process(Long64_t entry)
                 std::cout << "METtrack       = " << METtrack.Pt() << ", " << METtrack.Phi() << std::endl;
                 std::cout << "genMET         = " << genMET.Pt() << ", " << genMET.Phi() << std::endl;
                 std::cout << "MHT (j,e,mu,g) = " << MHT.Pt() << ", " << MHT.Phi() << std::endl;
+                std::cout << "MHT (j no OR) = " << MHTjets.Pt() << ", " << MHTjets.Phi() << std::endl;
                 for ( auto& genjet : genJets ) {
                     if (genjet.Pt() > 20.) {
-                        std::cout << "genjet: " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi()<< std::endl;
+                        std::cout << "genjet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi()<< std::endl;
                     }
                 }
                 for ( auto& jet : recoJets) {
                     if (jet.IsGood() && jet.Pt() > 20. && fabs(jet.Eta()) < 4.5 && (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4)) {
-                        std::cout << "jet: " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi()<< std::endl;
+                        std::cout << "jet (pt, eta, phi, fwJVT, passOR): " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi() << ", " << jet.IsFJVT() << ", " << jet.PassOR() << std::endl;
                     } else {
-                        std::cout << "removed jet: " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi()<< std::endl;
+                        std::cout << "removed jet (pt, eta, phi, fwJVT, passOR): " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi()  << ", " << jet.IsFJVT() << ", " << jet.PassOR() << std::endl;
                     }
                 }
                 for ( auto& ele : recoElectrons) {
-                    std::cout << "electron: " << ele.Pt() << ", " << ele.Eta() << ", " << ele.Phi()<< std::endl;
+                    std::cout << "electron (pt, eta, phi, signal, passOR): " << ele.Pt() << ", " << ele.Eta() << ", " << ele.Phi() << ", " << ele.IsSignal() << ", " << ele.PassOR() << std::endl;
                 }
                 for ( auto& muon : recoMuons) {
-                    std::cout << "muon: " << muon.Pt() << ", " << muon.Eta() << ", " << muon.Phi()<< std::endl;
+                    std::cout << "muon (pt, eta, phi, signal, passOR): " << muon.Pt() << ", " << muon.Eta() << ", " << muon.Phi() << ", " << muon.IsSignal() << ", " << muon.PassOR() << std::endl;
                 }
                 for ( auto& tau : recoTaus) {
-                    std::cout << "tau: " << tau.Pt() << ", " << tau.Eta() << ", " << tau.Phi()<< std::endl;
+                    std::cout << "tau (pt, eta, phi, signal, passOR): " << tau.Pt() << ", " << tau.Eta() << ", " << tau.Phi() << ", " << tau.IsSignal() << ", " << tau.PassOR() << std::endl;
                 }
                 for ( auto& gamma : recoPhotons) {
-                    std::cout << "photon: " << gamma.Pt() << ", " << gamma.Eta() << ", " << gamma.Phi()<< std::endl;
+                    std::cout << "photon (pt, eta, phi, signal, passOR): " << gamma.Pt() << ", " << gamma.Eta() << ", " << gamma.Phi() << ", " << gamma.IsSignal() << ", " << gamma.PassOR() << std::endl;
                 }
             }
 

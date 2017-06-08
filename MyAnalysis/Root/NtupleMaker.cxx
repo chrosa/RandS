@@ -135,7 +135,7 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("JetM", "std::vector<Float_t>", &JetM_n);
     EventTree->Branch("JetBtag", "std::vector<bool>", &JetBtag_n);
     EventTree->Branch("JetJVT", "std::vector<Float_t>", &JetJVT_n);
-    EventTree->Branch("JetFJVT", "std::vector<Float_t>", &JetFJVT_n);
+    EventTree->Branch("JetFJVT", "std::vector<bool>", &JetFJVT_n);
     EventTree->Branch("JetGood", "std::vector<bool>", &JetGood_n);
     EventTree->Branch("JetPassOR", "std::vector<bool>", &JetPassOR_n);
     EventTree->Branch("JetNTracks", "std::vector<UShort_t>", &JetNTracks_n);
@@ -262,6 +262,8 @@ EL::StatusCode NtupleMaker :: initialize ()
     std::vector<std::string> prw_conf;
     if (prw_file_ == "DUMMY") {
         prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root");
+        prw_conf.push_back("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_signal_latest.root");
+        Info("initialize()", "PRW files defined");
     }
     else {
         prw_conf = getTokens2(prw_file_,",");
@@ -340,7 +342,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     // check if the event is data or MC
     // (many tools are applied either to data or MC)
-    bool isMC = true;
+    bool isMC = false;
     // check if the event is MC
     double eventWeight = 1;
 
@@ -547,17 +549,18 @@ EL::StatusCode NtupleMaker :: execute ()
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
 
-	//Generic pointers for either nominal or systematics copy
-	xAOD::ElectronContainer* electrons(electrons_nominal);
-	xAOD::PhotonContainer* photons(photons_nominal);
-	xAOD::MuonContainer* muons(muons_nominal);
-	xAOD::JetContainer* jets(jets_nominal);
-	xAOD::TauJetContainer* taus(taus_nominal);
-	xAOD::MissingETContainer* mettst(mettst_nominal);
-	// Aux containers too
-	//xAOD::MissingETAuxContainer* mettst_aux(mettst_nominal_aux);
+    //Generic pointers for either nominal or systematics copy
+    xAOD::ElectronContainer* electrons(electrons_nominal);
+    xAOD::PhotonContainer* photons(photons_nominal);
+    xAOD::MuonContainer* muons(muons_nominal);
+    xAOD::JetContainer* jets(jets_nominal);
+    xAOD::TauJetContainer* taus(taus_nominal);
+    xAOD::MissingETContainer* mettst(mettst_nominal);
+    // Aux containers too
+    //xAOD::MissingETAuxContainer* mettst_aux(mettst_nominal_aux);
 
     // Call Overlap Removal
+    //EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons, muons, jets, photons, taus) );
     EL_RETURN_CHECK("execute()", objTool->OverlapRemoval(electrons, muons, jets, photons) );
 
     //// muon vector
@@ -566,6 +569,7 @@ EL::StatusCode NtupleMaker :: execute ()
     float mu_d0sigcut = 3.;
     float mu_z0cut = 0.5;
     float mu_etacut = 2.7;
+    if (debug_ > 10) std::cout << "------------------------------------------------------" << std:: endl;
     for (const auto& mu : *muons) {
         if (!(mu->auxdata<char>("baseline") == 1 )) continue;
         myMuon newMuon;
@@ -580,8 +584,8 @@ EL::StatusCode NtupleMaker :: execute ()
         }
         bool passOR = false;
         if ( mu->auxdata<char>("passOR") == 1 ) {
-			passOR = true;
-		}
+            passOR = true;
+        }
 
         if (newMuon.momentum.Pt() > mu_ptcut && fabs (newMuon.momentum.Eta()) < mu_etacut) {
             MuonPt_n->push_back(newMuon.momentum.Pt()/1000.);
@@ -592,6 +596,15 @@ EL::StatusCode NtupleMaker :: execute ()
             MuonCharge_n->push_back(mu->charge());
             MuonPassOR_n->push_back(passOR);
         }
+        if (debug_ > 10) std::cout << "muon (pT, eta, phi, isSignal, IsBad, Charge, PassOR): " <<
+                  newMuon.momentum.Pt()/1000. << ", " <<
+                  newMuon.momentum.Eta() << ", " <<
+                  newMuon.momentum.Phi() << ", " <<
+                  newMuon.isSignal << ", " <<
+                  newMuon.isBad << ", " <<
+                  mu->charge() << ", " <<
+                  passOR << ", " <<
+                  std::endl;
     }
 
 
@@ -611,8 +624,8 @@ EL::StatusCode NtupleMaker :: execute ()
         }
         bool passOR = false;
         if ( ele->auxdata<char>("passOR") == 1 ) {
-			passOR = true;
-		}
+            passOR = true;
+        }
 
         ElePt_n->push_back(newElectron.momentum.Pt()/1000.);
         EleEta_n->push_back(newElectron.momentum.Eta());
@@ -620,6 +633,14 @@ EL::StatusCode NtupleMaker :: execute ()
         EleIsSignal_n->push_back(newElectron.isSignal);
         EleCharge_n->push_back(ele->charge());
         ElePassOR_n->push_back(passOR);
+        if (debug_ > 10)  std::cout << "electron (pT, eta, phi, isSignal, Charge, PassOR): " <<
+                  newElectron.momentum.Pt()/1000. << ", " <<
+                  newElectron.momentum.Eta() << ", " <<
+                  newElectron.momentum.Phi() << ", " <<
+                  newElectron.isSignal << ", " <<
+                  ele->charge() << ", " <<
+                  passOR << ", " <<
+                  std::endl;
     }
 
     //// tau vector
@@ -636,8 +657,8 @@ EL::StatusCode NtupleMaker :: execute ()
         }
         bool passOR = false;
         if ( tau->auxdata<char>("passOR") == 1 ) {
-			passOR = true;
-		}
+            passOR = true;
+        }
 
         TauPt_n->push_back(newTau.momentum.Pt()/1000.);
         TauEta_n->push_back(newTau.momentum.Eta());
@@ -645,6 +666,14 @@ EL::StatusCode NtupleMaker :: execute ()
         TauIsSignal_n->push_back(newTau.isSignal);
         TauCharge_n->push_back(tau->charge());
         TauPassOR_n->push_back(passOR);
+        if (debug_ > 10)  std::cout << "tau (pT, eta, phi, isSignal, Charge, PassOR): " <<
+                  newTau.momentum.Pt()/1000. << ", " <<
+                  newTau.momentum.Eta() << ", " <<
+                  newTau.momentum.Phi() << ", " <<
+                  newTau.isSignal << ", " <<
+                  tau->charge() << ", " <<
+                  passOR << ", " <<
+                  std::endl;
     }
 
     //// photon vector
@@ -656,9 +685,9 @@ EL::StatusCode NtupleMaker :: execute ()
         if (objTool->IsSignalPhoton(*pho, pho_ptcut, pho_etacut)) isSignal = true;
         bool passOR = false;
         if ( pho->auxdata<char>("passOR") == 1 ) {
-			passOR = true;
-		}
-		
+            passOR = true;
+        }
+
         if (!isSignal && !passOR) continue;
 
         myPhoton newPhoton;
@@ -668,10 +697,18 @@ EL::StatusCode NtupleMaker :: execute ()
         PhotonPhi_n->push_back(newPhoton.momentum.Phi());
         PhotonIsSignal_n->push_back(isSignal);
         PhotonPassOR_n->push_back(passOR);
+        if (debug_ > 10)  std::cout << "photon (pT, eta, phi, isSignal, PassOR): " <<
+                  newPhoton.momentum.Pt()/1000. << ", " <<
+                  newPhoton.momentum.Eta() << ", " <<
+                  newPhoton.momentum.Phi() << ", " <<
+                  newPhoton.isSignal << ", " <<
+                  passOR << ", " <<
+                  std::endl;
 
     }
 
     // Calculate MET
+    //EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst,jets,electrons,muons,photons,taus,true) );
     EL_RETURN_CHECK("execute()", objTool->GetMET(*mettst,jets,electrons,muons,photons,0,true) );
 
     std::vector<myJet> GenJets;
@@ -761,13 +798,18 @@ EL::StatusCode NtupleMaker :: execute ()
         newJet.btag = false;
         if (objTool->IsBJet(*jet)) newJet.btag = true;
         if ( jet->auxdata<char>("passOR") == 1 ) {
-			newJet.OR = true;
-		} else {
-			newJet.OR = false;
-		}
+            newJet.OR = true;
+        } else {
+            newJet.OR = false;
+        }
         newJet.jvt = jet->auxdata<float>("Jvt");
 
         // forward jet tagging
+        if ( jet->auxdata<char>("passFJvt") == 1 ) {
+            newJet.fjvt = true;
+        } else {
+            newJet.fjvt = false;
+        }
         //std::vector<float> JVFLoose_vec;
         //JVFLoose_vec = jet->getAttribute<std::vector<float>>("JVFLoose");
         //xAOD::Vertex HighestJVFLooseVtx = jet->getAttribute<xAOD::Vertex>("HighestJVFLooseVtx");
@@ -775,10 +817,9 @@ EL::StatusCode NtupleMaker :: execute ()
         //if (JVFLoose_vec.size() > 0) {
         //    fjvt = JVFLoose_vec[HighestJVFLooseVtx.index()];
         //} else {
-        //    fjvt = 0;
+        //    fjvt = 0.;
         //}
         //newJet.fjvt = fjvt;
-        newJet.fjvt = 0;
 
         // number of charged tracks within a jet
         std::vector<int> numtrk_vec;
@@ -828,6 +869,16 @@ EL::StatusCode NtupleMaker :: execute ()
         JetSumPtTracks_n->push_back(it->sumpt);
         JetTrackWidth_n->push_back(it->tw);
         if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) MHTtotal -= it->momentum;
+        if (debug_ > 10)  std::cout << "jet (pT, eta, phi, good, BTag, JVT, PassOR): " <<
+                  it->momentum.Pt()/1000. << ", " <<
+                  it->momentum.Eta() << ", " <<
+                  it->momentum.Phi() << ", " <<
+                  it->good << ", " <<
+                  it->btag << ", " <<
+                  it->jvt << ", " <<
+                  it->OR << ", " <<
+                  std::endl;
+
     }
 
     LorentzVector METtotal(0,0,0,0);
@@ -873,10 +924,11 @@ EL::StatusCode NtupleMaker :: execute ()
 
     if (calculateTrueMET_ && isMC) {
         for ( const auto* it : *genparticles ) {
-            if (it->pt() > 0. && it->status() == 1 && !(it->hasDecayVtx())) {
+            if (it->pt() > 0. && it->status() == 3 && !(it->hasDecayVtx())) { // status() == 1 for pythia samples
                 if (abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 )
                     vgenMET += it->p4();
-                //std::cout << "Pid, status, pt, eta, phi: " << it->pdgId() << ", " << it->status() << ", " << it->pt() << ", " << it->eta() << ", " << it->phi() << std::endl;
+                if (abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 || abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13 || abs(it->pdgId()) == 15 )
+                    if (debug_ > 10) std::cout << "truth lepton (pt, eta, phi, status): " << it->pdgId() << ", " << it->pt()/1000. << ", " << it->eta() << ", " << it->phi() << ", " << it->status() << std::endl;
                 bool particleAdded = false;
                 for (std::vector<myJet>::iterator jt = Jets_rec.begin(); (jt != Jets_rec.end() && !particleAdded) ; ++jt) {
                     if (jt->momentum.Pt() > rebalancedJetPt_ && jt->good) {

@@ -25,7 +25,7 @@ int main()
 
     // ------------------------------------------------------------------- //
 
-    std::ifstream myfile ("filelist_data_v2.txt");
+    std::ifstream myfile ("filelist_mc_v2.txt");
 
     std::string root_file;
     if (myfile.is_open()) {

@@ -227,7 +227,7 @@ class MyMETStudies : public TSelector {
         TTreeReaderValue<std::vector<Float_t>> JetM = {fReader, "JetM"};
         TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetBtag"};
         TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetJVT"};
-        TTreeReaderValue<std::vector<Float_t>> JetFJVT = {fReader, "JetFJVT"};
+        TTreeReaderValue<std::vector<bool>> JetFJVT = {fReader, "JetFJVT"};
         TTreeReaderValue<std::vector<Float_t>> JetSumPtTracks = {fReader, "JetSumPtTracks"};
         TTreeReaderValue<std::vector<Float_t>> JetTrackWidth = {fReader, "JetTrackWidth"};
         TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};

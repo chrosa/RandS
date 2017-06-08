@@ -34,6 +34,10 @@
 
 #include "SmearFunction.h"
 #include "MyJet.h"
+#include "MyElectron.h"
+#include "MyPhoton.h"
+#include "MyMuon.h"
+#include "MyTau.h"
 
 using namespace std;
 
@@ -134,40 +138,68 @@ class RandS : public TSelector {
         // Readers to access the data (delete the ones you do not need).
         TTreeReaderValue<Float_t> Weight = {fReader, "Weight"};
         TTreeReaderValue<UInt_t> DatasetID = {fReader, "DatasetID"};
+        TTreeReaderValue<UInt_t> EventNo = {fReader, "EventNo"};
         TTreeReaderValue<Bool_t> PrimaryVtx = {fReader, "PrimaryVtx"};
-		TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};
+        TTreeReaderValue<Bool_t> xe90triggered = {fReader, "xe90triggered"};
+        TTreeReaderValue<Bool_t> xe110triggered = {fReader, "xe110triggered"};
+        TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};
         TTreeReaderValue<std::vector<Float_t>> JetEta = {fReader, "JetEta"};
         TTreeReaderValue<std::vector<Float_t>> JetPhi = {fReader, "JetPhi"};
         TTreeReaderValue<std::vector<Float_t>> JetM = {fReader, "JetM"};
         TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetBtag"};
         TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetJVT"};
+        TTreeReaderValue<std::vector<bool>> JetFJVT = {fReader, "JetFJVT"};
+        TTreeReaderValue<std::vector<Float_t>> JetSumPtTracks = {fReader, "JetSumPtTracks"};
+        TTreeReaderValue<std::vector<Float_t>> JetTrackWidth = {fReader, "JetTrackWidth"};
+        TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
-        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
+        TTreeReaderValue<std::vector<bool>> JetPassOR = {fReader, "JetPassOR"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
+        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPt = {fReader, "GenJetNoNuMuPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuEta = {fReader, "GenJetNoNuMuEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPhi = {fReader, "GenJetNoNuMuPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuM = {fReader, "GenJetNoNuMuM"};
+        TTreeReaderValue<std::vector<bool>> GenJetNoNuMuBtag = {fReader, "GenJetNoNuMuBtag"};
         TTreeReaderValue<std::vector<Float_t>> ElePt = {fReader, "ElePt"};
         TTreeReaderValue<std::vector<Float_t>> EleEta = {fReader, "EleEta"};
         TTreeReaderValue<std::vector<Float_t>> ElePhi = {fReader, "ElePhi"};
         TTreeReaderValue<std::vector<bool>> EleIsSignal = {fReader, "EleIsSignal"};
+        TTreeReaderValue<std::vector<Int_t>> EleCharge = {fReader, "EleCharge"};
+        TTreeReaderValue<std::vector<bool>> ElePassOR = {fReader, "ElePassOR"};
         TTreeReaderValue<std::vector<Float_t>> PhotonPt = {fReader, "PhotonPt"};
         TTreeReaderValue<std::vector<Float_t>> PhotonEta = {fReader, "PhotonEta"};
         TTreeReaderValue<std::vector<Float_t>> PhotonPhi = {fReader, "PhotonPhi"};
         TTreeReaderValue<std::vector<bool>> PhotonIsSignal = {fReader, "PhotonIsSignal"};
+        TTreeReaderValue<std::vector<bool>> PhotonPassOR = {fReader, "PhotonPassOR"};
         TTreeReaderValue<std::vector<Float_t>> MuonPt = {fReader, "MuonPt"};
         TTreeReaderValue<std::vector<Float_t>> MuonEta = {fReader, "MuonEta"};
         TTreeReaderValue<std::vector<Float_t>> MuonPhi = {fReader, "MuonPhi"};
         TTreeReaderValue<std::vector<bool>> MuonIsSignal = {fReader, "MuonIsSignal"};
         TTreeReaderValue<std::vector<bool>> MuonIsBad = {fReader, "MuonIsBad"};
+        TTreeReaderValue<std::vector<Int_t>> MuonCharge = {fReader, "MuonCharge"};
+        TTreeReaderValue<std::vector<bool>> MuonPassOR = {fReader, "MuonPassOR"};
         TTreeReaderValue<std::vector<Float_t>> TauPt = {fReader, "TauPt"};
         TTreeReaderValue<std::vector<Float_t>> TauEta = {fReader, "TauEta"};
         TTreeReaderValue<std::vector<Float_t>> TauPhi = {fReader, "TauPhi"};
         TTreeReaderValue<std::vector<bool>> TauIsSignal = {fReader, "TauIsSignal"};
+        TTreeReaderValue<std::vector<Int_t>> TauCharge = {fReader, "TauCharge"};
+        TTreeReaderValue<std::vector<bool>> TauPassOR = {fReader, "TauPassOR"};
         TTreeReaderValue<Float_t> MET_pt = {fReader, "MET_pt"};
         TTreeReaderValue<Float_t> MET_phi = {fReader, "MET_phi"};
+        TTreeReaderValue<Float_t> METjet_pt = {fReader, "METjet_pt"};
+        TTreeReaderValue<Float_t> METjet_phi = {fReader, "METjet_phi"};
         TTreeReaderValue<Float_t> METmu_pt = {fReader, "METmu_pt"};
         TTreeReaderValue<Float_t> METmu_phi = {fReader, "METmu_phi"};
+        TTreeReaderValue<Float_t> METele_pt = {fReader, "METele_pt"};
+        TTreeReaderValue<Float_t> METele_phi = {fReader, "METele_phi"};
+        TTreeReaderValue<Float_t> METgamma_pt = {fReader, "METgamma_pt"};
+        TTreeReaderValue<Float_t> METgamma_phi = {fReader, "METgamma_phi"};
+        TTreeReaderValue<Float_t> METtrack_pt = {fReader, "METtrack_pt"};
+        TTreeReaderValue<Float_t> METtrack_phi = {fReader, "METtrack_phi"};
         TTreeReaderValue<Float_t> GenMET_pt = {fReader, "GenMET_pt"};
         TTreeReaderValue<Float_t> GenMET_phi = {fReader, "GenMET_phi"};
         TTreeReaderValue<Float_t> TrueMHT_pt = {fReader, "TrueMHT_pt"};

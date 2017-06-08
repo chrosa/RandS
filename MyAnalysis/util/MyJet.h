@@ -22,10 +22,11 @@ class MyJet: public TLorentzVector {
             isPhoton = false;
             isTau = false;
             jvt = -1;
-            fjvt = -1;
+            fjvt = false;
             ntracks = 0;
             trackWidth = 0;
             sumpt = 0;
+            OR = true;
         };
         virtual ~MyJet();
 
@@ -33,7 +34,7 @@ class MyJet: public TLorentzVector {
             jvt = j;
         };
 
-        void SetFJVT(double j) {
+        void SetFJVT(bool j) {
             fjvt = j;
         };
 
@@ -41,8 +42,12 @@ class MyJet: public TLorentzVector {
             return jvt;
         };
 
-        double GetFJVT() {
+        bool IsFJVT() {
             return fjvt;
+        };
+
+        bool PassOR() {
+            return OR;
         };
 
         bool IsPU(double cut) {
@@ -117,6 +122,10 @@ class MyJet: public TLorentzVector {
             isTau = b;
         };
 
+        void SetPassOR(bool b) {
+            OR = b;
+        };
+
         bool IsTau() {
             return !isTau;
         };
@@ -127,13 +136,13 @@ class MyJet: public TLorentzVector {
         bool good;
         bool isPhoton;
         bool isTau;
+        bool OR;
+        bool fjvt;
         float jvt;
-        float fjvt;
         float sumpt;
         float trackWidth;
         unsigned short ntracks;
         
-
 };
 
 #endif /* MYJET_H_ */

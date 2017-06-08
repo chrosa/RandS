@@ -35,7 +35,7 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("TriggerStudiesOutput_VBF.root","RECREATE");
+    outputfile = new TFile("TriggerStudiesOutput_VBF_mc.root","RECREATE");
 
     m_jvtcut = 0.59;
     m_lumi = 30000.;
@@ -63,12 +63,12 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // NTulpleMaker_mc_default_v2
-    AvailableEvents[361022] = 1993647;
-    AvailableEvents[361023] = 7634495;
-    AvailableEvents[361024] = 7979800;
-    AvailableEvents[361025] = 7907600;
-    AvailableEvents[361026] = 1893400;
+    // [v2]
+    AvailableEvents[361022] = 499750;
+    AvailableEvents[361023] = 6445895;
+    AvailableEvents[361024] = 7439800;
+    AvailableEvents[361025] = 7619000;
+    AvailableEvents[361026] = 1683400;
 
 }
 

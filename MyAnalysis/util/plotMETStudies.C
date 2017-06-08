@@ -42,14 +42,14 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 0) {
-            c->SaveAs("c0L.pdf");
+            c->SaveAs("c0LL.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("c0L.pdf(");
+                c->SaveAs("c0LL.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("c0L.pdf)");
+                c->SaveAs("c0LL.pdf)");
             } else {
-                c->SaveAs("c0L.pdf");
+                c->SaveAs("c0LL.pdf");
             }
         }
 
@@ -106,14 +106,14 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 0) {
-            c->SaveAs("c0L2.pdf");
+            c->SaveAs("c0LL2.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("c0L2.pdf(");
+                c->SaveAs("c0LL2.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("c0L2.pdf)");
+                c->SaveAs("c0LL2.pdf)");
             } else {
-                c->SaveAs("c0L2.pdf");
+                c->SaveAs("c0LL2.pdf");
             }
         }
 

@@ -33,6 +33,7 @@ class NtupleMaker : public EL::Algorithm
         int m_numCleanEvents; //!
         bool AddMuToJets_; //!
         bool isMC;
+        bool doPRW_; //!
         
         int debug_;
         std::string outputfile_;
@@ -68,7 +69,7 @@ class NtupleMaker : public EL::Algorithm
             bool btag;
             bool good;
             float jvt;
-            float fjvt;
+            bool fjvt;
             float tw;
             int ntracks;
             float sumpt;
@@ -135,8 +136,8 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<bool> * JetBtag_n = &JetBtag_; //!
         std::vector<Float_t>  JetJVT_; //!
 		std::vector<Float_t> * JetJVT_n = &JetJVT_; //!
-        std::vector<Float_t>  JetFJVT_; //!
-		std::vector<Float_t> * JetFJVT_n = &JetFJVT_; //!
+        std::vector<bool>  JetFJVT_; //!
+		std::vector<bool> * JetFJVT_n = &JetFJVT_; //!
         std::vector<bool>  JetGood_; //!
 		std::vector<bool> * JetGood_n = &JetGood_; //!
         std::vector<bool>  JetPassOR_; //!
