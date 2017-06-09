@@ -347,13 +347,11 @@ Bool_t MyMETStudies::Process(Long64_t entry)
 
         }
 
-/*
         if (OR) {
             //std::cout << "Reject event because of baseline muon!" << std::endl;
             lv = true;
             if (!cutFlowStudies) return 1;
         }
-*/
 
         MyMuon muon(pt, eta, phi);
         muon.SetIsSignal(signal);
@@ -386,13 +384,11 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             if (!cutFlowStudies) return 1;
         }
 
-/*
         if (OR) {
             //std::cout << "Reject event because of baseline electon!" << std::endl;
             lv = true;
             if (!cutFlowStudies) return 1;
         }
-*/
 
         MyElectron electron(pt, eta, phi);
         electron.SetIsSignal(signal);
@@ -859,8 +855,8 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         if (GoodJetCount > 1) {
 
             //if (firstJet->Pt() > 80. && secondJet->Pt() > 50. && fabs(firstJet->Eta() - secondJet->Eta()) > 3.5 && (firstJet->Eta()*secondJet->Eta()) < 0. ) {
-            if ( MET.Pt() > 100 ) {
-				//if ( fabs(MET.Pt() - MHTjets.Pt()) > 200) {
+            if ( MET.Pt() > 1000 ) {
+                //if ( fabs(MET.Pt() - MHTjets.Pt()) > 200) {
                 //if ( METgamma.Pt() > 100 ) {
                 //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
                 //if ( MET.Pt() > 150 && ( (JVTjets.Pt() > 100) ) ){

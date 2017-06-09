@@ -7,7 +7,7 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
     TString xTitle;
     TString yTitle;
 
-    LumiTitle = "Simulation, L = 30 fb^{  -1}, #sqrt{s} = 13 TeV";
+    LumiTitle = "Simulation, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
 
@@ -69,7 +69,7 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
     TString yTitle;
     TString zTitle;
 
-    LumiTitle = "Simulation, L = 30 fb^{  -1}, #sqrt{s} = 13 TeV";
+    LumiTitle = "Simulation, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
 
@@ -182,118 +182,123 @@ int plotMETStudies() {
 
     ////////////////////////////////////////
 
-    TFile *f = new TFile("METStudiesOutput_0L.root", "READ", "", 0);
+    TFile *f = new TFile("METStudiesOutput_0LL.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;
     vector<string> x;
     vector<string> y;
 
+	//string SelTitle = "No selection";
+	string SelTitle = "Baseline lepton veto";
+	//string SelTitle = "Signal lepton veto";
+	//string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5";
+
     h_Jet1_Pt  =  (TH1F*) f->FindObjectAny("h_Jet1_Pt");
     h.push_back(h_Jet1_Pt);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet1 p_{T} (GeV)");
     y.push_back("Events");
 
     TH1F* h_Jet2_Pt  =  (TH1F*) f->FindObjectAny("h_Jet2_Pt");
     h.push_back(h_Jet2_Pt);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet2 p_{T} (GeV)");
     y.push_back("Events");
 
     TH1F* h_Jet3_Pt  =  (TH1F*) f->FindObjectAny("h_Jet3_Pt");
     h.push_back(h_Jet3_Pt);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet3 p_{T} (GeV)");
     y.push_back("Events");
 
     TH1F* h_Jet1_Eta  =  (TH1F*) f->FindObjectAny("h_Jet1_Eta");
     h.push_back(h_Jet1_Eta);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet1 #eta");
     y.push_back("Events");
 
     TH1F* h_Jet2_Eta  =  (TH1F*) f->FindObjectAny("h_Jet2_Eta");
     h.push_back(h_Jet2_Eta);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet2 #eta");
     y.push_back("Events");
 
     TH1F* h_Jet3_Eta  =  (TH1F*) f->FindObjectAny("h_Jet3_Eta");
     h.push_back(h_Jet3_Eta);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet3 #eta");
     y.push_back("Events");
 
     TH1F* h_Jet1_Phi  =  (TH1F*) f->FindObjectAny("h_Jet1_Phi");
     h.push_back(h_Jet1_Phi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet1 #phi");
     y.push_back("Events");
 
     TH1F* h_Jet2_Phi  =  (TH1F*) f->FindObjectAny("h_Jet2_Phi");
     h.push_back(h_Jet2_Phi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet2 #phi");
     y.push_back("Events");
 
     TH1F* h_Jet3_Phi  =  (TH1F*) f->FindObjectAny("h_Jet3_Phi");
     h.push_back(h_Jet3_Phi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Jet3 #phi");
     y.push_back("Events");
 
     TH1F* h_Jet1_DeltaPhi  =  (TH1F*) f->FindObjectAny("h_Jet1_DeltaPhi");
     h.push_back(h_Jet1_DeltaPhi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("#Delta#phi(MET,jet1)");
     y.push_back("Events");
 
     TH1F* h_Jet2_DeltaPhi  =  (TH1F*) f->FindObjectAny("h_Jet2_DeltaPhi");
     h.push_back(h_Jet2_DeltaPhi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("#Delta#phi(MET,jet2)");
     y.push_back("Events");
 
     TH1F* h_Jet3_DeltaPhi  =  (TH1F*) f->FindObjectAny("h_Jet3_DeltaPhi");
     h.push_back(h_Jet3_DeltaPhi);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("#Delta#phi(MET,jet3)");
     y.push_back("Events");
 
     TH1F* h_MHT  =  (TH1F*) f->FindObjectAny("h_MHT");
     h.push_back(h_MHT);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("MHT (GeV)");
     y.push_back("Events");
 
     TH1F* h_NoJVTMHT  =  (TH1F*) f->FindObjectAny("h_NoJVTMHT");
     h.push_back(h_NoJVTMHT);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("MHT no JVT (GeV)");
     y.push_back("Events");
 
     TH1F* h_TruthMHT  =  (TH1F*) f->FindObjectAny("h_TruthMHT");
     h.push_back(h_TruthMHT);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Truth MHT (GeV)");
     y.push_back("Events");
 
     TH1F* h_MET  =  (TH1F*) f->FindObjectAny("h_MET");
     h.push_back(h_MET);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("MET (GeV)");
     y.push_back("Events");
 
     TH1F* h_TruthMET  =  (TH1F*) f->FindObjectAny("h_TruthMET");
     h.push_back(h_TruthMET);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("Truth MET (GeV)");
     y.push_back("Events");
 
     TH1F* h_METreplaced  =  (TH1F*) f->FindObjectAny("h_METreplaced");
     h.push_back(h_METreplaced);
-    t.push_back("No selection");
+    t.push_back(SelTitle);
     x.push_back("MET with truth jet term (GeV)");
     y.push_back("Events");
 
@@ -305,93 +310,106 @@ int plotMETStudies() {
     vector<string> y2;
     vector<string> z2;
 
+	//SelTitle = "No selection";
+	SelTitle = "Baseline lepton veto";
+	//SelTitle = "Signal lepton veto";
+	//SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5";
+	
+
     TH2F* h_MHTvsNoJVTMHT  =  (TH2F*) f->FindObjectAny("h_MHTvsNoJVTMHT");
     h2.push_back(h_MHTvsNoJVTMHT);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MHT (GeV)");
     y2.push_back("MHT no JVT (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMHT  =  (TH2F*) f->FindObjectAny("h_METvsMHT");
     h2.push_back(h_METvsMHT);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MHT (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETreplaced  =  (TH2F*) f->FindObjectAny("h_METvsMETreplaced");
     h2.push_back(h_METvsMETreplaced);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET with truth jet term (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsNoJVTMHT  =  (TH2F*) f->FindObjectAny("h_METvsNoJVTMHT");
     h2.push_back(h_METvsNoJVTMHT);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MHT no JVT (GeV)");
     z2.push_back("Events");
-
+    
+    TH2F* h_JVTPhivsMHTPhi  =  (TH2F*) f->FindObjectAny("h_JVTPhivsMHTPhi");
+    h2.push_back(h_JVTPhivsMHTPhi);
+    t2.push_back(SelTitle);
+    x2.push_back("#Sum JVT jets #Phi");
+    y2.push_back("MHT #Phi");
+    z2.push_back("Events");
+   
     TH2F* h_METvsElePt  =  (TH2F*) f->FindObjectAny("h_METvsElePt");
     h2.push_back(h_METvsElePt);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Electron p_{T} (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMuPt  =  (TH2F*) f->FindObjectAny("h_METvsMuPt");
     h2.push_back(h_METvsMuPt);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Muon p_{T} (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsPhoPt  =  (TH2F*) f->FindObjectAny("h_METvsPhoPt");
     h2.push_back(h_METvsPhoPt);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Photon p_{T} (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsLepPt  =  (TH2F*) f->FindObjectAny("h_METvsLepPt");
     h2.push_back(h_METvsLepPt);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Lepton p_{T} (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETjet  =  (TH2F*) f->FindObjectAny("h_METvsMETjet");
     h2.push_back(h_METvsMETjet);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET jet term (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETele  =  (TH2F*) f->FindObjectAny("h_METvsMETele");
     h2.push_back(h_METvsMETele);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET electron term (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETmu  =  (TH2F*) f->FindObjectAny("h_METvsMETmu");
     h2.push_back(h_METvsMETmu);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET muon term (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETgamma  =  (TH2F*) f->FindObjectAny("h_METvsMETgamma");
     h2.push_back(h_METvsMETgamma);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET photon term (GeV)");
     z2.push_back("Events");
 
     TH2F* h_METvsMETtrack  =  (TH2F*) f->FindObjectAny("h_METvsMETtrack");
     h2.push_back(h_METvsMETtrack);
-    t2.push_back("Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5");
+    t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET soft term (GeV)");
     z2.push_back("Events");
