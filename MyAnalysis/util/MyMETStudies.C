@@ -45,7 +45,7 @@ void MyMETStudies::Begin(TTree * /*tree*/)
     m_jvtcut = 0.59;
     m_lumi = 32900.;
 
-    ////Book histograms
+    //// Book 1d histograms
 
     h_Jet1_Pt = new TH1F("h_Jet1_Pt", "h_Jet1_Pt", 100, 0., 4000.);
     h_Jet1_Pt->Sumw2();
@@ -99,9 +99,17 @@ void MyMETStudies::Begin(TTree * /*tree*/)
     h_MHT->Sumw2();
     histos_1D.push_back(h_MHT);
 
-    h_NoJVTMHT = new TH1F("h_NoJVTMHT", "h_NoJVTMHT", 100, 0., 1000.);
-    h_NoJVTMHT->Sumw2();
-    histos_1D.push_back(h_NoJVTMHT);
+    h_MHTnoOR = new TH1F("h_MHTnoOR", "h_MHTnoOR", 100, 0., 1000.);
+    h_MHTnoOR->Sumw2();
+    histos_1D.push_back(h_MHTnoOR);
+
+    h_MHTnoJVT = new TH1F("h_MHTnoJVT", "h_MHTnoJVT", 100, 0., 1000.);
+    h_MHTnoJVT->Sumw2();
+    histos_1D.push_back(h_MHTnoJVT);
+
+    h_MHTnoJVTnoOR = new TH1F("h_MHTnoJVTnoOR", "h_MHTnoJVTnoOR", 100, 0., 1000.);
+    h_MHTnoJVTnoOR->Sumw2();
+    histos_1D.push_back(h_MHTnoJVTnoOR);
 
     h_TruthMHT = new TH1F("h_TruthMHT", "h_TruthMHT", 100, 0., 1000.);
     h_TruthMHT->Sumw2();
@@ -119,65 +127,95 @@ void MyMETStudies::Begin(TTree * /*tree*/)
     h_METreplaced->Sumw2();
     histos_1D.push_back(h_METreplaced);
 
-    h_MHTvsNoJVTMHT = new TH2F("h_MHTvsNoJVTMHT", "h_MHTvsNoJVTMHT", 100, 0., 1000., 100, 0., 1000.);
-    h_MHTvsNoJVTMHT->Sumw2();
-    histos_2D.push_back(h_MHTvsNoJVTMHT);
+    //// Book 2d histograms
 
-    h_JVTPhivsMHTPhi = new TH2F("h_JVTPhivsMHTPhi", "h_JVTPhivsMHTPhi", 40, -TMath::Pi(), TMath::Pi(), 40, -TMath::Pi(), TMath::Pi());
-    h_JVTPhivsMHTPhi->Sumw2();
-    histos_2D.push_back(h_JVTPhivsMHTPhi);
+    h_MET_vs_MHT = new TH2F("h_MET_vs_MHT", "h_MET_vs_MHT", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_MHT->Sumw2();
+    histos_2D.push_back(h_MET_vs_MHT);
 
-    h_JVTPhivsNoJVTMHTPhi = new TH2F("h_JVTPhivsNoJVTMHTPhi", "h_JVTPhivsNoJVTMHTPhi", 40, -TMath::Pi(), TMath::Pi(), 40, -TMath::Pi(), TMath::Pi());
-    h_JVTPhivsNoJVTMHTPhi->Sumw2();
-    histos_2D.push_back(h_JVTPhivsNoJVTMHTPhi);
+    h_MET_vs_MHTnoOR = new TH2F("h_MET_vs_MHTnoOR", "h_MET_vs_MHTnoOR", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_MHTnoOR->Sumw2();
+    histos_2D.push_back(h_MET_vs_MHTnoOR);
 
-    h_METvsMHT = new TH2F("h_METvsMHT", "h_METvsMHT", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMHT->Sumw2();
-    histos_2D.push_back(h_METvsMHT);
+    h_MET_vs_MHTnoJVT = new TH2F("h_MET_vs_MHTnoJVT", "h_MET_vs_MHTnoJVT", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_MHTnoJVT->Sumw2();
+    histos_2D.push_back(h_MET_vs_MHTnoJVT);
 
-    h_METvsNoJVTMHT = new TH2F("h_METvsNoJVTMHT", "h_METvsNoJVTMHT", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsNoJVTMHT->Sumw2();
-    histos_2D.push_back(h_METvsNoJVTMHT);
+    h_MET_vs_MHTnoJVTnoOR = new TH2F("h_MET_vs_MHTnoJVTnoOR", "h_MET_vs_MHTnoJVTnoOR", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_MHTnoJVTnoOR->Sumw2();
+    histos_2D.push_back(h_MET_vs_MHTnoJVTnoOR);
 
-    h_METvsMETreplaced = new TH2F("h_METvsMETreplaced", "h_METvsMETreplaced", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETreplaced->Sumw2();
-    histos_2D.push_back(h_METvsMETreplaced);
+    h_MHT_vs_MHTnoOR = new TH2F("h_MHT_vs_MHTnoOR", "h_MHT_vs_MHTnoOR", 100, 0., 1000., 100, 0., 1000.);
+    h_MHT_vs_MHTnoOR->Sumw2();
+    histos_2D.push_back(h_MHT_vs_MHTnoOR);
 
-    h_METvsElePt = new TH2F("h_METvsElePt", "h_METvsElePt", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsElePt->Sumw2();
-    histos_2D.push_back(h_METvsElePt);
+    h_MHT_vs_MHTnoJVT = new TH2F("h_MHT_vs_MHTnoJVT", "h_MHT_vs_MHTnoJVT", 100, 0., 1000., 100, 0., 1000.);
+    h_MHT_vs_MHTnoJVT->Sumw2();
+    histos_2D.push_back(h_MHT_vs_MHTnoJVT);
 
-    h_METvsMuPt = new TH2F("h_METvsMuPt", "h_METvsMuPt", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMuPt->Sumw2();
-    histos_2D.push_back(h_METvsMuPt);
+    h_MHT_vs_MHTnoJVTnoOR = new TH2F("h_MHT_vs_MHTnoJVTnoOR", "h_MHT_vs_MHTnoJVTnoOR", 100, 0., 1000., 100, 0., 1000.);
+    h_MHT_vs_MHTnoJVTnoOR->Sumw2();
+    histos_2D.push_back(h_MHT_vs_MHTnoJVTnoOR);
 
-    h_METvsPhoPt = new TH2F("h_METvsPhoPt", "h_METvsPhoPt", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsPhoPt->Sumw2();
-    histos_2D.push_back(h_METvsPhoPt);
+    h_JVTPhi_vs_METPhi = new TH2F("h_JVTPhi_vs_METPhi", "h_JVTPhi_vs_METPhi", 40, -TMath::Pi(), TMath::Pi(), 40, -TMath::Pi(), TMath::Pi());
+    h_JVTPhi_vs_METPhi->Sumw2();
+    histos_2D.push_back(h_JVTPhi_vs_METPhi);
 
-    h_METvsLepPt = new TH2F("h_METvsLepPt", "h_METvsLepPt", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsLepPt->Sumw2();
-    histos_2D.push_back(h_METvsLepPt);
+    h_JVTPhi_vs_MHTPhi = new TH2F("h_JVTPhi_vs_MHTPhi", "h_JVTPhi_vs_MHTPhi", 40, -TMath::Pi(), TMath::Pi(), 40, -TMath::Pi(), TMath::Pi());
+    h_JVTPhi_vs_MHTPhi->Sumw2();
+    histos_2D.push_back(h_JVTPhi_vs_MHTPhi);
 
-    h_METvsMETjet = new TH2F("h_METvsMETjet", "h_METvsMETjet", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETjet->Sumw2();
-    histos_2D.push_back(h_METvsMETjet);
+    h_JVTPhi_vs_MHTnoORPhi = new TH2F("h_JVTPhi_vs_MHTnoORPhi", "h_JVTPhi_vs_MHTnoORPhi", 40, -TMath::Pi(), TMath::Pi(), 40, -TMath::Pi(), TMath::Pi());
+    h_JVTPhi_vs_MHTnoORPhi->Sumw2();
+    histos_2D.push_back(h_JVTPhi_vs_MHTnoORPhi);
 
-    h_METvsMETele = new TH2F("h_METvsMETele", "h_METvsMETele", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETele->Sumw2();
-    histos_2D.push_back(h_METvsMETele);
+    h_MET_vs_METreplaced = new TH2F("h_MET_vs_METreplaced", "h_MET_vs_METreplaced", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METreplaced->Sumw2();
+    histos_2D.push_back(h_MET_vs_METreplaced);
 
-    h_METvsMETmu = new TH2F("h_METvsMETmu", "h_METvsMETmu", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETmu->Sumw2();
-    histos_2D.push_back(h_METvsMETmu);
+    h_MHTnoOR_vs_MHTnoORreplaced = new TH2F("h_MHTnoOR_vs_MHTnoORreplaced", "h_MHTnoOR_vs_MHTnoORreplaced", 100, 0., 1000., 100, 0., 1000.);
+    h_MHTnoOR_vs_MHTnoORreplaced->Sumw2();
+    histos_2D.push_back(h_MHTnoOR_vs_MHTnoORreplaced);
 
-    h_METvsMETgamma = new TH2F("h_METvsMETgamma", "h_METvsMETgamma", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETgamma->Sumw2();
-    histos_2D.push_back(h_METvsMETgamma);
+    h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced = new TH2F("h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced", "h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced", 100, 0., 1000., 100, 0., 1000.);
+    h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced->Sumw2();
+    histos_2D.push_back(h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced);
 
-    h_METvsMETtrack = new TH2F("h_METvsMETtrack", "h_METvsMETtrack", 100, 0., 1000., 100, 0., 1000.);
-    h_METvsMETtrack->Sumw2();
-    histos_2D.push_back(h_METvsMETtrack);
+    h_MET_vs_ElePt = new TH2F("h_MET_vs_ElePt", "h_MET_vs_ElePt", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_ElePt->Sumw2();
+    histos_2D.push_back(h_MET_vs_ElePt);
+
+    h_MET_vs_MuPt = new TH2F("h_MET_vs_MuPt", "h_MET_vs_MuPt", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_MuPt->Sumw2();
+    histos_2D.push_back(h_MET_vs_MuPt);
+
+    h_MET_vs_PhoPt = new TH2F("h_MET_vs_PhoPt", "h_MET_vs_PhoPt", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_PhoPt->Sumw2();
+    histos_2D.push_back(h_MET_vs_PhoPt);
+
+    h_MET_vs_LepPt = new TH2F("h_MET_vs_LepPt", "h_MET_vs_LepPt", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_LepPt->Sumw2();
+    histos_2D.push_back(h_MET_vs_LepPt);
+
+    h_MET_vs_METjet = new TH2F("h_MET_vs_METjet", "h_MET_vs_METjet", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METjet->Sumw2();
+    histos_2D.push_back(h_MET_vs_METjet);
+
+    h_MET_vs_METele = new TH2F("h_MET_vs_METele", "h_MET_vs_METele", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METele->Sumw2();
+    histos_2D.push_back(h_MET_vs_METele);
+
+    h_MET_vs_METmu = new TH2F("h_MET_vs_METmu", "h_MET_vs_METmu", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METmu->Sumw2();
+    histos_2D.push_back(h_MET_vs_METmu);
+
+    h_MET_vs_METgamma = new TH2F("h_MET_vs_METgamma", "h_MET_vs_METgamma", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METgamma->Sumw2();
+    histos_2D.push_back(h_MET_vs_METgamma);
+
+    h_MET_vs_METtrack = new TH2F("h_MET_vs_METtrack", "h_MET_vs_METtrack", 100, 0., 1000., 100, 0., 1000.);
+    h_MET_vs_METtrack->Sumw2();
+    histos_2D.push_back(h_MET_vs_METtrack);
 
     //NTotEvents = fChain->GetEntries();
 
@@ -233,7 +271,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         ProcessedEvents[*DatasetID] += 1;
     }
 
-    //if ( *DatasetID == 361026 ) return 0;
+    //if ( *DatasetID != 361022 ) return 0;
 
     if ( *PrimaryVtx == 0 ) return 0;
 
@@ -776,48 +814,63 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         h_TruthMET->Fill(genMET.Pt(), eventWeight);
 
         TLorentzVector MHT(0.,0.,0.,0.);
-        TLorentzVector MHTjets(0.,0.,0.,0.);
-        TLorentzVector NoJVTMHT(0.,0.,0.,0.);
+        TLorentzVector MHTnoOR(0.,0.,0.,0.);
+        TLorentzVector MHTnoJVT(0.,0.,0.,0.);
+        TLorentzVector MHTnoJVTnoOR(0.,0.,0.,0.);
         TLorentzVector JVTjets(0.,0.,0.,0.);
-        TLorentzVector TruthMHTmatched(0.,0.,0.,0.);
+        TLorentzVector TruthMatchedMHT(0.,0.,0.,0.);
+        TLorentzVector TruthMatchedMHTnoOR(0.,0.,0.,0.);
+        TLorentzVector TruthMatchedMHTnoJVT(0.,0.,0.,0.);
+        TLorentzVector TruthMatchedMHTnoJVTnoOR(0.,0.,0.,0.);
 
         int JetCount = 0;
         int GoodJetCount = 0;
-        //MyJet* firstJet = 0;
+
         firstJet = 0;
-        //MyJet* secondJet = 0;
         secondJet = 0;
 
         for ( auto& jet : recoJets) {
 
-            double dphi = fabs(MET.DeltaPhi(jet));
-            if (JetCount == 0) {
-                h_Jet1_Pt->Fill(jet.Pt(),eventWeight);
-                h_Jet1_Eta->Fill(jet.Eta(),eventWeight);
-                h_Jet1_Phi->Fill(jet.Phi(),eventWeight);
-                h_Jet1_DeltaPhi->Fill(dphi ,eventWeight);
+            bool isNoPU = false;
+            if (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4) isNoPU = true;
+
+            if (jet.IsGood() && isNoPU) {
+
+                double dphi = fabs(MET.DeltaPhi(jet));
+                if (JetCount == 0) {
+                    h_Jet1_Pt->Fill(jet.Pt(),eventWeight);
+                    h_Jet1_Eta->Fill(jet.Eta(),eventWeight);
+                    h_Jet1_Phi->Fill(jet.Phi(),eventWeight);
+                    h_Jet1_DeltaPhi->Fill(dphi ,eventWeight);
+                }
+
+                if (JetCount == 1) {
+                    h_Jet2_Pt->Fill(jet.Pt(),eventWeight);
+                    h_Jet2_Eta->Fill(jet.Eta(),eventWeight);
+                    h_Jet2_Phi->Fill(jet.Phi(),eventWeight);
+                    h_Jet2_DeltaPhi->Fill(dphi ,eventWeight);
+                }
+
+                if (JetCount == 2) {
+                    h_Jet3_Pt->Fill(jet.Pt(),eventWeight);
+                    h_Jet3_Eta->Fill(jet.Eta(),eventWeight);
+                    h_Jet3_Phi->Fill(jet.Phi(),eventWeight);
+                    h_Jet3_DeltaPhi->Fill(dphi ,eventWeight);
+                }
+
             }
 
-            if (JetCount == 1) {
-                h_Jet2_Pt->Fill(jet.Pt(),eventWeight);
-                h_Jet2_Eta->Fill(jet.Eta(),eventWeight);
-                h_Jet2_Phi->Fill(jet.Phi(),eventWeight);
-                h_Jet2_DeltaPhi->Fill(dphi ,eventWeight);
-            }
+            if (jet.IsGood()) MHTnoJVTnoOR -= jet;
+            if (jet.IsGood() && jet.PassOR() ) MHTnoJVT -= jet;
+            if (jet.IsGood() && isNoPU) MHTnoOR -= jet;
+            if (jet.IsGood() && jet.PassOR() && isNoPU) MHT -= jet;
 
-            if (JetCount == 2) {
-                h_Jet3_Pt->Fill(jet.Pt(),eventWeight);
-                h_Jet3_Eta->Fill(jet.Eta(),eventWeight);
-                h_Jet3_Phi->Fill(jet.Phi(),eventWeight);
-                h_Jet3_DeltaPhi->Fill(dphi ,eventWeight);
-            }
+            if (jet.IsGood()) {
 
-            NoJVTMHT-=jet;
-            if (jet.IsGood() && (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4)) {
                 if (GoodJetCount == 0) firstJet = &jet;
                 if (GoodJetCount == 1) secondJet = &jet;
-                if (jet.PassOR()) MHT-=jet;
-                MHTjets-=jet;
+
+                //// Match reco jets to truth jets
                 MyJet* matchedJet = 0;
                 double dRmin = 999.;
                 for ( auto& genjet : genJets ) {
@@ -826,14 +879,24 @@ Bool_t MyMETStudies::Process(Long64_t entry)
                         dRmin = genjet.DeltaR(jet);
                     }
                 }
-                if (dRmin < 0.1) {
-                    TruthMHTmatched -= *matchedJet;
+
+                //// If match is found replace reco jet by truth jet
+                if (dRmin < 0.15) {
+                    if (jet.IsGood()) TruthMatchedMHTnoJVTnoOR -= *matchedJet;
+                    if (jet.IsGood() && jet.PassOR() ) TruthMatchedMHTnoJVT -= *matchedJet;
+                    if (jet.IsGood() && isNoPU) TruthMatchedMHTnoOR -= *matchedJet;
+                    if (jet.IsGood() && jet.PassOR() && isNoPU) TruthMatchedMHT -= *matchedJet;
                 } else {
-                    TruthMHTmatched -= jet;
+                    if (jet.IsGood()) TruthMatchedMHTnoJVTnoOR -= jet;
+                    if (jet.IsGood() && jet.PassOR() ) TruthMatchedMHTnoJVT -= jet;
+                    if (jet.IsGood() && isNoPU) TruthMatchedMHTnoOR -= jet;
+                    if (jet.IsGood() && jet.PassOR() && isNoPU) TruthMatchedMHT -= jet;
                 }
                 ++GoodJetCount;
+
             }
-            if (jet.IsGood() && jet.Pt() > 25. && (jet.Pt() < 60. && jet.IsPU(m_jvtcut) && fabs(jet.Eta()) < 2.4)) {
+
+            if (jet.IsGood() && jet.Pt() > 25. && !isNoPU) {
                 JVTjets += jet;
             }
 
@@ -841,27 +904,42 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         }
 
         for ( auto& mu : recoMuons) {
-            if (mu.PassOR()) MHT-=mu;
+            if (mu.PassOR()) {
+                MHT-=mu;
+                MHTnoJVT-=mu;
+                MHTnoOR-=mu;
+                MHTnoJVTnoOR-=mu;
+            }
         }
 
         for ( auto& ele : recoElectrons) {
-            if (ele.PassOR()) MHT-=ele;
+            if (ele.PassOR()) {
+                MHT-=ele;
+                MHTnoJVT-=ele;
+            }
         }
 
+		/*
         for ( auto& pho : recoPhotons) {
-            if (pho.PassOR()) MHT-=pho;
+            if (pho.PassOR()) {
+                MHT-=pho;
+                MHTnoJVT-=pho;
+            }
         }
+        */
 
         if (GoodJetCount > 1) {
 
             //if (firstJet->Pt() > 80. && secondJet->Pt() > 50. && fabs(firstJet->Eta() - secondJet->Eta()) > 3.5 && (firstJet->Eta()*secondJet->Eta()) < 0. ) {
-            if ( MET.Pt() > 1000 ) {
-                //if ( fabs(MET.Pt() - MHTjets.Pt()) > 200) {
-                //if ( METgamma.Pt() > 100 ) {
-                //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
-                //if ( MET.Pt() > 150 && ( (JVTjets.Pt() > 100) ) ){
-                //if ( MET.Pt() > 400 && METele.Pt() > 400.){
-                //if ( MHT.Pt() < 100 && MET.Pt() > 200 && ( (METtrack.Pt() > 300) ) ) {
+            //if ( MET.Pt() > 1000 ) {
+            //if ( fabs(MET.Pt() - MHTnoOR.Pt()) > 200) {
+            //if ( METgamma.Pt() > 100 ) {
+            //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
+            //if ( MET.Pt() > 150 && ( (JVTjets.Pt() > 100) ) ){
+            //if ( MET.Pt() > 400 && METele.Pt() > 400.){
+            //if ( MHT.Pt() < 100 && MET.Pt() > 200 && ( (METtrack.Pt() > 300) ) ) {
+            //if ( MHT.Pt() > 150 && METele.Pt() < 20. && METmu.Pt() < 20. ) {
+			if ( JVTjets.Pt() > 150 ) {
 
                 std::cout << "----------------------" << std::endl;
                 std::cout << "EventNo, DatasetID/RunNo: " << *EventNo << ", " << *DatasetID << std::endl;
@@ -872,8 +950,9 @@ Bool_t MyMETStudies::Process(Long64_t entry)
                 std::cout << "METgamma       = " << METgamma.Pt() << ", " << METgamma.Phi() << std::endl;
                 std::cout << "METtrack       = " << METtrack.Pt() << ", " << METtrack.Phi() << std::endl;
                 std::cout << "genMET         = " << genMET.Pt() << ", " << genMET.Phi() << std::endl;
-                std::cout << "MHT (j,e,mu,g) = " << MHT.Pt() << ", " << MHT.Phi() << std::endl;
-                std::cout << "MHT (j no OR) = " << MHTjets.Pt() << ", " << MHTjets.Phi() << std::endl;
+                std::cout << "MHT (j,e,mu,g)        = " << MHT.Pt() << ", " << MHT.Phi() << std::endl;
+                std::cout << "MHT (j no OR)         = " << MHTnoOR.Pt() << ", " << MHTnoOR.Phi() << std::endl;
+                std::cout << "MHT (j no OR, no jvt) = " << MHTnoJVTnoOR.Pt() << ", " << MHTnoJVTnoOR.Phi() << std::endl;
                 for ( auto& genjet : genJets ) {
                     if (genjet.Pt() > 20.) {
                         std::cout << "genjet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi()<< std::endl;
@@ -901,42 +980,41 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             }
 
             TLorentzVector METreplaced(0.,0.,0.,0.);
-            METreplaced = MET - MHT + TruthMHTmatched;
+            METreplaced = MET - MHT + TruthMatchedMHT;
             h_METreplaced->Fill(METreplaced.Pt(), eventWeight);
 
-            h_MHT->Fill(MHT.Pt(), eventWeight);
-            h_NoJVTMHT->Fill(NoJVTMHT.Pt(), eventWeight);
+			h_MHT->Fill(MHT.Pt(), eventWeight);
+            h_MHTnoOR->Fill(MHTnoOR.Pt(), eventWeight);
+            h_MHTnoJVT->Fill(MHTnoJVT.Pt(), eventWeight);
+            h_MHTnoJVTnoOR->Fill(MHTnoJVTnoOR.Pt(), eventWeight);
 
+            h_MET_vs_MHT->Fill(MET.Pt(), MHT.Pt(), eventWeight);
+            h_MET_vs_MHTnoOR->Fill(MET.Pt(), MHTnoOR.Pt(), eventWeight);
+            h_MET_vs_MHTnoJVT->Fill(MET.Pt(), MHTnoJVT.Pt(), eventWeight);
+            h_MET_vs_MHTnoJVTnoOR->Fill(MET.Pt(), MHTnoJVTnoOR.Pt(), eventWeight);
+            
+            h_MHT_vs_MHTnoOR->Fill(MHT.Pt(), MHTnoJVT.Pt(), eventWeight);
+            h_MHT_vs_MHTnoJVT->Fill(MHT.Pt(), MHTnoJVT.Pt(), eventWeight);
+            h_MHT_vs_MHTnoJVTnoOR->Fill(MHT.Pt(), MHTnoJVTnoOR.Pt(), eventWeight);
+            
+            h_JVTPhi_vs_METPhi->Fill(JVTjets.Phi(), MET.Phi(), eventWeight);
+            h_JVTPhi_vs_MHTPhi->Fill(JVTjets.Phi(), MHT.Phi(), eventWeight);
+            h_JVTPhi_vs_MHTnoORPhi->Fill(JVTjets.Phi(), MHTnoOR.Phi(), eventWeight);
+            
+            h_MET_vs_METreplaced->Fill(MET.Pt(), METreplaced.Pt(), eventWeight);
+            h_MHTnoOR_vs_MHTnoORreplaced->Fill(MHTnoOR.Pt(), TruthMatchedMHTnoOR.Pt(), eventWeight);
+            h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced->Fill(MHTnoJVTnoOR.Pt(), TruthMatchedMHTnoJVTnoOR.Pt(), eventWeight);
 
-            h_MHTvsNoJVTMHT->Fill(MHT.Pt(), NoJVTMHT.Pt(), eventWeight);
+            h_MET_vs_ElePt->Fill(MET.Pt(), PtEle, eventWeight);
+            h_MET_vs_MuPt->Fill(MET.Pt(), PtMu, eventWeight);
+            h_MET_vs_PhoPt->Fill(MET.Pt(), PtPho, eventWeight);
+            h_MET_vs_LepPt->Fill(MET.Pt(), (PtEle>PtMu ? PtEle : PtMu), eventWeight);
 
-            h_JVTPhivsMHTPhi->Fill(JVTjets.Phi(), MHT.Phi(), eventWeight);
-
-            h_JVTPhivsNoJVTMHTPhi->Fill(JVTjets.Phi(), NoJVTMHT.Phi(), eventWeight);
-
-            h_METvsNoJVTMHT->Fill(MET.Pt(), NoJVTMHT.Pt(), eventWeight);
-
-            h_METvsMHT->Fill(MET.Pt(), MHT.Pt(), eventWeight);
-
-            h_METvsMETreplaced->Fill(MET.Pt(), METreplaced.Pt(), eventWeight);
-
-            h_METvsElePt->Fill(MET.Pt(), PtEle, eventWeight);
-
-            h_METvsMuPt->Fill(MET.Pt(), PtMu, eventWeight);
-
-            h_METvsPhoPt->Fill(MET.Pt(), PtPho, eventWeight);
-
-            h_METvsLepPt->Fill(MET.Pt(), (PtEle>PtMu ? PtEle : PtMu), eventWeight);
-
-            h_METvsMETjet->Fill(MET.Pt(), METjet.Pt(), eventWeight);
-
-            h_METvsMETele->Fill(MET.Pt(), METele.Pt(), eventWeight);
-
-            h_METvsMETmu->Fill(MET.Pt(), METmu.Pt(), eventWeight);
-
-            h_METvsMETgamma->Fill(MET.Pt(), METgamma.Pt(), eventWeight);
-
-            h_METvsMETtrack->Fill(MET.Pt(), METtrack.Pt(), eventWeight);
+            h_MET_vs_METjet->Fill(MET.Pt(), METjet.Pt(), eventWeight);
+            h_MET_vs_METele->Fill(MET.Pt(), METele.Pt(), eventWeight);
+            h_MET_vs_METmu->Fill(MET.Pt(), METmu.Pt(), eventWeight);
+            h_MET_vs_METgamma->Fill(MET.Pt(), METgamma.Pt(), eventWeight);
+            h_MET_vs_METtrack->Fill(MET.Pt(), METtrack.Pt(), eventWeight);
 
         }
 

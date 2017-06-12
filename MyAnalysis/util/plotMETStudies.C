@@ -190,8 +190,10 @@ int plotMETStudies() {
     vector<string> y;
 
 	//string SelTitle = "No selection";
-	string SelTitle = "Baseline lepton veto";
-	//string SelTitle = "Signal lepton veto";
+	//string SelTitle = "Baseline lepton veto; added all muons to MHT";
+	//string SelTitle = "Signal lepton veto; added all muons to MHT";
+	string SelTitle = "Baseline lepton veto; added passOR muons to MHT";
+	//string SelTitle = "Signal lepton veto; added passOR muons to MHT";
 	//string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5";
 
     h_Jet1_Pt  =  (TH1F*) f->FindObjectAny("h_Jet1_Pt");
@@ -265,17 +267,29 @@ int plotMETStudies() {
     t.push_back(SelTitle);
     x.push_back("#Delta#phi(MET,jet3)");
     y.push_back("Events");
-
+                        
     TH1F* h_MHT  =  (TH1F*) f->FindObjectAny("h_MHT");
     h.push_back(h_MHT);
     t.push_back(SelTitle);
     x.push_back("MHT (GeV)");
     y.push_back("Events");
 
-    TH1F* h_NoJVTMHT  =  (TH1F*) f->FindObjectAny("h_NoJVTMHT");
-    h.push_back(h_NoJVTMHT);
+    TH1F* h_MHTnoOR  =  (TH1F*) f->FindObjectAny("h_MHTnoOR");
+    h.push_back(h_MHTnoOR);
+    t.push_back(SelTitle);
+    x.push_back("MHT no OR (GeV)");
+    y.push_back("Events");
+
+    TH1F* h_MHTnoJVT  =  (TH1F*) f->FindObjectAny("h_MHTnoJVT");
+    h.push_back(h_MHTnoJVT);
     t.push_back(SelTitle);
     x.push_back("MHT no JVT (GeV)");
+    y.push_back("Events");
+
+    TH1F* h_MHTnoJVTnoOR  =  (TH1F*) f->FindObjectAny("h_MHTnoJVTnoOR");
+    h.push_back(h_MHTnoJVTnoOR);
+    t.push_back(SelTitle);
+    x.push_back("MHT no JVT no OR (GeV)");
     y.push_back("Events");
 
     TH1F* h_TruthMHT  =  (TH1F*) f->FindObjectAny("h_TruthMHT");
@@ -310,105 +324,156 @@ int plotMETStudies() {
     vector<string> y2;
     vector<string> z2;
 
-	//SelTitle = "No selection";
-	SelTitle = "Baseline lepton veto";
-	//SelTitle = "Signal lepton veto";
-	//SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5";
-	
 
-    TH2F* h_MHTvsNoJVTMHT  =  (TH2F*) f->FindObjectAny("h_MHTvsNoJVTMHT");
-    h2.push_back(h_MHTvsNoJVTMHT);
-    t2.push_back(SelTitle);
-    x2.push_back("MHT (GeV)");
-    y2.push_back("MHT no JVT (GeV)");
-    z2.push_back("Events");
-
-    TH2F* h_METvsMHT  =  (TH2F*) f->FindObjectAny("h_METvsMHT");
-    h2.push_back(h_METvsMHT);
+    TH2F* h_MET_vs_MHT  =  (TH2F*) f->FindObjectAny("h_MET_vs_MHT");
+    h2.push_back(h_MET_vs_MHT);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MHT (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETreplaced  =  (TH2F*) f->FindObjectAny("h_METvsMETreplaced");
-    h2.push_back(h_METvsMETreplaced);
+    TH2F* h_MET_vs_MHTnoOR  =  (TH2F*) f->FindObjectAny("h_MET_vs_MHTnoOR");
+    h2.push_back(h_MET_vs_MHTnoOR);
+    t2.push_back(SelTitle);
+    x2.push_back("MET (GeV)");
+    y2.push_back("MHT no OR (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MET_vs_MHTnoJVT  =  (TH2F*) f->FindObjectAny("h_MET_vs_MHTnoJVT");
+    h2.push_back(h_MET_vs_MHTnoJVT);
+    t2.push_back(SelTitle);
+    x2.push_back("MET (GeV)");
+    y2.push_back("MHT no JVT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MET_vs_MHTnoJVTnoOR  =  (TH2F*) f->FindObjectAny("h_MET_vs_MHTnoJVTnoOR");
+    h2.push_back(h_MET_vs_MHTnoJVTnoOR);
+    t2.push_back(SelTitle);
+    x2.push_back("MET (GeV)");
+    y2.push_back("MHT no JVT no OR (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MHT_vs_MHTnoOR  =  (TH2F*) f->FindObjectAny("h_MHT_vs_MHTnoOR");
+    h2.push_back(h_MHT_vs_MHTnoOR);
+    t2.push_back(SelTitle);
+    x2.push_back("MHT (GeV)");
+    y2.push_back("MHT noOR (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MHT_vs_MHTnoJVT  =  (TH2F*) f->FindObjectAny("h_MHT_vs_MHTnoJVT");
+    h2.push_back(h_MHT_vs_MHTnoJVT);
+    t2.push_back(SelTitle);
+    x2.push_back("MHT (GeV)");
+    y2.push_back("MHT no JVT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MHT_vs_MHTnoJVTnoOR  =  (TH2F*) f->FindObjectAny("h_MHT_vs_MHTnoJVTnoOR");
+    h2.push_back(h_MHT_vs_MHTnoJVTnoOR);
+    t2.push_back(SelTitle);
+    x2.push_back("MHT (GeV)");
+    y2.push_back("MHT no JVT no OR (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_JVTPhi_vs_METPhi  =  (TH2F*) f->FindObjectAny("h_JVTPhi_vs_METPhi");
+    h2.push_back(h_JVTPhi_vs_METPhi);
+    t2.push_back(SelTitle);
+    x2.push_back("#Sum JVT jets #Phi");
+    y2.push_back("MET #Phi");
+    z2.push_back("Events");
+
+    TH2F* h_JVTPhi_vs_MHTPhi  =  (TH2F*) f->FindObjectAny("h_JVTPhi_vs_MHTPhi");
+    h2.push_back(h_JVTPhi_vs_MHTPhi);
+    t2.push_back(SelTitle);
+    x2.push_back("#Sum JVT jets #Phi");
+    y2.push_back("MHT #Phi");
+    z2.push_back("Events");
+
+    TH2F* h_JVTPhi_vs_MHTnoORPhi  =  (TH2F*) f->FindObjectAny("h_JVTPhi_vs_MHTnoORPhi");
+    h2.push_back(h_JVTPhi_vs_MHTnoORPhi);
+    t2.push_back(SelTitle);
+    x2.push_back("#Sum JVT jets #Phi");
+    y2.push_back("MHT no OR #Phi");
+    z2.push_back("Events");
+
+    TH2F* h_MET_vs_METreplaced  =  (TH2F*) f->FindObjectAny("h_MET_vs_METreplaced");
+    h2.push_back(h_MET_vs_METreplaced);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET with truth jet term (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsNoJVTMHT  =  (TH2F*) f->FindObjectAny("h_METvsNoJVTMHT");
-    h2.push_back(h_METvsNoJVTMHT);
+    TH2F* h_MHTnoOR_vs_MHTnoORreplaced  =  (TH2F*) f->FindObjectAny("h_MHTnoOR_vs_MHTnoORreplaced");
+    h2.push_back(h_MHTnoOR_vs_MHTnoORreplaced);
     t2.push_back(SelTitle);
-    x2.push_back("MET (GeV)");
-    y2.push_back("MHT no JVT (GeV)");
+    x2.push_back("MHT no OR (GeV)");
+    y2.push_back("MHT no OR with truth jet term (GeV)");
     z2.push_back("Events");
-    
-    TH2F* h_JVTPhivsMHTPhi  =  (TH2F*) f->FindObjectAny("h_JVTPhivsMHTPhi");
-    h2.push_back(h_JVTPhivsMHTPhi);
+
+    TH2F* h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced  =  (TH2F*) f->FindObjectAny("h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced");
+    h2.push_back(h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced);
     t2.push_back(SelTitle);
-    x2.push_back("#Sum JVT jets #Phi");
-    y2.push_back("MHT #Phi");
+    x2.push_back("MHT no JVT no OR (GeV)");
+    y2.push_back("MET no JVT no OR with truth jet term (GeV)");
     z2.push_back("Events");
    
-    TH2F* h_METvsElePt  =  (TH2F*) f->FindObjectAny("h_METvsElePt");
-    h2.push_back(h_METvsElePt);
+    TH2F* h_MET_vs_ElePt  =  (TH2F*) f->FindObjectAny("h_MET_vs_ElePt");
+    h2.push_back(h_MET_vs_ElePt);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Electron p_{T} (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMuPt  =  (TH2F*) f->FindObjectAny("h_METvsMuPt");
-    h2.push_back(h_METvsMuPt);
+    TH2F* h_MET_vs_MuPt  =  (TH2F*) f->FindObjectAny("h_MET_vs_MuPt");
+    h2.push_back(h_MET_vs_MuPt);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Muon p_{T} (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsPhoPt  =  (TH2F*) f->FindObjectAny("h_METvsPhoPt");
-    h2.push_back(h_METvsPhoPt);
+    TH2F* h_MET_vs_PhoPt  =  (TH2F*) f->FindObjectAny("h_MET_vs_PhoPt");
+    h2.push_back(h_MET_vs_PhoPt);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Photon p_{T} (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsLepPt  =  (TH2F*) f->FindObjectAny("h_METvsLepPt");
-    h2.push_back(h_METvsLepPt);
+    TH2F* h_MET_vs_LepPt  =  (TH2F*) f->FindObjectAny("h_MET_vs_LepPt");
+    h2.push_back(h_MET_vs_LepPt);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("Lepton p_{T} (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETjet  =  (TH2F*) f->FindObjectAny("h_METvsMETjet");
-    h2.push_back(h_METvsMETjet);
+    TH2F* h_MET_vs_METjet  =  (TH2F*) f->FindObjectAny("h_MET_vs_METjet");
+    h2.push_back(h_MET_vs_METjet);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET jet term (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETele  =  (TH2F*) f->FindObjectAny("h_METvsMETele");
-    h2.push_back(h_METvsMETele);
+    TH2F* h_MET_vs_METele  =  (TH2F*) f->FindObjectAny("h_MET_vs_METele");
+    h2.push_back(h_MET_vs_METele);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET electron term (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETmu  =  (TH2F*) f->FindObjectAny("h_METvsMETmu");
-    h2.push_back(h_METvsMETmu);
+    TH2F* h_MET_vs_METmu  =  (TH2F*) f->FindObjectAny("h_MET_vs_METmu");
+    h2.push_back(h_MET_vs_METmu);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET muon term (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETgamma  =  (TH2F*) f->FindObjectAny("h_METvsMETgamma");
-    h2.push_back(h_METvsMETgamma);
+    TH2F* h_MET_vs_METgamma  =  (TH2F*) f->FindObjectAny("h_MET_vs_METgamma");
+    h2.push_back(h_MET_vs_METgamma);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET photon term (GeV)");
     z2.push_back("Events");
 
-    TH2F* h_METvsMETtrack  =  (TH2F*) f->FindObjectAny("h_METvsMETtrack");
-    h2.push_back(h_METvsMETtrack);
+    TH2F* h_MET_vs_METtrack  =  (TH2F*) f->FindObjectAny("h_MET_vs_METtrack");
+    h2.push_back(h_MET_vs_METtrack);
     t2.push_back(SelTitle);
     x2.push_back("MET (GeV)");
     y2.push_back("MET soft term (GeV)");

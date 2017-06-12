@@ -35,6 +35,8 @@ class MyMETStudies : public TSelector {
         bool isMC = true;
         bool cutFlowStudies = false;
 
+		//// 1D HISTOGRAMS
+
         TH1F* h_Jet1_Pt;
         TH1F* h_Jet2_Pt;
         TH1F* h_Jet3_Pt;
@@ -47,27 +49,47 @@ class MyMETStudies : public TSelector {
         TH1F* h_Jet1_DeltaPhi;
         TH1F* h_Jet2_DeltaPhi;
         TH1F* h_Jet3_DeltaPhi;
+        
         TH1F* h_MHT;
-        TH1F* h_NoJVTMHT;
+        TH1F* h_MHTnoOR;
+        TH1F* h_MHTnoJVT;
+        TH1F* h_MHTnoJVTnoOR;
+        
         TH1F* h_TruthMHT;
-        TH2F* h_MHTvsNoJVTMHT;
-        TH2F* h_JVTPhivsMHTPhi;
-        TH2F* h_JVTPhivsNoJVTMHTPhi;
-        TH2F* h_METvsMHT;
+
         TH1F* h_MET;
         TH1F* h_TruthMET;
+
         TH1F* h_METreplaced;
-        TH2F* h_METvsMETreplaced;
-        TH2F* h_METvsNoJVTMHT;
-        TH2F* h_METvsElePt;
-        TH2F* h_METvsMuPt;
-        TH2F* h_METvsPhoPt;
-        TH2F* h_METvsLepPt;
-        TH2F* h_METvsMETjet;
-        TH2F* h_METvsMETele;
-        TH2F* h_METvsMETmu;
-        TH2F* h_METvsMETgamma;
-        TH2F* h_METvsMETtrack;
+
+		//// 2D HISTOGRAMS
+
+        TH2F* h_MET_vs_MHT;
+        TH2F* h_MET_vs_MHTnoOR;
+        TH2F* h_MET_vs_MHTnoJVT;
+        TH2F* h_MET_vs_MHTnoJVTnoOR;
+        
+        TH2F* h_MHT_vs_MHTnoOR;
+        TH2F* h_MHT_vs_MHTnoJVT;
+        TH2F* h_MHT_vs_MHTnoJVTnoOR;
+
+        TH2F* h_JVTPhi_vs_METPhi;
+        TH2F* h_JVTPhi_vs_MHTPhi;
+        TH2F* h_JVTPhi_vs_MHTnoORPhi;
+
+        TH2F* h_MET_vs_METreplaced;
+        TH2F* h_MHTnoOR_vs_MHTnoORreplaced;
+        TH2F* h_MHTnoJVTnoOR_vs_MHTnoJVTnoORreplaced;
+
+        TH2F* h_MET_vs_ElePt;
+        TH2F* h_MET_vs_MuPt;
+        TH2F* h_MET_vs_PhoPt;
+        TH2F* h_MET_vs_LepPt;
+        TH2F* h_MET_vs_METjet;
+        TH2F* h_MET_vs_METele;
+        TH2F* h_MET_vs_METmu;
+        TH2F* h_MET_vs_METgamma;
+        TH2F* h_MET_vs_METtrack;
 
         std::vector<TH1F*> histos_1D;
         std::vector<TH2F*> histos_2D;
@@ -233,11 +255,11 @@ class MyMETStudies : public TSelector {
         TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
         TTreeReaderValue<std::vector<bool>> JetPassOR = {fReader, "JetPassOR"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
-        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
+        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPt = {fReader, "GenJetNoNuMuPt"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuEta = {fReader, "GenJetNoNuMuEta"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPhi = {fReader, "GenJetNoNuMuPhi"};
