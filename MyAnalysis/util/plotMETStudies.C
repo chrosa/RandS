@@ -42,14 +42,14 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 0) {
-            c->SaveAs("c0LL.pdf");
+            c->SaveAs("c0LAddMu.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("c0LL.pdf(");
+                c->SaveAs("c0LAddMu.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("c0LL.pdf)");
+                c->SaveAs("c0LAddMu.pdf)");
             } else {
-                c->SaveAs("c0LL.pdf");
+                c->SaveAs("c0LAddMu.pdf");
             }
         }
 
@@ -106,14 +106,14 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 0) {
-            c->SaveAs("c0LL2.pdf");
+            c->SaveAs("c0LAddMu2.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("c0LL2.pdf(");
+                c->SaveAs("c0LAddMu2.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("c0LL2.pdf)");
+                c->SaveAs("c0LAddMu2.pdf)");
             } else {
-                c->SaveAs("c0LL2.pdf");
+                c->SaveAs("c0LAddMu2.pdf");
             }
         }
 
@@ -182,7 +182,7 @@ int plotMETStudies() {
 
     ////////////////////////////////////////
 
-    TFile *f = new TFile("METStudiesOutput_0LL.root", "READ", "", 0);
+    TFile *f = new TFile("METStudiesOutput_0L.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;
@@ -191,8 +191,8 @@ int plotMETStudies() {
 
 	//string SelTitle = "No selection";
 	//string SelTitle = "Baseline lepton veto; added all muons to MHT";
-	//string SelTitle = "Signal lepton veto; added all muons to MHT";
-	string SelTitle = "Baseline lepton veto; added passOR muons to MHT";
+	string SelTitle = "Signal lepton veto; added all muons to MHT";
+	//string SelTitle = "Baseline lepton veto; added passOR muons to MHT";
 	//string SelTitle = "Signal lepton veto; added passOR muons to MHT";
 	//string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.5";
 

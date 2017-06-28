@@ -224,8 +224,8 @@ int main()
     string root_file;
     TChain* prediction = new TChain("PredictionTree");
 
-    ifstream myfile1 ("filelist_RnS_data_all.txt");
-    //ifstream myfile1 ("filelist_RnS_mc_all.txt");
+    //ifstream myfile1 ("filelist_RnS_data_all.txt");
+    ifstream myfile1 ("filelist_RnS_mc_all.txt");
     //ifstream myfile1 ("filelist_RnS_mc.txt");
 
     if (myfile1.is_open()) {
@@ -245,18 +245,18 @@ int main()
 
     // initialize new Prediction object
     Prediction *pred_;
-    bool isData = true;
+    bool isData = false;
     bool VBF = true;
     bool HTMHT = false;
-    TString postfix = "_MyTest_data_TailUP_CoreUP_v4";
+    TString postfix = "_MyTest_mc_MHTall_noMETsoftSmearing_v1";
 
     pred_ = new Prediction(*prediction, postfix);
 
     cout << "after prediction in main" << endl;
 
     TString LumiTitle;
-    if( isData ) LumiTitle = "ATLAS internal, L = 36 fb^{  -1}, #sqrt{s} = 13 TeV";
-    else LumiTitle = "Simulation, L = 36 fb^{  -1}, #sqrt{s} = 13 TeV";
+    if( isData ) LumiTitle = "ATLAS internal, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
+    else LumiTitle = "Simulation, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");
@@ -371,6 +371,7 @@ int main()
     xTitle_VBF_presel.push_back("Jet2 #eta");
     xTitle_VBF_presel.push_back("Jet3 #eta");
     xTitle_VBF_presel.push_back("p_{T}(j_{1},j_{2}) (GeV)");
+    xTitle_VBF_presel.push_back("MET (GeV)");
     xTitle_VBF_presel.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_presel.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_presel.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
@@ -386,6 +387,7 @@ int main()
     xTitle_VBF_presel_4JV_dPhiSide.push_back("Jet2 #eta");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("Jet3 #eta");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("p_{T}(j_{1},j_{2}) (GeV)");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("MET (GeV)");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
@@ -401,6 +403,7 @@ int main()
     xTitle_VBF_dEta.push_back("Jet2 #eta");
     xTitle_VBF_dEta.push_back("Jet3 #eta");
     xTitle_VBF_dEta.push_back("p_{T}(j_{1},j_{2}) (GeV)");
+    xTitle_VBF_dEta.push_back("MET (GeV)");
     xTitle_VBF_dEta.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
@@ -416,6 +419,7 @@ int main()
     xTitle_VBF_dEta_3JV.push_back("Jet2 #eta");
     xTitle_VBF_dEta_3JV.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV.push_back("p_{T}(j_{1},j_{2}) (GeV)");
+    xTitle_VBF_dEta_3JV.push_back("MET (GeV)");
     xTitle_VBF_dEta_3JV.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta_3JV.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta_3JV.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
@@ -431,6 +435,7 @@ int main()
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("Jet2 #eta");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("p_{T}(j_{1},j_{2}) (GeV)");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("MET (GeV)");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
@@ -548,6 +553,7 @@ int main()
     hist_type_VBF_presel.push_back("VBF_Jet2Eta_presel");
     hist_type_VBF_presel.push_back("VBF_Jet3Eta_presel");
     hist_type_VBF_presel.push_back("VBF_PTjj_presel");
+    hist_type_VBF_presel.push_back("VBF_MET_presel");
     hist_type_VBF_presel.push_back("VBF_minDeltaPhiPTj12_presel");
     hist_type_VBF_presel.push_back("VBF_maxDeltaPhiPTj12_presel");
     hist_type_VBF_presel.push_back("VBF_DeltaPhiPTj3_presel");
@@ -563,6 +569,7 @@ int main()
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_Jet2Eta_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_Jet3Eta_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_PTjj_presel_4JV_dPhiSide");
+    hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_MET_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide");
@@ -578,6 +585,7 @@ int main()
     hist_type_VBF_dEta.push_back("VBF_Jet2Eta_dEta");
     hist_type_VBF_dEta.push_back("VBF_Jet3Eta_dEta");
     hist_type_VBF_dEta.push_back("VBF_PTjj_dEta");
+    hist_type_VBF_dEta.push_back("VBF_MET_dEta");
     hist_type_VBF_dEta.push_back("VBF_minDeltaPhiPTj12_dEta");
     hist_type_VBF_dEta.push_back("VBF_maxDeltaPhiPTj12_dEta");
     hist_type_VBF_dEta.push_back("VBF_DeltaPhiPTj3_dEta");
@@ -593,6 +601,7 @@ int main()
     hist_type_VBF_dEta_3JV.push_back("VBF_Jet2Eta_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_Jet3Eta_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_PTjj_dEta_3JV");
+    hist_type_VBF_dEta_3JV.push_back("VBF_MET_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_minDeltaPhiPTj12_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_maxDeltaPhiPTj12_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_DeltaPhiPTj3_dEta_3JV");
@@ -608,6 +617,7 @@ int main()
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_Jet2Eta_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_Jet3Eta_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_PTjj_dEta_3JV_dPhiPTjj");
+    hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_MET_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj");

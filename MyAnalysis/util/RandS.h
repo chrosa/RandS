@@ -154,11 +154,11 @@ class RandS : public TSelector {
         TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
         TTreeReaderValue<std::vector<bool>> JetPassOR = {fReader, "JetPassOR"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
-        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
+        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPt = {fReader, "GenJetNoNuMuPt"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuEta = {fReader, "GenJetNoNuMuEta"};
         TTreeReaderValue<std::vector<Float_t>> GenJetNoNuMuPhi = {fReader, "GenJetNoNuMuPhi"};
@@ -245,7 +245,7 @@ class RandS : public TSelector {
         int GetIndex(const double&, const std::vector<double>*);
 
         double calcHT(std::vector<MyJet>&);
-        TLorentzVector calcMHT(std::vector<MyJet>&, const double&, const double&);
+        TLorentzVector calcMHT(std::vector<MyJet>&, const double&, const double&, const bool&);
         int calcNJets(std::vector<MyJet>&);
         int calcNBJets(std::vector<MyJet>&);
         bool calcMinDeltaPhi(std::vector<MyJet>&, TLorentzVector&);

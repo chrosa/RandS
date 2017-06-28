@@ -221,12 +221,12 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v2]
-    AvailableEvents[361022] = 499750;
-    AvailableEvents[361023] = 6445895;
-    AvailableEvents[361024] = 7439800;
-    AvailableEvents[361025] = 7619000;
-    AvailableEvents[361026] = 1683400;
+    // [v1]
+    AvailableEvents[361022] = 1993647;
+    AvailableEvents[361023] = 7724495;
+    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361025] = 7977600;
+    AvailableEvents[361026] = 1833400;
 
 }
 
@@ -907,9 +907,9 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             if (mu.PassOR()) {
                 MHT-=mu;
                 MHTnoJVT-=mu;
-                MHTnoOR-=mu;
-                MHTnoJVTnoOR-=mu;
             }
+            MHTnoOR-=mu;
+            MHTnoJVTnoOR-=mu;
         }
 
         for ( auto& ele : recoElectrons) {
@@ -931,7 +931,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         if (GoodJetCount > 1) {
 
             //if (firstJet->Pt() > 80. && secondJet->Pt() > 50. && fabs(firstJet->Eta() - secondJet->Eta()) > 3.5 && (firstJet->Eta()*secondJet->Eta()) < 0. ) {
-            //if ( MET.Pt() > 1000 ) {
+            if ( MHTnoJVT.Pt() > 150 || MHTnoJVTnoOR.Pt() > 150. ) {
             //if ( fabs(MET.Pt() - MHTnoOR.Pt()) > 200) {
             //if ( METgamma.Pt() > 100 ) {
             //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
@@ -939,7 +939,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             //if ( MET.Pt() > 400 && METele.Pt() > 400.){
             //if ( MHT.Pt() < 100 && MET.Pt() > 200 && ( (METtrack.Pt() > 300) ) ) {
             //if ( MHT.Pt() > 150 && METele.Pt() < 20. && METmu.Pt() < 20. ) {
-			if ( JVTjets.Pt() > 150 ) {
+			//if ( JVTjets.Pt() > 150 ) {
 
                 std::cout << "----------------------" << std::endl;
                 std::cout << "EventNo, DatasetID/RunNo: " << *EventNo << ", " << *DatasetID << std::endl;

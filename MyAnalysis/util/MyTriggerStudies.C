@@ -63,12 +63,12 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v2]
-    AvailableEvents[361022] = 499750;
-    AvailableEvents[361023] = 6445895;
-    AvailableEvents[361024] = 7439800;
-    AvailableEvents[361025] = 7619000;
-    AvailableEvents[361026] = 1683400;
+    // [v1]
+    AvailableEvents[361022] = 1993647;
+    AvailableEvents[361023] = 7724495;
+    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361025] = 7977600;
+    AvailableEvents[361026] = 1833400;
 
 }
 
