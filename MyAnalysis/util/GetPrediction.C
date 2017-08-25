@@ -225,6 +225,7 @@ int main()
     TChain* prediction = new TChain("PredictionTree");
 
     //ifstream myfile1 ("filelist_RnS_data_all.txt");
+    //ifstream myfile1 ("filelist_RnS_data_all.txt");
     ifstream myfile1 ("filelist_RnS_mc_all.txt");
     //ifstream myfile1 ("filelist_RnS_mc.txt");
 
@@ -248,7 +249,9 @@ int main()
     bool isData = false;
     bool VBF = true;
     bool HTMHT = false;
-    TString postfix = "_MyTest_mc_MHTall_noMETsoftSmearing_v1";
+    //TString postfix = "_MyTest_data_MHTall_noMETsoft_N20_Central_SR_v1";
+    TString postfix = "_MyTest_mc_MHTall_noMETsoft_N20_CR_v1";
+    //TString postfix = "_test";
 
     pred_ = new Prediction(*prediction, postfix);
 
@@ -372,9 +375,9 @@ int main()
     xTitle_VBF_presel.push_back("Jet3 #eta");
     xTitle_VBF_presel.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_presel.push_back("MET (GeV)");
-    xTitle_VBF_presel.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_presel.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_presel.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
+    xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{1})");
+    xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{2})");
+    xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{3}))");
 
     vector<TString> xTitle_VBF_presel_4JV_dPhiSide;
     xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi (j_{1}, j_{2})");
@@ -388,9 +391,9 @@ int main()
     xTitle_VBF_presel_4JV_dPhiSide.push_back("Jet3 #eta");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("MET (GeV)");
-    xTitle_VBF_presel_4JV_dPhiSide.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_presel_4JV_dPhiSide.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{1})");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{2})");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{3})");
 
     vector<TString> xTitle_VBF_dEta;
     xTitle_VBF_dEta.push_back("#Delta#phi (j_{1}, j_{2})");
@@ -404,9 +407,9 @@ int main()
     xTitle_VBF_dEta.push_back("Jet3 #eta");
     xTitle_VBF_dEta.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta.push_back("MET (GeV)");
-    xTitle_VBF_dEta.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
+    xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{1})");
+    xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{2})");
+    xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{3})");
 
     vector<TString> xTitle_VBF_dEta_3JV;
     xTitle_VBF_dEta_3JV.push_back("#Delta#phi (j_{1}, j_{2})");
@@ -420,9 +423,9 @@ int main()
     xTitle_VBF_dEta_3JV.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta_3JV.push_back("MET (GeV)");
-    xTitle_VBF_dEta_3JV.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta_3JV.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta_3JV.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
+    xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{1})");
+    xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{2})");
+    xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{3})");
 
     vector<TString> xTitle_VBF_dEta_3JV_dPhiPTjj;
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi (j_{1}, j_{2})");
@@ -436,9 +439,9 @@ int main()
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("MET (GeV)");
-    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("min #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("max #Delta#phi(p_{T}(j_{1},j_{2}),j_{1/2})");
-    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(p_{T}(j_{1},j_{2}),j_{3})");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{1})");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{2})");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{3})");
 
     vector<TString> hist_type_presel;
     hist_type_presel.push_back("HT_presel");
@@ -629,7 +632,8 @@ int main()
 
     if (VBF) {
 
-        Title = ">=2 jets, p_{T}(jj) > 150 GeV, #Delta#phi < 1.8, #Delta#eta > 3.0, p_{T}(j3) < 50 GeV";
+        //Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+        Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
 
         if( hist_type_VBF_presel.size() != xTitle_VBF_presel.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;
 
@@ -638,7 +642,8 @@ int main()
             c->Print("output_GetPrediction/" + hist_type_VBF_presel.at(i) + postfix + ".pdf");
         }
 
-        Title = "=2 jets, p_{T}(jj) > 150 GeV, 1.8 < #Delta#phi < 2.5, #Delta#eta > 3.0, p_{T}(j3) < 25 GeV";
+        //Title = "N_{j}=3, M_{jj}>1.0 TeV, MET>150 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+        Title = "N_{j}=3, M_{jj}>0.6 TeV, MET>100 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
 
         if( hist_type_VBF_presel_4JV_dPhiSide.size() != xTitle_VBF_presel_4JV_dPhiSide.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;
 
@@ -647,7 +652,8 @@ int main()
             c->Print("output_GetPrediction/" + hist_type_VBF_presel_4JV_dPhiSide.at(i) + postfix + ".pdf");
         }
 
-        Title = ">=2 jets, p_{T}(jj) > 150 GeV, #Delta#phi < 1.8, #Delta#eta > 4.8, p_{T}(j3) < 50 GeV";
+        //Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
+        Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
 
         if( hist_type_VBF_dEta.size() != xTitle_VBF_dEta.size() ) cout << "Error: Missing xTitles VBF_dEta!!" << endl;
 
@@ -656,7 +662,8 @@ int main()
             c->Print("output_GetPrediction/" + hist_type_VBF_dEta.at(i) + postfix + ".pdf");
         }
 
-        Title = "=2 jets, p_{T}(jj) > 150 GeV, #Delta#phi < 1.8, #Delta#eta > 4.8, p_{T}(j3) < 25 GeV";
+        //Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
+        Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
 
         if( hist_type_VBF_dEta_3JV.size() != xTitle_VBF_dEta_3JV.size() ) cout << "Error: Missing xTitles VBF_dEta_3JV!!" << endl;
 
@@ -665,7 +672,8 @@ int main()
             c->Print("output_GetPrediction/" + hist_type_VBF_dEta_3JV.at(i) + postfix + ".pdf");
         }
 
-        Title = "=2 jets, p_{T}(jj) > 150 GeV, #Delta#phi < 1.8, #Delta#eta > 4.8, #Delta#phi_{min}(MHT(jj),j)<0.5, p_{T}(j3) < 25 GeV";
+        //Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
+        Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
 
         if( hist_type_VBF_dEta_3JV_dPhiPTjj.size() != xTitle_VBF_dEta_3JV_dPhiPTjj.size() ) cout << "Error: Missing xTitles VBF_dEta_3JV_dPhiPTjj!!" << endl;
 

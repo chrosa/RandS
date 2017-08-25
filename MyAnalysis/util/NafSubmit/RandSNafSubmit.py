@@ -9,15 +9,16 @@ def submit_job(index, jobDir):
 	system("cp filelist_mc.txt /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
 	system("cp run.sh /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
 	system("cd /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index))
-	system("qsub -cwd -o /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -e /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -S /bin/bash -l h_rt=12:00:00 -l h_vmem=4000M -l distro=sld6 run.sh");
+	system("qsub -cwd -o /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -e /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir+"/"+str(index)+" -S /bin/bash -l h_rt=24:00:00 -l h_vmem=4000M -l distro=sld6 run.sh");
 	system("cd /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/NafSubmit")
 
 filelist = open("../filelist_mc_v1.txt")
+#filelist = open("../filelist_data_v1.txt")
 line = "init"
-jobDir = "MyTest_mc_MHTall_noMETsoft_v1"
+jobDir = "MyTest_mc_MHTall_noMETsoft_N20_v1"
 #500k for sim
-#2M for data
-Nevts_max = 500000
+#2.5M for data
+Nevts_max = 250000
 
 system("mkdir /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir)
 # loop over ntuple files
@@ -38,7 +39,7 @@ while line:
 		print "Entries in file: ", Nevts_file
 		fin.Close()
 		Nevts_job += Nevts_file
-		if Nevts_job > Nevts_max:
+		if Nevts_job > Nevts_max and Nevts_file > 0:
 			print "Time to submit, NEvts: ", Nevts_job
 			i = i+1
 			fout.close()

@@ -35,11 +35,11 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("TriggerStudiesOutput_VBF_mc.root","RECREATE");
+    outputfile = new TFile("TriggerStudiesOutput_mc.root","RECREATE");
 
     m_jvtcut = 0.59;
     m_lumi = 30000.;
-    isData = true;
+    isData = false;
 
     ////Book histograms
 
@@ -58,6 +58,54 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
     h_MHTvsHT_triggered = new TH2F("h_MHTvsHT_triggered", "h_MHTvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
     h_MHTvsHT_triggered->Sumw2();
     histos_2D.push_back(h_MHTvsHT_triggered);
+
+    h_MHT2jet_all = new TH1F("h_MHT2jet_all", "h_MHT2jet_all", 100, 0., 500.);
+    h_MHT2jet_all->Sumw2();
+    histos_1D.push_back(h_MHT2jet_all);
+
+    h_MHT2jet_triggered = new TH1F("h_MHT2jet_triggered", "h_MHT2jet_triggered", 100, 0., 500.);
+    h_MHT2jet_triggered->Sumw2();
+    histos_1D.push_back(h_MHT2jet_triggered);
+
+    h_MHT2jetvsHT_all = new TH2F("h_MHT2jetvsHT_all", "h_MHT2jetvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_MHT2jetvsHT_all->Sumw2();
+    histos_2D.push_back(h_MHT2jetvsHT_all);
+
+    h_MHT2jetvsHT_triggered = new TH2F("h_MHT2jetvsHT_triggered", "h_MHT2jetvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_MHT2jetvsHT_triggered->Sumw2();
+    histos_2D.push_back(h_MHT2jetvsHT_triggered);
+
+    h_MET_all = new TH1F("h_MET_all", "h_MET_all", 100, 0., 500.);
+    h_MET_all->Sumw2();
+    histos_1D.push_back(h_MET_all);
+
+    h_MET_triggered = new TH1F("h_MET_triggered", "h_MET_triggered", 100, 0., 500.);
+    h_MET_triggered->Sumw2();
+    histos_1D.push_back(h_MET_triggered);
+
+    h_METvsHT_all = new TH2F("h_METvsHT_all", "h_METvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_METvsHT_all->Sumw2();
+    histos_2D.push_back(h_METvsHT_all);
+
+    h_METvsHT_triggered = new TH2F("h_METvsHT_triggered", "h_METvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_METvsHT_triggered->Sumw2();
+    histos_2D.push_back(h_METvsHT_triggered);
+
+    h_MET2jet_all = new TH1F("h_MET2jet_all", "h_MET2jet_all", 100, 0., 500.);
+    h_MET2jet_all->Sumw2();
+    histos_1D.push_back(h_MET2jet_all);
+
+    h_MET2jet_triggered = new TH1F("h_MET2jet_triggered", "h_MET2jet_triggered", 100, 0., 500.);
+    h_MET2jet_triggered->Sumw2();
+    histos_1D.push_back(h_MET2jet_triggered);
+
+    h_MET2jetvsHT_all = new TH2F("h_MET2jetvsHT_all", "h_MET2jetvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_MET2jetvsHT_all->Sumw2();
+    histos_2D.push_back(h_MET2jetvsHT_all);
+
+    h_MET2jetvsHT_triggered = new TH2F("h_MET2jetvsHT_triggered", "h_MET2jetvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_MET2jetvsHT_triggered->Sumw2();
+    histos_2D.push_back(h_MET2jetvsHT_triggered);
 
     //NTotEvents = fChain->GetEntries();
 
@@ -104,8 +152,8 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     fReader.SetLocalEntry(entry);
 
     NEvents += 1;
-    //if (NEvents%1000 == 0) std::cout << NEvents << " processed: " << 100*NEvents/NTotEvents << "% done" << std::endl;
-    if (NEvents%1000 == 0) std::cout << NEvents << " processed!" << std::endl;
+    //if (NEvents%1000000 == 0) std::cout << NEvents << " processed: " << 100*NEvents/NTotEvents << "% done" << std::endl;
+    if (NEvents%1000000 == 0) std::cout << NEvents << " processed!" << std::endl;
 
     if (ProcessedEvents.find(*DatasetID) == ProcessedEvents.end()) {
         ProcessedEvents[*DatasetID] = 1;
@@ -143,19 +191,19 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
 
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) < 2.4) {
             if (jet.IsBad() && jet.IsNoPU(m_jvtcut)) {
-                std::cout << "Reject event because of bad central jet!" << std::endl;
+                //std::cout << "Reject event because of bad central jet!" << std::endl;
                 return 1;
             }
         }
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) >= 2.4) {
             if (jet.IsBad()) {
-                std::cout << "Reject event because of bad forward jet!" << std::endl;
+                //std::cout << "Reject event because of bad forward jet!" << std::endl;
                 return 1;
             }
         }
         if (jet.Pt() > 60.) {
             if (jet.IsBad()) {
-                std::cout << "Reject event because of bad high pT jet!" << std::endl;
+                //std::cout << "Reject event because of bad high pT jet!" << std::endl;
                 return 1;
             }
         }
@@ -191,11 +239,11 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
         float eta = MuonEta->at(i);
         float phi = MuonPhi->at(i);
         if (MuonIsBad->at(i)) {
-            std::cout << "Reject event because of bad muon!" << std::endl;
+            //std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
         if (MuonIsSignal->at(i)) {
-            std::cout << "Reject event because of isolated muon!" << std::endl;
+            //std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
         }
         TLorentzVector muon(0.,0.,0.,0.);
@@ -211,7 +259,7 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     //std::cout << "NElectrons: " << NElectrons << std::endl;
     for (int i = 0; i < NElectrons; ++i) {
         if (EleIsSignal->at(i)) {
-            std::cout << "Reject event because of isolated electron!" << std::endl;
+            //std::cout << "Reject event because of isolated electron!" << std::endl;
             return 1;
         }
         float pt = ElePt->at(i);
@@ -239,6 +287,9 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     double PtPho = 0;
     if (NPhotons > 0) PtPho = recoPhotons.at(0).Pt();
 
+    TLorentzVector MET;
+    MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
+
     TLorentzVector MHT(0.,0.,0.,0.);
     TLorentzVector NoJVTMHT(0.,0.,0.,0.);
     double HT = 0;
@@ -249,7 +300,7 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
 
     for ( auto& jet : recoJets) {
 
-        if (jet.Pt() < 30.) continue;
+        if (jet.Pt() < 25.) continue;
 
         if (jet.IsGood()) {
             ++NoJVTJetCount;
@@ -265,6 +316,13 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     }
 
     if (JetCount == 2) {
+        h_MHT2jet_all->Fill(MHT.Pt());
+        h_MHT2jetvsHT_all->Fill(MHT.Pt(),HT);
+        if (*xe90triggered || *xe110triggered) {
+            h_MHT2jet_triggered->Fill(MHT.Pt());
+            h_MHT2jetvsHT_triggered->Fill(MHT.Pt(),HT);
+        }
+    } else {
         h_MHT_all->Fill(MHT.Pt());
         h_MHTvsHT_all->Fill(MHT.Pt(),HT);
         if (*xe90triggered || *xe110triggered) {
@@ -273,6 +331,21 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
         }
     }
 
+    if (JetCount == 2) {
+        h_MET2jet_all->Fill(MET.Pt());
+        h_MET2jetvsHT_all->Fill(MET.Pt(),HT);
+        if (*xe90triggered || *xe110triggered) {
+            h_MET2jet_triggered->Fill(MET.Pt());
+            h_MET2jetvsHT_triggered->Fill(MET.Pt(),HT);
+        }
+    } else {
+        h_MET_all->Fill(MET.Pt());
+        h_METvsHT_all->Fill(MET.Pt(),HT);
+        if (*xe90triggered || *xe110triggered) {
+            h_MET_triggered->Fill(MET.Pt());
+            h_METvsHT_triggered->Fill(MET.Pt(),HT);
+        }
+    }
 
     return kTRUE;
 }

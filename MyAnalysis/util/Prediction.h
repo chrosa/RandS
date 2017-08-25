@@ -33,6 +33,8 @@ class Prediction {
         Float_t HT;
         Float_t MHT;
         Float_t MET;
+        Float_t MHTphi;
+        Float_t METphi;
         std::vector<Float_t> *JetPt;
         std::vector<Float_t> *JetEta;
         std::vector<Float_t> *JetPhi;
@@ -770,7 +772,7 @@ class Prediction {
         double CalcMjj();
         double CalcDeltaPhi();
         double CalcDeltaEta();
-        bool CalcDPhiMHT(double& DPhiMHTmin, double& DPhiMHTmax, double& DPhiMHT3);
+        bool CalcDPhiMET(double& DPhiMET1, double& DPhiMET2, double& DPhiMET3, TLorentzVector& MET);
         bool Veto3rd();
         bool Veto4th();
         bool Soft3rd();

@@ -47,11 +47,11 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double JetEtamax = 5.;
 
     double HTSave = 0;
-    double METSave = 150;
-    double MHTjjSave = 0;
-    double MHTSave = 0;
+    double METSave = 100;
+    double MHTjjSave = 9999.;
+    double MHTSave = 9999.;
     double MjjSave = 600;
-    double dPhijjSave = 2.6;
+    double dPhijjSave = 2.7;
     int NJetsSave = 0;
 
     bool blindSR = true;
@@ -529,7 +529,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     QCDPrediction.SetBranchAddress("TriggerWeight",&triggerWeight);
     QCDPrediction.SetBranchAddress("HT",&HT);
     QCDPrediction.SetBranchAddress("MHT",&MHT);
+    QCDPrediction.SetBranchAddress("MHTphi",&MHTphi);
     QCDPrediction.SetBranchAddress("MET",&MET);
+    QCDPrediction.SetBranchAddress("METphi",&METphi);
     QCDPrediction.SetBranchAddress("JetPt",&JetPt);
     QCDPrediction.SetBranchAddress("JetEta",&JetEta);
     QCDPrediction.SetBranchAddress("JetPhi",&JetPhi);
@@ -554,17 +556,25 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         double Mjj = CalcMjj();
         double MHTjj = CalcMHTjj();
 
-        // apply some baseline cuts as used for storing in result tree
-        if( HT > HTSave && MET > METSave && MHT > MHTSave && MHTjj > MHTjjSave && NJets >= NJetsSave && Mjj > MjjSave && CalcDeltaPhi() < dPhijjSave) {
+		std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
+		std::cout << "pTjj, MET, HT: " << MHTjj << ", " << MET <<  ", " << HT << std::endl;
+		std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(2)  << ", " << JetPhi->at(0) << std::endl;
+		std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(2)  << ", " << JetPhi->at(1) << std::endl;
+		std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
 
-            double DPhiMHTmin, DPhiMHTmax, DPhiMHT3;
-            CalcDPhiMHT(DPhiMHTmin, DPhiMHTmax, DPhiMHT3);
+        // apply some baseline cuts as used for storing in result tree
+        if( HT > HTSave && ( MHTjj > MHTjjSave || MHT > MHTSave || MET > METSave ) && NJets >= NJetsSave && Mjj > MjjSave && CalcDeltaPhi() < dPhijjSave) {
+
+            double DPhiMET1, DPhiMET2, DPhiMET3;
+            TLorentzVector vMET(0., 0., 0., 0.);
+            vMET.SetPtEtaPhiM(MET, 0., METphi, 0.);
+            CalcDPhiMET(DPhiMET1, DPhiMET2, DPhiMET3, vMET);
             double DPhi = CalcDeltaPhi();
             double DEta = CalcDeltaEta();
 
             if (VBF) {
 
-                if (MjjJetSel() && ( MHTjj > 150. || MHT > 150. || MET > 150. ) && DEta > 3.0 && DPhi < 2.5 && DPhi > 1.8) {
+                if (MjjJetSel() && MET > METSave && DEta > 3.0 && DPhi < 2.7 && DPhi > 1.8) {
 
                     if (Soft3rd() && Veto4th()) {
 
@@ -580,9 +590,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_presel_4JV_dPhiSide_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_presel_4JV_dPhiSide_pred_raw->Fill(MET, Ntries, weight);
-                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
-                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
-                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET1, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET2, Ntries, weight);
+                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET3, Ntries, weight);
                         }  else if (Ntries == -2) {
                             VBF_dPhi_presel_4JV_dPhiSide_sel->Fill(DPhi, weight);
                             VBF_dEta_presel_4JV_dPhiSide_sel->Fill(DEta, weight);
@@ -595,16 +605,16 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_4JV_dPhiSide_sel->Fill(JetEta->at(2), weight);
                             VBF_PTjj_presel_4JV_dPhiSide_sel->Fill(MHTjj, weight);
                             VBF_MET_presel_4JV_dPhiSide_sel->Fill(MET, weight);
-                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMHTmin, weight);
-                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMHTmax, weight);
-                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Fill(DPhiMHT3, weight);
+                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMET1, weight);
+                            VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMET2, weight);
+                            VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Fill(DPhiMET3, weight);
                         }
 
                     }
 
                 }
 
-                if (MjjJetSel() && ( MHTjj > 150. || MHT > 150. || MET > 150. ) && DEta > 3.0 && DPhi < 1.8) {
+                if (MjjJetSel() && MET > METSave && DEta > 3.0 && DPhi < 1.8) {
 
                     if (Soft3rd()) {
 
@@ -620,9 +630,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_presel_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_presel_pred_raw->Fill(MET, Ntries, weight);
-                            VBF_minDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
-                            VBF_maxDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
-                            VBF_DeltaPhiPTj3_presel_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMET1, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMET2, Ntries, weight);
+                            VBF_DeltaPhiPTj3_presel_pred_raw->Fill(DPhiMET3, Ntries, weight);
                         }  else if (Ntries == -2) {
                             VBF_dPhi_presel_sel->Fill(DPhi, weight);
                             VBF_dEta_presel_sel->Fill(DEta, weight);
@@ -635,9 +645,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_sel->Fill(JetEta->at(2), weight);
                             VBF_PTjj_presel_sel->Fill(MHTjj, weight);
                             VBF_MET_presel_sel->Fill(MET, weight);
-                            VBF_minDeltaPhiPTj12_presel_sel->Fill(DPhiMHTmin, weight);
-                            VBF_maxDeltaPhiPTj12_presel_sel->Fill(DPhiMHTmax, weight);
-                            VBF_DeltaPhiPTj3_presel_sel->Fill(DPhiMHT3, weight);
+                            VBF_minDeltaPhiPTj12_presel_sel->Fill(DPhiMET1, weight);
+                            VBF_maxDeltaPhiPTj12_presel_sel->Fill(DPhiMET2, weight);
+                            VBF_DeltaPhiPTj3_presel_sel->Fill(DPhiMET3, weight);
                         }
 
                         if (DEta > 4.8) {
@@ -654,9 +664,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                                 VBF_PTjj_dEta_pred_raw->Fill(MHTjj, Ntries, weight);
                                 VBF_MET_dEta_pred_raw->Fill(MET, Ntries, weight);
-                                VBF_minDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
-                                VBF_maxDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
-                                VBF_DeltaPhiPTj3_dEta_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                                VBF_minDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMET1, Ntries, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMET2, Ntries, weight);
+                                VBF_DeltaPhiPTj3_dEta_pred_raw->Fill(DPhiMET3, Ntries, weight);
                             }  else if (Ntries == -2) {
                                 VBF_dPhi_dEta_sel->Fill(DPhi, weight);
                                 VBF_dEta_dEta_sel->Fill(DEta, weight);
@@ -669,9 +679,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_sel->Fill(JetEta->at(2), weight);
                                 VBF_PTjj_dEta_sel->Fill(MHTjj, weight);
                                 VBF_MET_dEta_sel->Fill(MET, weight);
-                                VBF_minDeltaPhiPTj12_dEta_sel->Fill(DPhiMHTmin, weight);
-                                VBF_maxDeltaPhiPTj12_dEta_sel->Fill(DPhiMHTmax, weight);
-                                VBF_DeltaPhiPTj3_dEta_sel->Fill(DPhiMHT3, weight);
+                                VBF_minDeltaPhiPTj12_dEta_sel->Fill(DPhiMET1, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_sel->Fill(DPhiMET2, weight);
+                                VBF_DeltaPhiPTj3_dEta_sel->Fill(DPhiMET3, weight);
                             }
                         }
 
@@ -691,9 +701,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_dEta_3JV_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_dEta_3JV_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_dEta_3JV_pred_raw->Fill(MET, Ntries, weight);
-                            VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
-                            VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
-                            VBF_DeltaPhiPTj3_dEta_3JV_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                            VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMET1, Ntries, weight);
+                            VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMET2, Ntries, weight);
+                            VBF_DeltaPhiPTj3_dEta_3JV_pred_raw->Fill(DPhiMET3, Ntries, weight);
                         }  else if (Ntries == -2) {
                             VBF_dPhi_dEta_3JV_sel->Fill(DPhi, (!blindSR)*weight);
                             VBF_dEta_dEta_3JV_sel->Fill(DEta, (!blindSR)*weight);
@@ -706,12 +716,12 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_dEta_3JV_sel->Fill(JetEta->at(2), (!blindSR)*weight);
                             VBF_PTjj_dEta_3JV_sel->Fill(MHTjj, (!blindSR)*weight);
                             VBF_MET_dEta_3JV_sel->Fill(MET, (!blindSR)*weight);
-                            VBF_minDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMHTmin, (!blindSR)*weight);
-                            VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMHTmax, (!blindSR)*weight);
-                            VBF_DeltaPhiPTj3_dEta_3JV_sel->Fill(DPhiMHT3, (!blindSR)*weight);
+                            VBF_minDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMET1, (!blindSR)*weight);
+                            VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMET2, (!blindSR)*weight);
+                            VBF_DeltaPhiPTj3_dEta_3JV_sel->Fill(DPhiMET3, (!blindSR)*weight);
                         }
 
-                        if (DPhiMHTmin > 0.5) {
+                        if (DPhiMET1 > 1.0 && DPhiMET2 > 1.0) {
 
                             if (Ntries > 0) {
                                 VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhi, Ntries, weight);
@@ -725,9 +735,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                                 VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw->Fill(MHTjj, Ntries, weight);
                                 VBF_MET_dEta_3JV_dPhiPTjj_pred_raw->Fill(MET, Ntries, weight);
-                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHTmin, Ntries, weight);
-                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHTmax, Ntries, weight);
-                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMHT3, Ntries, weight);
+                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET1, Ntries, weight);
+                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET2, Ntries, weight);
+                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET3, Ntries, weight);
                             }  else if (Ntries == -2) {
                                 VBF_dPhi_dEta_3JV_dPhiPTjj_sel->Fill(DPhi, (!blindSR)*weight);
                                 VBF_dEta_dEta_3JV_dPhiPTjj_sel->Fill(DEta, (!blindSR)*weight);
@@ -740,9 +750,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel->Fill(JetEta->at(2), (!blindSR)*weight);
                                 VBF_PTjj_dEta_3JV_dPhiPTjj_sel->Fill(MHTjj, (!blindSR)*weight);
                                 VBF_MET_dEta_3JV_dPhiPTjj_sel->Fill(MET, (!blindSR)*weight);
-                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHTmin, (!blindSR)*weight);
-                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHTmax, (!blindSR)*weight);
-                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMHT3, (!blindSR)*weight);
+                                VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET1, (!blindSR)*weight);
+                                VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET2, (!blindSR)*weight);
+                                VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET3, (!blindSR)*weight);
                             }
 
                         }
@@ -2055,16 +2065,31 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     cout << "Yields from R+S in QCD VRs:" << endl << endl;
     
     value = VBF_Mjj_presel_4JV_dPhiSide_pred->IntegralAndError (2, 6, error);
-    cout << "VR3: " << value << "+-" << error << endl;
-
-    value = VBF_Mjj_dEta_pred->IntegralAndError (2, 6, error);
-    cout << "VR5: " << value << "+-" << error << endl;
-
-    value = VBF_Mjj_presel_pred->IntegralAndError (2, 6, error);
-    cout << "VR6: " << value << "+-" << error << endl;
+    cout << "VR (dPhi side band): " << value << "+-" << error << endl;
 
     value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (2, 6, error);
     cout << "SR: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (3, 3, error);
+    cout << "SR1: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (4, 4, error);
+    cout << "SR2: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (5, 6, error);
+    cout << "SR3: " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_dPhiPTjj_pred->IntegralAndError (2, 6, error);
+    cout << "SR (dPhi(MET,j1/2) > 1.0): " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_dPhiPTjj_pred->IntegralAndError (3, 3, error);
+    cout << "SR1 (dPhi(MET,j1/2) > 1.0): " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_dPhiPTjj_pred->IntegralAndError (4, 4, error);
+    cout << "SR2 (dPhi(MET,j1/2) > 1.0): " << value << "+-" << error << endl;
+
+    value = VBF_Mjj_dEta_3JV_dPhiPTjj_pred->IntegralAndError (5, 6, error);
+    cout << "SR3 (dPhi(MET,j1/2) > 1.0): " << value << "+-" << error << endl;
 
 }
 
@@ -2112,30 +2137,17 @@ double Prediction::CalcMjj() {
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
-bool Prediction::CalcDPhiMHT(double& DPhiMHTmin, double& DPhiMHTmax, double& DPhiMHT3) {
+bool Prediction::CalcDPhiMET(double& DPhiMET1, double& DPhiMET2, double& DPhiMET3, TLorentzVector& MET ) {
     TLorentzVector v1(0., 0., 0., 0.);
     v1.SetPtEtaPhiM(JetPt->at(0), JetEta->at(0), JetPhi->at(0), JetM->at(0));
     TLorentzVector v2(0., 0., 0., 0.);
     v2.SetPtEtaPhiM(JetPt->at(1), JetEta->at(1), JetPhi->at(1), JetM->at(1));
     TLorentzVector v3(0., 0., 0., 0.);
-    v3.SetPtEtaPhiM(JetPt->at(2), JetEta->at(2), JetPhi->at(2), JetM->at(2));
-    TLorentzVector MHT(0., 0., 0., 0.);
-    MHT -= v1;
-    MHT -= v2;
-    double DPhiMHT1 = fabs(MHT.DeltaPhi(v1));
-    double DPhiMHT2 = fabs(MHT.DeltaPhi(v2));
-    if (JetPt->at(2) > 0) {
-        DPhiMHT3 = fabs(MHT.DeltaPhi(v3));
-    } else {
-        DPhiMHT3 = 999;
-    }
-    if (DPhiMHT1 < DPhiMHT2) {
-        DPhiMHTmin = DPhiMHT1;
-        DPhiMHTmax = DPhiMHT2;
-    } else {
-        DPhiMHTmin = DPhiMHT2;
-        DPhiMHTmax = DPhiMHT1;
-    }
+    v2.SetPtEtaPhiM(JetPt->at(2), JetEta->at(2), JetPhi->at(2), JetM->at(2));
+    DPhiMET1 = fabs(MET.DeltaPhi(v1));
+    DPhiMET2 = fabs(MET.DeltaPhi(v2));
+    DPhiMET3 = 0.;
+    if (JetPt->at(2) > 0.) fabs(MET.DeltaPhi(v3));
     return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////////

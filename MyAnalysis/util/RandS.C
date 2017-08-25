@@ -37,7 +37,7 @@ void RandS::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    isMC_ = false;
+    isMC_ = true;
     jvtcut_= 0.59; //// 0.59 (medium)
     lumi_ = 32900.;
     smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v1.root";
@@ -79,36 +79,36 @@ void RandS::Begin(TTree * /*tree*/)
     useTrueMETsoftForRebalance_ = false; // only possible on simulated events, for testing purposes (best performance)
     useTriggerTurnOn_ = true; //save event weight from trigger turn on
     METsoftResolutionFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/METsoft_resolutions.root";
-    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_VBF_noJVT_mc.root";
+    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_data.root";
     controlPlots_ = false;
     debug_ = 0;
     outputfile_ = "RandS.root";
     cleverPrescaleTreating_ = true; // "true", to get better statistical  precision for high weight seed events
-    maxCleverWeight_ = 1000; // the larger, the better (but also the slower), not greater than O(100)
+    maxCleverWeight_ = 200; // the larger, the better (but also the slower), not greater than O(1000)
     HTSeedMin_ = 0.;
     MHTSeedMax_ = 99999.;
     MHTSigSeedMax_ = 9999.;
     NJetsSeedMin_ = 0;
     NJetsStored_ = 4;
-    Ntries_ = 10;
+    Ntries_ = 20;
     NJetsSave_ = 0;
     MjjSave_ = 600.;
     HTSave_ = 0;
-    METSave_ = 150.;
-    MHTSave_ = 150.;
-    MHTjjSave_ = 150.;
+    METSave_ = 100.;
+    MHTSave_ = 9999.;
+    MHTjjSave_ = 9999.;
     BJetsPt_ = 40.;
     BJetsEta_ = 2.4;
     JetsPt_ = 40.;
     JetsEta_ = 2.4;
-    JetsHTPt_ = 40.;
-    JetsHTEta_ = 2.4;
-    JetsMHTPt_ = 30.;
-    JetsMHTEta_ = 5.0;
+    JetsHTPt_ = 25.;
+    JetsHTEta_ = 4.5;
+    JetsMHTPt_ = 25.;
+    JetsMHTEta_ = 4.5;
     JetDeltaMin_ = {0.5,0.5,0.3};
     MjjFirstPt_ = 80.;
     MjjSecondPt_ = 50.;
-    dPhiSave_ = 2.5;
+    dPhiSave_ = 2.7;
     jet3PtSave_ = 50.;
 
     smearFunc_ = new SmearFunction(smearingfile_,
@@ -138,8 +138,8 @@ void RandS::Begin(TTree * /*tree*/)
 
     if( useTriggerTurnOn_ ) {
         TFile *f_triggerTurnOn = new TFile(triggerTurnOnFile_.c_str(), "READ", "", 0);
-        h_MHTvsHT_all  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MHTvsHT_all");
-        h_MHTvsHT_triggered  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MHTvsHT_triggered");
+        h_MHTvsHT_all  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MET2jetvsHT_all");
+        h_MHTvsHT_triggered  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MET2jetvsHT_triggered");
         h_MHTvsHT_eff = new TH2F(*h_MHTvsHT_triggered);
         //cout << "Pointers (all, triggered, eff): " << h_MHTvsHT_all << ", " << h_MHTvsHT_triggered << ", " << h_MHTvsHT_eff << endl;
         h_MHTvsHT_eff->Divide(h_MHTvsHT_all);
@@ -150,8 +150,8 @@ void RandS::Begin(TTree * /*tree*/)
     outputFile = new TFile(outputfile_.c_str(),"RECREATE");
     PredictionTree = new TTree("PredictionTree", "PredictionTree");
     PredictionTree->SetDirectory(outputFile);
-    //PredictionTree->SetAutoSave(10000000000);
-    //PredictionTree->SetAutoFlush(100000000);
+    PredictionTree->SetAutoSave(10000000000);
+    PredictionTree->SetAutoFlush(100000000);
 
     //cout << PredictionTree << endl;
 
@@ -164,7 +164,9 @@ void RandS::Begin(TTree * /*tree*/)
     PredictionTree->Branch("TriggerWeight",&triggerWeight);
     PredictionTree->Branch("HT", &HT_pred);
     PredictionTree->Branch("MHT", &MHT_pred);
+    PredictionTree->Branch("MHTphi", &MHTphi_pred);
     PredictionTree->Branch("MET", &MET_pred);
+    PredictionTree->Branch("METphi", &METphi_pred);
     PredictionTree->Branch("JetPt", "std::vector<Float_t>", &JetPt_pred);
     PredictionTree->Branch("JetEta", "std::vector<Float_t>", &JetEta_pred);
     PredictionTree->Branch("JetPhi", "std::vector<Float_t>", &JetPhi_pred);
@@ -485,8 +487,16 @@ Bool_t RandS::Process(Long64_t entry)
     double jet3Pt = calcJet3Pt(Jets_rec);
 
     if ( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && jet3Pt < jet3PtSave_) {
+        //std::cout << "HT_pred: " << HT_pred<< std::endl;
+        //std::cout << "MET_pred: " << MET_pred<< std::endl;
+        //std::cout << "MHT_pred: " << MHT_pred<< std::endl;
+        //std::cout << "MHTjj: " << MHTjj<< std::endl;
+        //std::cout << "Njets_pred: " << Njets_pred<< std::endl;
+        //std::cout << "mjj: " << mjj<< std::endl;
+        //std::cout << "dPhijj: " << dPhijj<< std::endl;
+        //std::cout << "jet3Pt: " << jet3Pt<< std::endl;
         if (useTriggerTurnOn_) {
-            Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(MHTjj);
+            Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(MET_pred);
             Int_t biny = h_MHTvsHT_eff->GetYaxis()->FindFixBin(HT_pred);
             triggerWeight = h_MHTvsHT_eff->GetBinContent(binx, biny);
         } else {
@@ -501,7 +511,9 @@ Bool_t RandS::Process(Long64_t entry)
     BTags_pred = 0;
     HT_pred = 0.;
     MHT_pred = 0.;
+    MHTphi_pred = 0.;
     MET_pred = 0.;
+    METphi_pred = 0.;
     JetPt_pred->clear();
     JetEta_pred->clear();
     JetPhi_pred->clear();
@@ -509,7 +521,7 @@ Bool_t RandS::Process(Long64_t entry)
     DeltaPhi_pred->clear();
 
     float deta_min = 2.9;
-    float dphi_max = 2.6;
+    float dphi_max = 2.8;
     float mjj_min = 400.;
     bool MjjSeed = calcMjjSeed(Jets_rec, deta_min, dphi_max, mjj_min);
 
@@ -1120,13 +1132,13 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
 
             if( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && jet3Pt < jet3PtSave_) {
                 if (useTriggerTurnOn_) {
-                    Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(MHTjj);
+                    Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(MET_pred);
                     Int_t biny = h_MHTvsHT_eff->GetYaxis()->FindFixBin(HT_pred);
                     triggerWeight = h_MHTvsHT_eff->GetBinContent(binx, biny);
                 } else {
                     triggerWeight = 1.;
                 }
-                //cout << "i, j, MHTjj, mjj, dPhijj, jet3Pt: " << i << ", " << j << ", " << MHTjj << ", " << mjj << ", " << dPhijj << ", " << jet3Pt << endl;
+                //cout << "i, j, MHTjj, MET, mjj, dPhijj, jet3Pt: " << i << ", " << j << ", " << MHTjj << ", " << MET_pred << mjj << ", " << dPhijj << ", " << jet3Pt << endl;
                 PredictionTree->Fill();
             }
 
@@ -1159,6 +1171,8 @@ void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, cons
     TLorentzVector vMHT = calcMHT(Jets, JetsMHTPt_, JetsMHTEta_, true);
     double MHT = vMHT.Pt();
     double MET = vMET.Pt();
+    double MHTphi = vMHT.Phi();
+    double METphi = vMET.Phi();
 
     weight = w;
     Ntries_pred = i;
@@ -1166,7 +1180,9 @@ void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, cons
     BTags_pred = NBJets;
     HT_pred = HT;
     MHT_pred = MHT;
+    MHTphi_pred = MHTphi;
     MET_pred = MET;
+    METphi_pred = METphi;
     calcLeadingJetPredictions(Jets, vMET);
 
     if (i == -2) {
@@ -1182,9 +1198,8 @@ void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, cons
 void RandS::calcLeadingJetPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMHT) {
     int NJets = 0;
     for (vector<MyJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
-        //if (it->Pt() > JetsPt_ && std::abs(it->Eta()) < JetsEta_) {
         //// Fill all leading jets to output ntuple, and not only those passing jet counting thresholds
-        if (it->IsGood() && (it->Pt() > 60. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > 2.4) ) {
+        if (it->IsGood() && fabs(it->Eta()) < JetsMHTEta_ && (it->Pt() > 60. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > 2.4) ) {
             ++NJets;
 
             if( NJets <= NJetsStored_ ) {

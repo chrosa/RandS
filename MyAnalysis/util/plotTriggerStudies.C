@@ -182,7 +182,7 @@ int plotTriggerStudies() {
 
     ////////////////////////////////////////
 
-    TFile *f = new TFile("TriggerStudiesOutput_VBF.root", "READ", "", 0);
+    TFile *f = new TFile("TriggerStudiesOutput_mc.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;
@@ -207,6 +207,70 @@ int plotTriggerStudies() {
     t.push_back("xe90/xe110 trigger");
     x.push_back("MHT (GeV)");
     y.push_back("Efficiency");
+    
+    //===
+
+    h_MET_all  =  (TH1F*) f->FindObjectAny("h_MET_all");
+    h.push_back(h_MET_all);
+    t.push_back("single jet triggers");
+    x.push_back("MET (GeV)");
+    y.push_back("Events");
+
+    h_MET_triggered  =  (TH1F*) f->FindObjectAny("h_MET_triggered");
+    h.push_back(h_MET_triggered);
+    t.push_back("single jet triggers & xe90/xe110 trigger");
+    x.push_back("MET (GeV)");
+    y.push_back("Events");
+
+    TH1F* h_MET_eff = new TH1F(*h_MET_triggered);
+    h_MET_eff->Divide(h_MET_all);
+    h.push_back(h_MET_eff);
+    t.push_back("xe90/xe110 trigger");
+    x.push_back("MET (GeV)");
+    y.push_back("Efficiency");
+    
+    //===
+
+    h_MHT2jet_all  =  (TH1F*) f->FindObjectAny("h_MHT2jet_all");
+    h.push_back(h_MHT2jet_all);
+    t.push_back("single jet triggers, 2 jets");
+    x.push_back("MHT (GeV)");
+    y.push_back("Events");
+
+    h_MHT2jet_triggered  =  (TH1F*) f->FindObjectAny("h_MHT2jet_triggered");
+    h.push_back(h_MHT2jet_triggered);
+    t.push_back("single jet triggers & xe90/xe110 trigger, 2 jets");
+    x.push_back("MHT (GeV)");
+    y.push_back("Events");
+
+    TH1F* h_MHT2jet_eff = new TH1F(*h_MHT2jet_triggered);
+    h_MHT2jet_eff->Divide(h_MHT2jet_all);
+    h.push_back(h_MHT2jet_eff);
+    t.push_back("xe90/xe110 trigger, 2 jets");
+    x.push_back("MHT (GeV)");
+    y.push_back("Efficiency");
+    
+    //===
+
+    h_MET2jet_all  =  (TH1F*) f->FindObjectAny("h_MET2jet_all");
+    h.push_back(h_MET2jet_all);
+    t.push_back("single jet triggers, 2 jets");
+    x.push_back("MET (GeV)");
+    y.push_back("Events");
+
+    h_MET2jet_triggered  =  (TH1F*) f->FindObjectAny("h_MET2jet_triggered");
+    h.push_back(h_MET2jet_triggered);
+    t.push_back("single jet triggers & xe90/xe110 trigger, 2 jets");
+    x.push_back("MET (GeV)");
+    y.push_back("Events");
+
+    TH1F* h_MET2jet_eff = new TH1F(*h_MET2jet_triggered);
+    h_MET2jet_eff->Divide(h_MET2jet_all);
+    h.push_back(h_MET2jet_eff);
+    t.push_back("xe90/xe110 trigger, 2 jets");
+    x.push_back("MET (GeV)");
+    y.push_back("Efficiency");
+
 
     plot1D(h,t,x,y);
 
@@ -235,6 +299,78 @@ int plotTriggerStudies() {
     h2.push_back(h_MHTvsHT_eff);
     t2.push_back("xe90/xe110 trigger");
     x2.push_back("MHT (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Efficiency");
+    
+    //===
+
+    TH2F* h_METvsHT_all  =  (TH2F*) f->FindObjectAny("h_METvsHT_all");
+    h2.push_back(h_METvsHT_all);
+    t2.push_back("single jet triggers");
+    x2.push_back("MET (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_METvsHT_triggered  =  (TH2F*) f->FindObjectAny("h_METvsHT_triggered");
+    h2.push_back(h_METvsHT_triggered);
+    t2.push_back("single jet triggers  & xe90/xe110 trigger");
+    x2.push_back("MET (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_METvsHT_eff = new TH2F(*h_METvsHT_triggered);
+    h_METvsHT_eff->Divide(h_METvsHT_all);
+    h2.push_back(h_METvsHT_eff);
+    t2.push_back("xe90/xe110 trigger");
+    x2.push_back("MET (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Efficiency");
+
+    //===
+    
+    TH2F* h_MHT2jetvsHT_all  =  (TH2F*) f->FindObjectAny("h_MHT2jetvsHT_all");
+    h2.push_back(h_MHT2jetvsHT_all);
+    t2.push_back("single jet triggers, 2 jets");
+    x2.push_back("MHT (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MHT2jetvsHT_triggered  =  (TH2F*) f->FindObjectAny("h_MHT2jetvsHT_triggered");
+    h2.push_back(h_MHT2jetvsHT_triggered);
+    t2.push_back("single jet triggers  & xe90/xe110 trigger, 2 jets");
+    x2.push_back("MHT (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MHT2jetvsHT_eff = new TH2F(*h_MHT2jetvsHT_triggered);
+    h_MHT2jetvsHT_eff->Divide(h_MHT2jetvsHT_all);
+    h2.push_back(h_MHT2jetvsHT_eff);
+    t2.push_back("xe90/xe110 trigger, 2 jets");
+    x2.push_back("MHT (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Efficiency");
+
+	//===
+
+    TH2F* h_MET2jetvsHT_all  =  (TH2F*) f->FindObjectAny("h_MET2jetvsHT_all");
+    h2.push_back(h_MET2jetvsHT_all);
+    t2.push_back("single jet triggers, 2 jets");
+    x2.push_back("MET (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MET2jetvsHT_triggered  =  (TH2F*) f->FindObjectAny("h_MET2jetvsHT_triggered");
+    h2.push_back(h_MET2jetvsHT_triggered);
+    t2.push_back("single jet triggers  & xe90/xe110 trigger, 2 jets");
+    x2.push_back("MET (GeV)");
+    y2.push_back("HT (GeV)");
+    z2.push_back("Events");
+
+    TH2F* h_MET2jetvsHT_eff = new TH2F(*h_MET2jetvsHT_triggered);
+    h_MET2jetvsHT_eff->Divide(h_MET2jetvsHT_all);
+    h2.push_back(h_MET2jetvsHT_eff);
+    t2.push_back("xe90/xe110 trigger, 2 jets");
+    x2.push_back("MET (GeV)");
     y2.push_back("HT (GeV)");
     z2.push_back("Efficiency");
 

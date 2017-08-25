@@ -39,6 +39,24 @@ class MyTriggerStudies : public TSelector {
         TH2F* h_MHTvsHT_all;
         TH2F* h_MHTvsHT_triggered;
 
+        TH1F* h_MHT2jet_all;
+        TH1F* h_MHT2jet_triggered;
+
+        TH2F* h_MHT2jetvsHT_all;
+        TH2F* h_MHT2jetvsHT_triggered;
+
+        TH1F* h_MET_all;
+        TH1F* h_MET_triggered;
+
+        TH2F* h_METvsHT_all;
+        TH2F* h_METvsHT_triggered;
+
+        TH1F* h_MET2jet_all;
+        TH1F* h_MET2jet_triggered;
+
+        TH2F* h_MET2jetvsHT_all;
+        TH2F* h_MET2jetvsHT_triggered;
+
         std::vector<TH1F*> histos_1D;
         std::vector<TH2F*> histos_2D;
 

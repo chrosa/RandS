@@ -1,5 +1,5 @@
 //
-//  RunMyResolution.C
+//  RunMyABCDStudies.C
 //
 //
 //  Created by Christian Sander on 20/10/16.
@@ -15,19 +15,19 @@
 
 #include <fstream>
 
-#include "RandS.h"
+#include "MyABCDStudies.h"
 
 int main()
 {
 
-    RandS* rands = new RandS();
-    TChain* rands_chain = new TChain("EventTree");
+    MyABCDStudies* res = new MyABCDStudies();
+    TChain* res_chain = new TChain("EventTree");
 
     // ------------------------------------------------------------------- //
 
+    //std::ifstream myfile ("filelist_mc_v1.txt");
+    std::ifstream myfile ("filelist_data_v1.txt");
     //std::ifstream myfile ("filelist_test.txt");
-    //std::ifstream myfile ("filelist_data_v1.txt");
-    std::ifstream myfile ("filelist_mc.txt");
 
     std::string root_file;
     if (myfile.is_open()) {
@@ -36,13 +36,13 @@ int main()
             std::cout << root_file << std::endl;
             if (root_file.length() > 0) {
                 TString path = root_file;
-                rands_chain->Add(path);
+                res_chain->Add(path);
             }
         }
         myfile.close();
     }
 
-	Long64_t nentries = rands_chain->GetEntries();
+	Long64_t nentries = res_chain->GetEntries();
 	std::cout << "Number of total events: " << nentries << std::endl; 
 	//Int_t cachesize = 30*1024*1024;
 	//res_chain->SetCacheSize(cachesize);
@@ -51,7 +51,7 @@ int main()
 
     // ------------------------------------------------------------------- //
 
-    rands_chain->Process(rands);
+    res_chain->Process(res);
 
     // ------------------------------------------------------------------- //
 
