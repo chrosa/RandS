@@ -30,7 +30,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
     // ------------- define all histos needed -------//
     // set histogram attributes
-    int Npseudo = 10;
+    int Npseudo = 20;
     int NbinsMHT = 100;
     int NbinsHT = 100;
     int NbinsJetPt = 100;
@@ -54,7 +54,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double dPhijjSave = 2.7;
     int NJetsSave = 0;
 
-    bool blindSR = true;
+    bool blindSR = false;
     bool VBF = true;
     bool HTMHT = false;
 
@@ -443,7 +443,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Mjj_presel_4JV_dPhiSide_sel = new TH1F("VBF_Mjj_presel_4JV_dPhiSide_selection","Mjj", NbinsHT, HTmin, HTmax);
     VBF_Jet1Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet1Pt_presel_4JV_dPhiSide_selection","Jet1Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
     VBF_Jet2Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet2Pt_presel_4JV_dPhiSide_selection","Jet2Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
-    VBF_Jet3Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Pt_presel_4JV_dPhiSide_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax);
+    VBF_Jet3Pt_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Pt_presel_4JV_dPhiSide_selection","Jet3Pt", NbinsJetPt, JetVBFPtmin, JetVBFPtmax/2.);
     VBF_Jet1Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet1Eta_presel_4JV_dPhiSide_selection","Jet1Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet2Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet2Eta_presel_4JV_dPhiSide_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Eta_presel_4JV_dPhiSide_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
@@ -556,12 +556,6 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         double Mjj = CalcMjj();
         double MHTjj = CalcMHTjj();
 
-		std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
-		std::cout << "pTjj, MET, HT: " << MHTjj << ", " << MET <<  ", " << HT << std::endl;
-		std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(2)  << ", " << JetPhi->at(0) << std::endl;
-		std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(2)  << ", " << JetPhi->at(1) << std::endl;
-		std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
-
         // apply some baseline cuts as used for storing in result tree
         if( HT > HTSave && ( MHTjj > MHTjjSave || MHT > MHTSave || MET > METSave ) && NJets >= NJetsSave && Mjj > MjjSave && CalcDeltaPhi() < dPhijjSave) {
 
@@ -617,6 +611,12 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                 if (MjjJetSel() && MET > METSave && DEta > 3.0 && DPhi < 1.8) {
 
                     if (Soft3rd()) {
+
+                        //std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
+                        //std::cout << "pTjj, MET, HT: " << MHTjj << ", " << MET <<  ", " << HT << std::endl;
+                        //std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(0)  << ", " << JetPhi->at(0) << std::endl;
+                        //std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(1)  << ", " << JetPhi->at(1) << std::endl;
+                        //std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
 
                         if (Ntries > 0) {
                             VBF_dPhi_presel_pred_raw->Fill(DPhi, Ntries, weight);
@@ -2063,7 +2063,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
     double value, error;
     cout << "Yields from R+S in QCD VRs:" << endl << endl;
-    
+
     value = VBF_Mjj_presel_4JV_dPhiSide_pred->IntegralAndError (2, 6, error);
     cout << "VR (dPhi side band): " << value << "+-" << error << endl;
 

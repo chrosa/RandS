@@ -59,7 +59,9 @@ class RandS : public TSelector {
         int debug_;
 
         bool JetEffEmulation_;
+        double smearedJetEta_;
         double smearedJetPt_;
+        int smearedNJet_;
         std::vector<double> PtBinEdges_scaling_;
         std::vector<double> EtaBinEdges_scaling_;
         std::vector<double> AdditionalSmearing_;
@@ -85,6 +87,7 @@ class RandS : public TSelector {
         double probExtreme_;
 
         double rebalancedJetPt_;
+        int rebalancedNJet_;
         std::string rebalanceMode_; // "MHTall", "MHThigh" or "METsoft" only for smearCollection = "Reco"
         std::string METsoftResolutionFile_;
         std::string triggerTurnOnFile_;
@@ -107,6 +110,7 @@ class RandS : public TSelector {
         double MHTSigSeedMax_;
         double HTSeedMin_;
         int NJetsSeedMin_;
+        int NJetsSeedMax_;
         bool doSmearing_;
 
         std::string outputfile_;

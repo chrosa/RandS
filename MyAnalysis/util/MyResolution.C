@@ -38,40 +38,39 @@ void MyResolution::Begin(TTree * /*tree*/)
     outputfile = new TFile("resolutions.root","RECREATE");
 
     m_VetoCone = 0.8;
-    m_AddActivityCone = 0.8;
-    m_MatchingCone = 0.1;
+    m_MatchingCone = 0.05;
     m_RelGenActivityVeto = 0.01;
     m_RelRecoActivityVeto = 0.05;
     m_jvtcut = 0.59;
     m_lumi = 32900.;
     PtBinEdges.push_back(0);
-    PtBinEdges.push_back(10);
+    //PtBinEdges.push_back(10);
     PtBinEdges.push_back(20);
-    PtBinEdges.push_back(30);
+    //PtBinEdges.push_back(30);
     PtBinEdges.push_back(40);
-    PtBinEdges.push_back(50);
+    //PtBinEdges.push_back(50);
     PtBinEdges.push_back(70);
-    PtBinEdges.push_back(100);
+    //PtBinEdges.push_back(100);
     PtBinEdges.push_back(140);
-    PtBinEdges.push_back(190);
+    //PtBinEdges.push_back(190);
     PtBinEdges.push_back(250);
-    PtBinEdges.push_back(320);
+    //PtBinEdges.push_back(320);
     PtBinEdges.push_back(400);
-    PtBinEdges.push_back(490);
+    //PtBinEdges.push_back(490);
     PtBinEdges.push_back(590);
-    PtBinEdges.push_back(700);
+    //PtBinEdges.push_back(700);
     PtBinEdges.push_back(820);
-    PtBinEdges.push_back(950);
+    //PtBinEdges.push_back(950);
     PtBinEdges.push_back(1090);
-    PtBinEdges.push_back(1240);
+    //PtBinEdges.push_back(1240);
     PtBinEdges.push_back(1400);
-    PtBinEdges.push_back(1570);
+    //PtBinEdges.push_back(1570);
     PtBinEdges.push_back(1750);
-    PtBinEdges.push_back(1940);
+    //PtBinEdges.push_back(1940);
     PtBinEdges.push_back(2140);
-    PtBinEdges.push_back(2350);
+    //PtBinEdges.push_back(2350);
     PtBinEdges.push_back(2600);
-    PtBinEdges.push_back(3000);
+    //PtBinEdges.push_back(3000);
 
     EtaBinEdges.push_back(0.0);
     EtaBinEdges.push_back(0.7);
@@ -174,9 +173,9 @@ void MyResolution::Begin(TTree * /*tree*/)
         NGen_nob.push_back(h_NjetGen_nob_pt);
     }
 
-	//NTotEvents = fChain->GetEntries();
-	
-	//// Not very elegant! TODO: Store this info in and read from file
+    //NTotEvents = fChain->GetEntries();
+
+    //// Not very elegant! TODO: Store this info in and read from file
 
     // [v1]
     AvailableEvents[361022] = 1993647;
@@ -194,7 +193,7 @@ void MyResolution::SlaveBegin(TTree * /*tree*/)
     // The tree argument is deprecated (on PROOF 0 is passed).
 
     TString option = GetOption();
-  
+
 }
 
 Bool_t MyResolution::Process(Long64_t entry)
@@ -217,21 +216,21 @@ Bool_t MyResolution::Process(Long64_t entry)
 
     //std::cout << entry << std::endl;
     fReader.SetLocalEntry(entry);
-    
+
     NEvents += 1;
     //if (NEvents%1000 == 0) std::cout << NEvents << " processed: " << 100*NEvents/NTotEvents << "% done" << std::endl;
     if (NEvents%1000 == 0) std::cout << NEvents << " processed!" << std::endl;
 
-	if (ProcessedEvents.find(*DatasetID) == ProcessedEvents.end()) {
-		ProcessedEvents[*DatasetID] = 1;
-	} else {
-		ProcessedEvents[*DatasetID] += 1;
-	}
+    if (ProcessedEvents.find(*DatasetID) == ProcessedEvents.end()) {
+        ProcessedEvents[*DatasetID] = 1;
+    } else {
+        ProcessedEvents[*DatasetID] += 1;
+    }
 
     //std::cout << "Weight: " << *Weight << std::endl;
     double eventWeight = *Weight;
     eventWeight *= m_lumi / AvailableEvents[*DatasetID];
-    
+
     eventWeight = 1.;
 
     std::vector<MyJet> genJets;
@@ -255,29 +254,29 @@ Bool_t MyResolution::Process(Long64_t entry)
         jet.SetJVT(jvt);
         jet.SetBTag(btag);
         jet.SetJetID(good);
-        
+
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) < 2.4) {
             if (jet.IsBad() && jet.IsNoPU(m_jvtcut)) {
-				std::cout << "Reject event because of bad central jet!" << std::endl;
+                //std::cout << "Reject event because of bad central jet!" << std::endl;
                 return 1;
             }
         }
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) >= 2.4) {
             if (jet.IsBad()) {
-				std::cout << "Reject event because of bad forward jet!" << std::endl;
-				return 1;
-			}
-        }
-        if (jet.Pt() > 60.) {
-            if (jet.IsBad()) {
-				std::cout << "Reject event because of bad high pT jet!" << std::endl;
+                //std::cout << "Reject event because of bad forward jet!" << std::endl;
                 return 1;
             }
         }
-		
-		recoJets.push_back(jet);
-		//if ( jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 ) recoJets.push_back(jet);
-		
+        if (jet.Pt() > 60.) {
+            if (jet.IsBad()) {
+                //std::cout << "Reject event because of bad high pT jet!" << std::endl;
+                return 1;
+            }
+        }
+
+        recoJets.push_back(jet);
+        //if ( jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 ) recoJets.push_back(jet);
+
     }
 
     int NGenJets = GenJetPt->size();
@@ -303,11 +302,11 @@ Bool_t MyResolution::Process(Long64_t entry)
         float eta = MuonEta->at(i);
         float phi = MuonPhi->at(i);
         if (MuonIsBad->at(i)) {
-            std::cout << "Reject event because of bad muon!" << std::endl;
+            //std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
         if (MuonIsSignal->at(i)) {
-            std::cout << "Reject event because of isolated muon!" << std::endl;
+            //std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
         }
         if (MuonIsSignal->at(i)) {
@@ -320,7 +319,7 @@ Bool_t MyResolution::Process(Long64_t entry)
     int NElectrons = ElePt->size();
     //std::cout << "NElectrons: " << NElectrons << std::endl;
     if ( NElectrons > 0 ) {
-        std::cout << "Reject event because of isolated electon!" << std::endl;
+        //std::cout << "Reject event because of isolated electon!" << std::endl;
         return 1;
     }
     for (int i = 0; i < NElectrons; ++i) {
@@ -346,7 +345,7 @@ Bool_t MyResolution::Process(Long64_t entry)
         for ( auto& genjet2 : genJets ) {
             if (genjet2 == genjet) continue;
             double dR = genjet.DeltaR(genjet2);
-            if (dR < m_VetoCone && genjet2.Pt()/genjet.Pt() > m_RelGenActivityVeto ) {
+            if (dR < m_VetoCone && (genjet2.Pt()/genjet.Pt()) > m_RelGenActivityVeto ) {
                 noGenActivity = false;
             }
         }
@@ -355,32 +354,37 @@ Bool_t MyResolution::Process(Long64_t entry)
 
         // check for additional recoJet activity
         MyJet* matchedJet = 0;
-        MyJet* nextJet = 0;
         TLorentzVector addRecoActivity(0., 0., 0., 0.);
         double dRmin_matched = 999.;
-        double dRmin_next = 999.;
+        //std::cout << "GenJet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi() << std::endl;
         for ( auto& jet : recoJets) {
             double dR = jet.DeltaR(genjet);
-            if (dR < dRmin_matched && dR < m_VetoCone) {
-                if (dRmin_matched < m_VetoCone ) {
-                    dRmin_next = dRmin_matched;
-                    nextJet = matchedJet;
-                    if (dR < m_AddActivityCone) addRecoActivity += *nextJet;
+            if (dR > m_VetoCone) continue;
+            if (dR < dRmin_matched) {
+                if (matchedJet) {
+                    addRecoActivity += *matchedJet;
+                    //std::cout << "Add previous matched jet (pt, eta, phi): " << matchedJet->Pt() << ", " << matchedJet->Eta() << ", " << matchedJet->Phi() << std::endl;
+                    dRmin_matched = dR;
+                    matchedJet = &jet;
+                } else {
+                    dRmin_matched = dR;
+                    matchedJet = &jet;
                 }
-                dRmin_matched = dR;
-                matchedJet = &jet;
-            } else if (dR < dRmin_next && dR < m_VetoCone) {
-                dRmin_next = dR;
-                nextJet = &jet;
-                if (dR < m_AddActivityCone) addRecoActivity += *nextJet;
+            } else {
+                addRecoActivity += jet;
+                //std::cout << "Add Jet (pt, eta, phi): " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi() << std::endl;
             }
         } // end for loop over jets
 
         bool noRecoActivity = true;
-        if (dRmin_matched < m_MatchingCone) {
-            if (dRmin_next < m_VetoCone) {
-                if (nextJet->Pt()/matchedJet->Pt()>m_RelRecoActivityVeto) noRecoActivity = false;
-            }
+        if (matchedJet) {
+            if ((addRecoActivity.Pt()/matchedJet->Pt())>m_RelRecoActivityVeto) noRecoActivity = false;
+            if (matchedJet->Pt() < (genjet.Pt() - 100.) && matchedJet->Pt() < genjet.Pt()/2. && addRecoActivity.Pt() < 50. ) {
+				std::cout << "GenJet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi() << std::endl;
+				std::cout << "MatchedJet (pt, eta, phi): " << matchedJet->Pt() << ", " << matchedJet->Eta() << ", " << matchedJet->Phi() << std::endl;
+				std::cout << "dR: " << dRmin_matched << std::endl;
+				std::cout << "addRecoActivity (pt, eta, phi): " << addRecoActivity.Pt() << ", " << addRecoActivity.Eta() << ", " << addRecoActivity.Phi() << std::endl;
+			}
         }
 
         if (noGenActivity) {
@@ -470,11 +474,11 @@ void MyResolution::SlaveTerminate()
         NGen_nob.at(i_eta)->Write();
     }
 
-	outputfile->Close();
-	
-	for (std::map<UInt_t, UInt_t>::iterator it=ProcessedEvents.begin(); it != ProcessedEvents.end(); ++it){
-		std::cout << it->first << " " << it->second << std::endl;
-	}
+    outputfile->Close();
+
+    for (std::map<UInt_t, UInt_t>::iterator it=ProcessedEvents.begin(); it != ProcessedEvents.end(); ++it) {
+        std::cout << it->first << " " << it->second << std::endl;
+    }
 }
 
 void MyResolution::Terminate()

@@ -29,7 +29,6 @@ class MyResolution : public TSelector {
 
     private :
         double m_VetoCone;
-        double m_AddActivityCone;
         double m_MatchingCone;
         double m_RelGenActivityVeto;
         double m_RelRecoActivityVeto;
@@ -98,11 +97,16 @@ class MyResolution : public TSelector {
         TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetBtag"};
         TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetJVT"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
-        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
+        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
+        //TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
         TTreeReaderValue<std::vector<Float_t>> ElePt = {fReader, "ElePt"};
         TTreeReaderValue<std::vector<Float_t>> EleEta = {fReader, "EleEta"};
         TTreeReaderValue<std::vector<Float_t>> ElePhi = {fReader, "ElePhi"};

@@ -225,7 +225,6 @@ int main()
     TChain* prediction = new TChain("PredictionTree");
 
     //ifstream myfile1 ("filelist_RnS_data_all.txt");
-    //ifstream myfile1 ("filelist_RnS_data_all.txt");
     ifstream myfile1 ("filelist_RnS_mc_all.txt");
     //ifstream myfile1 ("filelist_RnS_mc.txt");
 
@@ -249,8 +248,7 @@ int main()
     bool isData = false;
     bool VBF = true;
     bool HTMHT = false;
-    //TString postfix = "_MyTest_data_MHTall_noMETsoft_N20_Central_SR_v1";
-    TString postfix = "_MyTest_mc_MHTall_noMETsoft_N20_CR_v1";
+    TString postfix = "_MyTest_mc_MHTall_noMETsoft_N20_CR_v9";
     //TString postfix = "_test";
 
     pred_ = new Prediction(*prediction, postfix);

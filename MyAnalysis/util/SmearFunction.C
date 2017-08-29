@@ -139,7 +139,7 @@ void SmearFunction::CalculateSmearFunctions() {
 
             for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
                 //// Get RMS
-                if (smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 10) {
+                if (smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     double RMS = smearFuncPhi.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     SigmaPhi.at(i_flav).at(i_eta).at(i_Pt) = RMS;
                 } else {
@@ -151,7 +151,7 @@ void SmearFunction::CalculateSmearFunctions() {
             //// Eta resolution
 
             for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
-                if (smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 10) {
+                if (smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100) {
                     double RMS = smearFuncEta.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     SigmaEta.at(i_flav).at(i_eta).at(i_Pt) = RMS;
                 } else {
@@ -171,9 +171,9 @@ void SmearFunction::CalculateSmearFunctions() {
 
                 // check if bin is meaningfull (Pt(E_bin)>>20 GeV)
                 // otherwise reco jet pT threshold biases jet response to larger values
-                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 50.);
+                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
                 bool BinIsOK = true;
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 10 && BinIsOK) {
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && BinIsOK) {
                     double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     double MEAN = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetMean();
                     TF1* fitfunction = new TF1("f", "gaus(0)", MEAN - 1 * RMS, MEAN + 1 * RMS);
@@ -228,7 +228,7 @@ void SmearFunction::CalculateSmearFunctions() {
                             tmp_v = 0;
                             tmp_e = 0;
                         } else {
-                            //// suppress everything except for low response tail
+                            //// suppress everything except for high response tail
                             double scale = 1;
                             double x = smearFunc_UpperTail.at(i_flav).at(i_eta).at(i_Pt)->GetBinCenter(i);
                             if (x < MEAN + 1 * RMS)
@@ -265,7 +265,7 @@ void SmearFunction::CalculateSmearFunctions() {
             int FirstBin = 1;
             int LastBin = SigmaPtHist_scaled.at(i_flav).at(i_eta)->GetNbinsX();
             for (int j = 1; j <= SigmaPtHist_scaled.at(i_flav).at(i_eta)->GetNbinsX(); ++j) {
-                if (!first && SigmaPtHist_scaled.at(i_flav).at(i_eta)->GetBinContent(j) > 10) {
+                if (!first && SigmaPtHist_scaled.at(i_flav).at(i_eta)->GetBinContent(j) > 0.001) {
                     first = true;
                     FirstBin = j;
                 }
@@ -292,7 +292,7 @@ void SmearFunction::CalculateSmearFunctions() {
             int FirstBin = 1;
             int LastBin = SigmaPtHist.at(i_flav).at(i_eta)->GetNbinsX();
             for (int j = 1; j <= SigmaPtHist.at(i_flav).at(i_eta)->GetNbinsX(); ++j) {
-                if (!first && SigmaPtHist.at(i_flav).at(i_eta)->GetBinContent(j) > 10) {
+                if (!first && SigmaPtHist.at(i_flav).at(i_eta)->GetBinContent(j) > 0.001) {
                     first = true;
                     FirstBin = j;
                 }
@@ -320,9 +320,9 @@ void SmearFunction::CalculateSmearFunctions() {
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmin(),
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmax());
 
-                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 50.);
+                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
                 bool BinIsOK = true;
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 0 && BinIsOK) {
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && BinIsOK) {
                     //// fold core and tail with additional gaussian
                     TH1F smearFunc_Core_tmp(*smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt));
                     TH1F smearFunc_LowerTail_tmp(*smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt));

@@ -1,3 +1,8 @@
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_mc_v1/fetch/data-NtupleMaker/sample-98.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_mc_v1/fetch/data-NtupleMaker/sample-99.root
-/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_mc_v1/fetch/data-NtupleMaker/sample-9.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-994.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-995.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-996.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-997.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-998.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-999.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-99.root
+/nfs/dust/atlas/user/csander/RandS/Output/NtupleMaker_dataL_v1/fetch/data-NtupleMaker/sample-9.root

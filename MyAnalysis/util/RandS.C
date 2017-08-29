@@ -37,10 +37,17 @@ void RandS::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    isMC_ = true;
+    isMC_ = false;
     jvtcut_= 0.59; //// 0.59 (medium)
     lumi_ = 32900.;
-    smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v1.root";
+    //smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v2.root";
+    smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetNoMuNoNu_RecoNoMu_E_OR_v2.root";
+    //inputhistPtHF_ = "h_tot_JetAll_ResPt";
+    //inputhistEtaHF_ = "h_tot_JetAll_ResEta";
+    //inputhistPhiHF_ = "h_tot_JetAll_ResPhi";
+    //inputhistPtLF_ = "h_tot_JetAll_ResPt";
+    //inputhistEtaLF_ = "h_tot_JetAll_ResEta";
+    //inputhistPhiLF_ = "h_tot_JetAll_ResPhi";
     inputhistPtHF_ = "h_b_JetAll_ResPt";
     inputhistEtaHF_ = "h_b_JetAll_ResEta";
     inputhistPhiHF_ = "h_b_JetAll_ResPhi";
@@ -54,12 +61,16 @@ void RandS::Begin(TTree * /*tree*/)
     //inputhistEtaLF_ = "h_LF_JetAll_ResEta";
     //inputhistPhiLF_ = "h_LF_JetAll_ResPhi";
     // Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
-    PtBinEdges_ = {0,10,20,30,40,50,70,100,140,190,250,320,400,490,590,700,820,950,1090,1240,1400,1570,1750,1940,2140,2350,2600,3000};
+    //PtBinEdges_ = {0,10,20,30,40,50,70,100,140,190,250,320,400,490,590,700,820,950,1090,1240,1400,1570,1750,1940,2140,2350,2600,3000};
+    PtBinEdges_ = {0,20,40,70,140,250,400,590,820,1090,1400,1750,2140,2600};
     EtaBinEdges_ = {0.0,0.7,1.3,1.8,2.5,3.2,5.0};
     rebalancedJetPt_ = 20.;
+    rebalancedNJet_ = 99; // Number of leading jets used in rebalancing
     rebalanceMode_ = "MHTall"; // "METsoft" (should be best), "MHTall", "MHThigh"
     smearCollection_ = "Reco"; // "Gen" for truth jet smearing only; "Reco" for full R+S
     smearedJetPt_ = 0.;
+    smearedJetEta_ = 5.;
+    smearedNJet_ = 99; // Number of leading jets used in smearing
     doSmearing_ = true; // only "false" for test purposes
     JetEffEmulation_ = false;
     PtBinEdges_scaling_ = {0.,3000.};
@@ -70,7 +81,7 @@ void RandS::Begin(TTree * /*tree*/)
     AdditionalSmearing_variation_ = 1.0;
     LowerTailScaling_variation_ = 1.0;
     UpperTailScaling_variation_ = 1.0;
-    absoluteTailScaling_ = false; // depends on definition of tails scail factors ("true" for M. Schroeder definition)
+    absoluteTailScaling_ = false; // depends on definition of tails scail factors ("true" for M. Schroeder's definition)
     A0RMS_ = 2.5;
     A1RMS_ = 10.;
     probExtreme_ = 0.; // possibilty to emulate total jet loss
@@ -84,11 +95,12 @@ void RandS::Begin(TTree * /*tree*/)
     debug_ = 0;
     outputfile_ = "RandS.root";
     cleverPrescaleTreating_ = true; // "true", to get better statistical  precision for high weight seed events
-    maxCleverWeight_ = 200; // the larger, the better (but also the slower), not greater than O(1000)
+    maxCleverWeight_ = 5000; // the larger, the better (but also the slower), not greater than O(1000)
     HTSeedMin_ = 0.;
     MHTSeedMax_ = 99999.;
     MHTSigSeedMax_ = 9999.;
-    NJetsSeedMin_ = 0;
+    NJetsSeedMin_ = 3;
+    NJetsSeedMax_ = 3;
     NJetsStored_ = 4;
     Ntries_ = 20;
     NJetsSave_ = 0;
@@ -99,8 +111,8 @@ void RandS::Begin(TTree * /*tree*/)
     MHTjjSave_ = 9999.;
     BJetsPt_ = 40.;
     BJetsEta_ = 2.4;
-    JetsPt_ = 40.;
-    JetsEta_ = 2.4;
+    JetsPt_ = 25.;
+    JetsEta_ = 4.5;
     JetsHTPt_ = 25.;
     JetsHTEta_ = 4.5;
     JetsMHTPt_ = 25.;
@@ -296,8 +308,11 @@ Bool_t RandS::Process(Long64_t entry)
             }
         }
 
-        // Keep all jets (important for rebalancing, and not critical since also PU events should be balanced in pT)
+        // Keep all good jets (important for rebalancing, and not critical since also PU events should be balanced in pT)
         if (jet.IsGood()) Jets_rec.push_back(jet);
+
+        //if (jet.IsGood() && std::abs(jet.Eta()) < JetsEta_ && (jet.Pt() > 60. || jet.IsNoPU(jvtcut_) || fabs(jet.Eta()) > 2.4) ) Jets_rec.push_back(jet);
+
 
     }
     GreaterByPt<MyJet> ptComparator_;
@@ -525,7 +540,30 @@ Bool_t RandS::Process(Long64_t entry)
     float mjj_min = 400.;
     bool MjjSeed = calcMjjSeed(Jets_rec, deta_min, dphi_max, mjj_min);
 
-    if (Jets_rec.size() >= 2 && HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_ && MjjSeed) {
+    if (Jets_rec.size() >= 2 && HTSeed > HTSeedMin_ && NJetSeed >= NJetsSeedMin_ && NJetSeed <= NJetsSeedMax_&& MjjSeed) {
+
+        /*
+        int ii = 0;
+        TLorentzVector vhigh(0,0,0,0);
+        TLorentzVector vlow(0,0,0,0);
+        for (vector<MyJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            if (it->Pt() < 25.) {
+        		vlow += (*it);
+        		continue;
+        	}
+            cout << ii << "th reco jet (pt, eta, phi, flav, good, jvt): " <<
+                 it->Pt() << ", " <<
+                 it->Eta() << ", " <<
+                 it->Phi() << ", " <<
+                 it->IsB() << ", " <<
+                 it->IsPU(jvtcut_) <<
+                 std::endl;
+            vhigh += (*it);
+            ++ii;
+        }
+        std::cout << "reco JetVecHigh (pt, phi): " << vhigh.Pt() << ", " << vhigh.Phi() << std::endl;
+        std::cout << "reco JetVecLow  (pt, phi): " << vlow.Pt() << ", " << vlow.Phi() << std::endl;
+        */
 
         if (smearCollection_ == "Reco") {
 
@@ -541,6 +579,30 @@ Bool_t RandS::Process(Long64_t entry)
 
             // sort rebalanced jets
             std::sort(Jets_reb.begin(), Jets_reb.end(), ptComparator_);
+
+            /*
+            ii = 0;
+            TLorentzVector vhigh(0,0,0,0);
+            TLorentzVector vlow(0,0,0,0);
+            for (vector<MyJet>::iterator it = Jets_reb.begin(); it != Jets_reb.end(); ++it) {
+            	if (it->Pt() < 25.) {
+            		vlow += (*it);
+            		continue;
+            	}
+                cout << ii << "th rebalanced jet (pt, eta, phi, flav, good, jvt): " <<
+                     it->Pt() << ", " <<
+                     it->Eta() << ", " <<
+                     it->Phi() << ", " <<
+                     it->IsB() << ", " <<
+                     it->IsPU(jvtcut_) <<
+                     std::endl;
+            	vhigh += (*it);
+                ++ii;
+            }
+            std::cout << "rebalanced JetVecHigh (pt, phi): " << vhigh.Pt() << ", " << vhigh.Phi() << std::endl;
+            std::cout << "rebalanced JetVecLow  (pt, phi): " << vlow.Pt() << ", " << vlow.Phi() << std::endl;
+            std::cout << std::endl;
+            */
 
         } else {
 
@@ -941,7 +1003,7 @@ bool RandS::RebalanceJets_KinFitter(std::vector<MyJet> &Jets_rec, std::vector<My
 
         if ( it->IsBad() ) continue;
 
-        if ( it->Pt() < rebalancedJetPt_ ) {
+        if ( it->Pt() < rebalancedJetPt_ || i > rebalancedNJet_) {
 
             if (rebalanceMode_ == "MHTall") {
                 MHTx_low -= it->Px();
@@ -1097,7 +1159,7 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                     i_flav = 1;
                 }
                 if (IsReconstructed(it->Pt(), it->Eta()) || !JetEffEmulation_) {
-                    if (it->Pt() > smearedJetPt_) {
+                    if (it->Pt() > smearedJetPt_ && fabs(it->Eta()) < smearedJetEta_ && i_jet < smearedNJet_) {
                         double scale = JetResolutionHist_Pt_Smear(it->E(), it->Eta(), i_flav);
                         double newE = it->Energy() * scale;
                         double newMass = it->M() * scale;
@@ -1106,6 +1168,31 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                         double newEta = rand_->Gaus(it->Eta(), JetResolution_Eta(it->E(), it->Eta()));
                         double newPhi = rand_->Gaus(it->Phi(), JetResolution_Phi(it->E(), it->Eta()));
                         double newPt = sqrt(newE*newE-newMass*newMass)/cosh(newEta);
+                        if (newPt < 25. && it->Pt() > 100.) {
+                            int ii = 0;
+                            TLorentzVector vhigh(0,0,0,0);
+                            TLorentzVector vlow(0,0,0,0);
+                            for (vector<MyJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
+                                if (it->Pt() < 25.) {
+                                    vlow += (*it);
+                                    continue;
+                                }
+                                cout << ii << "th rebalanced jet (E, pt, eta, phi, flav, good, jvt): " <<
+                                     it->E() << ", " <<
+                                     it->Pt() << ", " <<
+                                     it->Eta() << ", " <<
+                                     it->Phi() << ", " <<
+                                     it->IsB() << ", " <<
+                                     it->IsPU(jvtcut_) <<
+                                     std::endl;
+                                vhigh += (*it);
+                                ++ii;
+                            }
+                            std::cout << "rebalanced JetVecHigh (pt, phi): " << vhigh.Pt() << ", " << vhigh.Phi() << std::endl;
+                            std::cout << "rebalanced JetVecLow  (pt, phi): " << vlow.Pt() << ", " << vlow.Phi() << std::endl;
+                            std::cout << "very low response Jet (scale, pt, eta, phi): " << scale << ", " << newPt << ", " << newEta << ", " << newPhi << std::endl;
+                            std::cout << std::endl;
+                        }
                         MyJet smearedJet;
                         smearedJet.SetPtEtaPhiM(newPt, newEta, newPhi, newMass);
                         smearedJet.SetBTag(it->IsB());
