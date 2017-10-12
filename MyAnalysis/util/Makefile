@@ -11,7 +11,7 @@ RCXX=$(CFLAGS) $(ROOTCFLAGS) -O2
 RLXX=$(LFLAGS) $(ROOTLIBS)
 
 SRC0= RandS.o MyJet.o MyElectron.o MyPhoton.o MyTau.o MyMuon.o SmearFunction.o
-SRC1= MyResolution.o MyJet.o
+SRC1= MyResolution.o MyJet.o MyMuon.o
 SRC2= Prediction.o
 SRC3= MyMETStudies.o MyJet.o MyElectron.o MyPhoton.o MyTau.o MyMuon.o
 SRC4= MyTriggerStudies.o MyJet.o

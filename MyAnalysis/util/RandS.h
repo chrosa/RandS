@@ -51,6 +51,7 @@ class RandS : public TSelector {
 
         std::vector<double> PtBinEdges_;
         std::vector<double> EtaBinEdges_;
+        std::vector<double> ResBinEdges_;
 
         std::string uncertaintyName_;
 
@@ -80,6 +81,8 @@ class RandS : public TSelector {
         std::string inputhistPtLF_;
         std::string inputhistEtaLF_;
         std::string inputhistPhiLF_;
+        std::string inputhistResMuLF_;
+        std::string inputhistResMuHF_;
 
         bool absoluteTailScaling_;
         double A0RMS_;
@@ -108,10 +111,14 @@ class RandS : public TSelector {
         int NJetSeed;
         double MHTSeedMax_;
         double MHTSigSeedMax_;
+        double METsoftSeedMax_;
         double HTSeedMin_;
         int NJetsSeedMin_;
         int NJetsSeedMax_;
         bool doSmearing_;
+        bool doJVT_;
+        double JVTeta_;
+        bool doMETmu_;
 
         std::string outputfile_;
         int NJetsStored_;
@@ -246,6 +253,7 @@ class RandS : public TSelector {
         double JetResolution_Eta(const double&, const double&);
         double JetResolution_Phi(const double&, const double&);
         double JetResolutionHist_Pt_Smear(const double&, const double&, const int&);
+        double MuResponse(const double&, const double&, const int&);
         int GetIndex(const double&, const std::vector<double>*);
 
         double calcHT(std::vector<MyJet>&);
@@ -261,7 +269,7 @@ class RandS : public TSelector {
         double calcJet3Pt(std::vector<MyJet>&);
         bool calcMjjSeed(std::vector<MyJet>&, const float&, const float&, const float&);
 
-        bool RebalanceJets_KinFitter(std::vector<MyJet>&, std::vector<MyJet>&, TLorentzVector&);
+        bool RebalanceJets_KinFitter(std::vector<MyJet>&, std::vector<MyJet>&, std::vector<MyJet>&, TLorentzVector&);
         void SmearingJets(std::vector<MyJet>&, TLorentzVector&, const float&);
 
         std::map <const MyJet*, bool> genJet_btag;
@@ -273,6 +281,22 @@ class RandS : public TSelector {
         TH2F* h_METsoft_Pt, *h_METsoft_Phi;
         vector <TH1D*> h_METsoft_Pt_px;
         vector <TH1D*> h_METsoft_Phi_px;
+        
+        TH2F* h_RebRes_genPt_eta0;
+        TH2F* h_RebRes_genPt_eta1;
+        TH2F* h_RebRes_genPt_eta2;
+        
+        TH2F* h_RebRes_genPt_jet1;
+        TH2F* h_RebRes_genPt_jet2;
+        TH2F* h_RebRes_genPt_jet3;
+
+        TH2F* h_HTgenVsHTreb3;
+        TH2F* h_HTgenVsHTreb4;
+        TH2F* h_HTgenVsHTreb5;
+
+        TH2F* h_MinDphiJJgenVsMinDphiJJreb3;
+        TH2F* h_MinDphiJJgenVsMinDphiJJreb4;
+        TH2F* h_MinDphiJJgenVsMinDphiJJreb5;
 
         TTree *PredictionTree;
         UShort_t vtxN;

@@ -30,7 +30,7 @@ ruc = rucio.client.Client()
 if not username: username = ruc.whoami()["account"] 
 # Assume, that we use this script only on samples, which were made by the user with name username
 #scopename = "user." + username
-scopename = "data16_13TeV"
+scopename = "data15_13TeV"
 print "Search for samples with pattern \"" + pattern + "\" in scope \"" + scopename + "\""
 
 #####################

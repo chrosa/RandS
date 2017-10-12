@@ -35,75 +35,79 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("TriggerStudiesOutput_mc.root","RECREATE");
+    outputfile = new TFile("TriggerStudiesOutput_data.root","RECREATE");
 
     m_jvtcut = 0.59;
     m_lumi = 30000.;
     isData = false;
+    double MHTmax = 500;
+    int MHTbins = 50;
+    double HTmax = 2000;
+    double HTbins = 40;
 
     ////Book histograms
 
-    h_MHT_all = new TH1F("h_MHT_all", "h_MHT_all", 100, 0., 500.);
+    h_MHT_all = new TH1F("h_MHT_all", "h_MHT_all", MHTbins, 0., MHTmax);
     h_MHT_all->Sumw2();
     histos_1D.push_back(h_MHT_all);
 
-    h_MHT_triggered = new TH1F("h_MHT_triggered", "h_MHT_triggered", 100, 0., 500.);
+    h_MHT_triggered = new TH1F("h_MHT_triggered", "h_MHT_triggered", MHTbins, 0., MHTmax);
     h_MHT_triggered->Sumw2();
     histos_1D.push_back(h_MHT_triggered);
 
-    h_MHTvsHT_all = new TH2F("h_MHTvsHT_all", "h_MHTvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_MHTvsHT_all = new TH2F("h_MHTvsHT_all", "h_MHTvsHT_all", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MHTvsHT_all->Sumw2();
     histos_2D.push_back(h_MHTvsHT_all);
 
-    h_MHTvsHT_triggered = new TH2F("h_MHTvsHT_triggered", "h_MHTvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_MHTvsHT_triggered = new TH2F("h_MHTvsHT_triggered", "h_MHTvsHT_triggered", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MHTvsHT_triggered->Sumw2();
     histos_2D.push_back(h_MHTvsHT_triggered);
 
-    h_MHT2jet_all = new TH1F("h_MHT2jet_all", "h_MHT2jet_all", 100, 0., 500.);
+    h_MHT2jet_all = new TH1F("h_MHT2jet_all", "h_MHT2jet_all", MHTbins, 0., MHTmax);
     h_MHT2jet_all->Sumw2();
     histos_1D.push_back(h_MHT2jet_all);
 
-    h_MHT2jet_triggered = new TH1F("h_MHT2jet_triggered", "h_MHT2jet_triggered", 100, 0., 500.);
+    h_MHT2jet_triggered = new TH1F("h_MHT2jet_triggered", "h_MHT2jet_triggered", MHTbins, 0., MHTmax);
     h_MHT2jet_triggered->Sumw2();
     histos_1D.push_back(h_MHT2jet_triggered);
 
-    h_MHT2jetvsHT_all = new TH2F("h_MHT2jetvsHT_all", "h_MHT2jetvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_MHT2jetvsHT_all = new TH2F("h_MHT2jetvsHT_all", "h_MHT2jetvsHT_all", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MHT2jetvsHT_all->Sumw2();
     histos_2D.push_back(h_MHT2jetvsHT_all);
 
-    h_MHT2jetvsHT_triggered = new TH2F("h_MHT2jetvsHT_triggered", "h_MHT2jetvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_MHT2jetvsHT_triggered = new TH2F("h_MHT2jetvsHT_triggered", "h_MHT2jetvsHT_triggered", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MHT2jetvsHT_triggered->Sumw2();
     histos_2D.push_back(h_MHT2jetvsHT_triggered);
 
-    h_MET_all = new TH1F("h_MET_all", "h_MET_all", 100, 0., 500.);
+    h_MET_all = new TH1F("h_MET_all", "h_MET_all", MHTbins, 0., MHTmax);
     h_MET_all->Sumw2();
     histos_1D.push_back(h_MET_all);
 
-    h_MET_triggered = new TH1F("h_MET_triggered", "h_MET_triggered", 100, 0., 500.);
+    h_MET_triggered = new TH1F("h_MET_triggered", "h_MET_triggered", MHTbins, 0., MHTmax);
     h_MET_triggered->Sumw2();
     histos_1D.push_back(h_MET_triggered);
 
-    h_METvsHT_all = new TH2F("h_METvsHT_all", "h_METvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_METvsHT_all = new TH2F("h_METvsHT_all", "h_METvsHT_all", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_METvsHT_all->Sumw2();
     histos_2D.push_back(h_METvsHT_all);
 
-    h_METvsHT_triggered = new TH2F("h_METvsHT_triggered", "h_METvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_METvsHT_triggered = new TH2F("h_METvsHT_triggered", "h_METvsHT_triggered", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_METvsHT_triggered->Sumw2();
     histos_2D.push_back(h_METvsHT_triggered);
 
-    h_MET2jet_all = new TH1F("h_MET2jet_all", "h_MET2jet_all", 100, 0., 500.);
+    h_MET2jet_all = new TH1F("h_MET2jet_all", "h_MET2jet_all", MHTbins, 0., MHTmax);
     h_MET2jet_all->Sumw2();
     histos_1D.push_back(h_MET2jet_all);
 
-    h_MET2jet_triggered = new TH1F("h_MET2jet_triggered", "h_MET2jet_triggered", 100, 0., 500.);
+    h_MET2jet_triggered = new TH1F("h_MET2jet_triggered", "h_MET2jet_triggered", MHTbins, 0., MHTmax);
     h_MET2jet_triggered->Sumw2();
     histos_1D.push_back(h_MET2jet_triggered);
 
-    h_MET2jetvsHT_all = new TH2F("h_MET2jetvsHT_all", "h_MET2jetvsHT_all", 100, 0., 500., 30, 0., 3000.);
+    h_MET2jetvsHT_all = new TH2F("h_MET2jetvsHT_all", "h_MET2jetvsHT_all", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MET2jetvsHT_all->Sumw2();
     histos_2D.push_back(h_MET2jetvsHT_all);
 
-    h_MET2jetvsHT_triggered = new TH2F("h_MET2jetvsHT_triggered", "h_MET2jetvsHT_triggered", 100, 0., 500., 30, 0., 3000.);
+    h_MET2jetvsHT_triggered = new TH2F("h_MET2jetvsHT_triggered", "h_MET2jetvsHT_triggered", MHTbins, 0., MHTmax, HTbins, 0., HTmax);
     h_MET2jetvsHT_triggered->Sumw2();
     histos_2D.push_back(h_MET2jetvsHT_triggered);
 
@@ -161,7 +165,8 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
         ProcessedEvents[*DatasetID] += 1;
     }
 
-    //std::cout << "Weight: " << *Weight << std::endl;
+    if (isinf(*Weight)) return 0;
+	//std::cout << "Weight: " << *Weight << std::endl;
     double eventWeight = *Weight;
     if (!isData) {
         eventWeight *= m_lumi / AvailableEvents[*DatasetID];

@@ -57,13 +57,26 @@ int compare(){
 
     ////////////////////////////////////////
 
-	TFile *f1 = new TFile("output_GetPrediction/prediction_histos_allPythia_METsoft_Smeared_withJVT_withOR.root", "READ", "", 0);
-    TFile *f2 = new TFile("output_GetPrediction/prediction_histos_allPythia_METsoft_Smeared_noJVT.root", "READ", "", 0);
-	selection = (TH1F*) f1->FindObjectAny("MET_baseline_sel");
-	prediction = (TH1F*) f2->FindObjectAny("MET_baseline_pred_px");
+	TFile *f1 = new TFile("output_GetPrediction/prediction_histos_MyTest_data_METsoft_noMETmu_METsig4_N20_CR_v20.root", "READ", "", 0);
+    TFile *f2 = new TFile("output_GetPrediction/bkg.root", "READ", "", 0);
+	selection = (TH1F*) f1->FindObjectAny("VBF_MET_presel_4JV_dPhiSide_selection");
+	prediction = (TH1F*) f1->FindObjectAny("VBF_MET_presel_4JV_dPhiSide_prediction_px");
+	background2 = (TH1F*) f2->FindObjectAny("met_check_inVR_rebin");
+	TH1F* background = new TH1F(*prediction);
+	background->Reset();
+	for (int i = 1; i <= background->GetXaxis()->GetNbins(); ++i) {
+		float x = background->GetXaxis()->GetBinCenter(i);
+		int j = background2->GetXaxis()->FindBin(x);
+		float value = background2->GetBinContent(j);
+		float error = background2->GetBinError(j);
+		background->SetBinContent(i,value);
+		background->SetBinError(i,error);
+	}
 	
-	double MinX = selection->GetXaxis()->GetBinLowEdge(1);
-    double MaxX = selection->GetXaxis()->GetBinUpEdge(selection->GetXaxis()->GetNbins());
+	//double MinX = selection->GetXaxis()->GetBinLowEdge(1);
+    //double MaxX = selection->GetXaxis()->GetBinUpEdge(selection->GetXaxis()->GetNbins());
+	double MinX = 150;
+    double MaxX = 500;
     double BinWidth = selection->GetXaxis()->GetBinWidth(selection->GetXaxis()->GetNbins());
     double MaxY = prediction->GetBinContent(prediction->GetMaximumBin());
     double MaxYsel = selection->GetBinContent(selection->GetMaximumBin());
@@ -76,29 +89,24 @@ int compare(){
     double YRangeMin = 0.5*pow(10., int(log10(MinY))-2);
     TString titlePrediction;
     TString titleSelection;
+    TString titleBackground;
     TString RatioTitle;
     TString LumiTitle;
     TString Title;
     TString xTitle;
     TString yTitle;
 
-	//LumiTitle = "ATLAS preliminary, L = x.yz fb^{  -1}, #sqrt{s} = 13 TeV";
-    LumiTitle = "Simulation, L = 10 fb^{  -1}, #sqrt{s} = 13 TeV";
+	LumiTitle = "ATLAS internal, L = 32.6 fb^{  -1}, #sqrt{s} = 13 TeV";
 
-    Title = ">=4 jets, #Delta#phi cut, HT > 500 GeV";
+    Title = "3 jets, 1.8<#Delta#phi(jj)<2.7, MET>150 GeV, M(jj)>0.6 TeV, p_{T}^{3rd}<50 GeV";
     xTitle = "#slash{E}_{T} (GeV)";
-    yTitle = "events/GeV";
+    yTitle = "Events";
 
-    //titlePrediction = "Data-driven Pred.";
-    titlePrediction = "Data-driven Pred. from MC";
-    
-    //titlePrediction = "Smeared Generator Jets";
-    //titleSelection = "Data";
-    titleSelection = "MC Expectation";
+    titlePrediction = "Data-driven Pred.";
+    titleSelection = "Data";
+    titleBackground = "non-QCD background";
 
-    //RatioTitle = "(Gen-MC)/MC";
-    //RatioTitle = "(Pred-Data)/Data";
-    RatioTitle = "(Pred-MC)/MC";
+    RatioTitle = "(Pred-Data)/Data";
 
     static Int_t c_LightBrown = TColor::GetColor( "#D9D9CC" );
     static Int_t c_LightGray  = TColor::GetColor( "#DDDDDD" );
@@ -110,13 +118,21 @@ int compare(){
     selection->SetMarkerColor(kBlack);
     selection->SetXTitle(xTitle);
     selection->SetYTitle(yTitle);
+
     prediction->SetAxisRange(MinX, MaxX, "X");
     prediction->GetYaxis()->SetRangeUser(YRangeMin, YRangeMax);
-    //prediction->SetFillColor(c_LightBrown);
     prediction->SetFillColor(c_LightGray);
     prediction->SetTitle("");
     prediction->SetXTitle(xTitle);
     prediction->SetYTitle(yTitle);
+
+    background->SetAxisRange(MinX, MaxX, "X");
+    background->GetYaxis()->SetRangeUser(YRangeMin, YRangeMax);
+    background->SetTitle("");
+    background->SetLineColor(kRed);
+    background->SetLineWidth(2);
+    background->SetXTitle(xTitle);
+    background->SetYTitle(yTitle);
 
     TCanvas *c = new TCanvas("ca", "Comparison and ratio of two histos", 700, 700);
 
@@ -131,6 +147,7 @@ int compare(){
     prediction->SetFillColor(kAzure-3);
     prediction->SetFillStyle(3354);
     prediction->DrawCopy("e2same");
+    background->Draw("same");
 
     prediction->SetFillStyle(1001);
     //prediction->SetFillColor(c_LightBrown);
@@ -145,6 +162,7 @@ int compare(){
     leg1->SetTextSize(0.045);
     leg1->AddEntry(prediction, titlePrediction, "lf");
     leg1->AddEntry(selection, titleSelection, "lep");
+    leg1->AddEntry(background, titleBackground, "l");
     leg1->Draw("same");
 
     TPaveText* pt = new TPaveText(0.11, 0.98, 0.95, 0.86, "NDC");
@@ -178,6 +196,7 @@ int compare(){
     r->SetMarkerColor(kBlack);
     r->Reset();
     r->Add(prediction, 1);
+    r->Add(background, 1);
     r->Add(selection, -1);
     r->Divide(selection);
     r->SetMaximum(2.2);

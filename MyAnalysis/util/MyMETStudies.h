@@ -32,7 +32,7 @@ class MyMETStudies : public TSelector {
         double m_jvtcut;
         double m_lumi;
         
-        bool isMC = true;
+        bool isMC = false;
         bool cutFlowStudies = false;
 
 		//// 1D HISTOGRAMS

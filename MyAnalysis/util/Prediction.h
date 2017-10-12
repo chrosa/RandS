@@ -119,6 +119,21 @@ class Prediction {
         TH2F* VBF_maxDeltaPhiPTj12_dEta_pred_raw;
         TH2F* VBF_DeltaPhiPTj3_dEta_pred_raw;
 
+        TH2F* VBF_dPhi_jj_pred_raw;
+        TH2F* VBF_dEta_jj_pred_raw;
+        TH2F* VBF_Mjj_jj_pred_raw;
+        TH2F* VBF_Jet1Pt_jj_pred_raw;
+        TH2F* VBF_Jet2Pt_jj_pred_raw;
+        TH2F* VBF_Jet3Pt_jj_pred_raw;
+        TH2F* VBF_Jet1Eta_jj_pred_raw;
+        TH2F* VBF_Jet2Eta_jj_pred_raw;
+        TH2F* VBF_Jet3Eta_jj_pred_raw;
+        TH2F* VBF_PTjj_jj_pred_raw;
+        TH2F* VBF_MET_jj_pred_raw;
+        TH2F* VBF_minDeltaPhiPTj12_jj_pred_raw;
+        TH2F* VBF_maxDeltaPhiPTj12_jj_pred_raw;
+        TH2F* VBF_DeltaPhiPTj3_jj_pred_raw;
+
         TH2F* VBF_dPhi_dEta_3JV_pred_raw;
         TH2F* VBF_dEta_dEta_3JV_pred_raw;
         TH2F* VBF_Mjj_dEta_3JV_pred_raw;
@@ -355,6 +370,21 @@ class Prediction {
         TH1F* VBF_minDeltaPhiPTj12_dEta_pred;
         TH1F* VBF_maxDeltaPhiPTj12_dEta_pred;
         TH1F* VBF_DeltaPhiPTj3_dEta_pred;
+
+		TH1F* VBF_dPhi_jj_pred;
+        TH1F* VBF_dEta_jj_pred;
+        TH1F* VBF_Mjj_jj_pred;
+        TH1F* VBF_Jet1Pt_jj_pred;
+        TH1F* VBF_Jet2Pt_jj_pred;
+        TH1F* VBF_Jet3Pt_jj_pred;
+        TH1F* VBF_Jet1Eta_jj_pred;
+        TH1F* VBF_Jet2Eta_jj_pred;
+        TH1F* VBF_Jet3Eta_jj_pred;
+        TH1F* VBF_PTjj_jj_pred;
+        TH1F* VBF_MET_jj_pred;
+        TH1F* VBF_minDeltaPhiPTj12_jj_pred;
+        TH1F* VBF_maxDeltaPhiPTj12_jj_pred;
+        TH1F* VBF_DeltaPhiPTj3_jj_pred;
 
         TH1F* VBF_dPhi_dEta_3JV_pred;
         TH1F* VBF_dEta_dEta_3JV_pred;
@@ -595,6 +625,21 @@ class Prediction {
         TH1F* VBF_minDeltaPhiPTj12_dEta_sel;
         TH1F* VBF_maxDeltaPhiPTj12_dEta_sel;
         TH1F* VBF_DeltaPhiPTj3_dEta_sel;
+
+        TH1F* VBF_dPhi_jj_sel;
+        TH1F* VBF_dEta_jj_sel;
+        TH1F* VBF_Mjj_jj_sel;
+        TH1F* VBF_Jet1Pt_jj_sel;
+        TH1F* VBF_Jet2Pt_jj_sel;
+        TH1F* VBF_Jet3Pt_jj_sel;
+        TH1F* VBF_Jet1Eta_jj_sel;
+        TH1F* VBF_Jet2Eta_jj_sel;
+        TH1F* VBF_Jet3Eta_jj_sel;
+        TH1F* VBF_PTjj_jj_sel;
+        TH1F* VBF_MET_jj_sel;
+        TH1F* VBF_minDeltaPhiPTj12_jj_sel;
+        TH1F* VBF_maxDeltaPhiPTj12_jj_sel;
+        TH1F* VBF_DeltaPhiPTj3_jj_sel;
 
         TH1F* VBF_dPhi_dEta_3JV_sel;
         TH1F* VBF_dEta_dEta_3JV_sel;

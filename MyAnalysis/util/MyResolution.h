@@ -29,7 +29,9 @@ class MyResolution : public TSelector {
 
     private :
         double m_VetoCone;
+        double m_addActivityCone;
         double m_MatchingCone;
+        double m_METmuCone;
         double m_RelGenActivityVeto;
         double m_RelRecoActivityVeto;
         double m_jvtcut;
@@ -40,26 +42,32 @@ class MyResolution : public TSelector {
 
         // Resize histo vectors
         void ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVector);
+        void ResizeHisto2Vector(std::vector<std::vector<TH2F*> > &histoVector);
 
         std::vector< std::vector<TH1F*> > PtResolution_tot;
         std::vector< std::vector<TH1F*> > EtaResolution_tot;
         std::vector< std::vector<TH1F*> > PhiResolution_tot;
+        std::vector< std::vector<TH2F*> > MuRes_tot;
 
         std::vector< std::vector<TH1F*> > PtResolution_LF;
         std::vector< std::vector<TH1F*> > EtaResolution_LF;
         std::vector< std::vector<TH1F*> > PhiResolution_LF;
+        std::vector< std::vector<TH2F*> > MuRes_LF;
 
         std::vector< std::vector<TH1F*> > PtResolution_HF;
         std::vector< std::vector<TH1F*> > EtaResolution_HF;
         std::vector< std::vector<TH1F*> > PhiResolution_HF;
+        std::vector< std::vector<TH2F*> > MuRes_HF;
 
         std::vector< std::vector<TH1F*> > PtResolution_b;
         std::vector< std::vector<TH1F*> > EtaResolution_b;
         std::vector< std::vector<TH1F*> > PhiResolution_b;
+        std::vector< std::vector<TH2F*> > MuRes_b;
 
         std::vector< std::vector<TH1F*> > PtResolution_nob;
         std::vector< std::vector<TH1F*> > EtaResolution_nob;
         std::vector< std::vector<TH1F*> > PhiResolution_nob;
+		std::vector< std::vector<TH2F*> > MuRes_nob;
 
         std::vector<TH1F*> NReco_tot;
         std::vector<TH1F*> NReco_b;
@@ -97,30 +105,33 @@ class MyResolution : public TSelector {
         TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetBtag"};
         TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetJVT"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
-        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
-        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
-        //TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
-        //TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
-        //TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
-        //TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
-        //TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetNoNuMuPt"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetNoNuMuEta"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetNoNuMuPhi"};
+        //TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetNoNuMuM"};
+        //TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetNoNuMuBtag"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
+        TTreeReaderValue<std::vector<Float_t>> GenJetM = {fReader, "GenJetM"};
+        TTreeReaderValue<std::vector<bool>> GenJetBtag = {fReader, "GenJetBtag"};
         TTreeReaderValue<std::vector<Float_t>> ElePt = {fReader, "ElePt"};
         TTreeReaderValue<std::vector<Float_t>> EleEta = {fReader, "EleEta"};
         TTreeReaderValue<std::vector<Float_t>> ElePhi = {fReader, "ElePhi"};
         TTreeReaderValue<std::vector<bool>> EleIsSignal = {fReader, "EleIsSignal"};
-        TTreeReaderValue<std::vector<Float_t>> PhotonPt = {fReader, "PhotonPt"};
-        TTreeReaderValue<std::vector<Float_t>> PhotonEta = {fReader, "PhotonEta"};
-        TTreeReaderValue<std::vector<Float_t>> PhotonPhi = {fReader, "PhotonPhi"};
+        TTreeReaderValue<std::vector<Int_t>> EleCharge = {fReader, "EleCharge"};
+        TTreeReaderValue<std::vector<bool>> ElePassOR = {fReader, "ElePassOR"};
         TTreeReaderValue<std::vector<Float_t>> MuonPt = {fReader, "MuonPt"};
         TTreeReaderValue<std::vector<Float_t>> MuonEta = {fReader, "MuonEta"};
         TTreeReaderValue<std::vector<Float_t>> MuonPhi = {fReader, "MuonPhi"};
         TTreeReaderValue<std::vector<bool>> MuonIsSignal = {fReader, "MuonIsSignal"};
         TTreeReaderValue<std::vector<bool>> MuonIsBad = {fReader, "MuonIsBad"};
+        TTreeReaderValue<std::vector<Int_t>> MuonCharge = {fReader, "MuonCharge"};
+        TTreeReaderValue<std::vector<bool>> MuonPassOR = {fReader, "MuonPassOR"};
         TTreeReaderValue<Float_t> MET_pt = {fReader, "MET_pt"};
         TTreeReaderValue<Float_t> MET_phi = {fReader, "MET_phi"};
+        TTreeReaderValue<Float_t> METmu_pt = {fReader, "METmu_pt"};
+        TTreeReaderValue<Float_t> METmu_phi = {fReader, "METmu_phi"};
         TTreeReaderValue<Float_t> GenMET_pt = {fReader, "GenMET_pt"};
         TTreeReaderValue<Float_t> GenMET_phi = {fReader, "GenMET_phi"};
         //TTreeReaderValue<Float_t> TrueMHT_pt = {fReader, "TrueMHT_pt"};

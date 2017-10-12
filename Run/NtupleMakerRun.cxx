@@ -6,8 +6,9 @@ void NtupleMakerRun( const std::string& submitDir ) {
     // Construct the samples to run on:
     SH::SampleHandler sh;
 
-	SH::readFileList (sh, "sample", "filelist_input_AOD.txt");
-	//SH::readFileList (sh, "sample", "filelist_input_dataG.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_AOD.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_Wtau.txt");
+	SH::readFileList (sh, "sample", "filelist_input_dataG.txt");
 
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.

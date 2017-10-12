@@ -50,7 +50,7 @@ class MyABCDStudies : public TSelector {
 		double dPhiJet2METMin_SR;
 		double dPhiJet2METMin_CR;
        
-        bool isMC = false;
+        bool isMC = true;
 
 		//// 1D HISTOGRAMS
 
@@ -68,6 +68,8 @@ class MyABCDStudies : public TSelector {
         TH1F* h_Jet3_DeltaPhi;
         
         TH1F* h_MET;
+        TH1F* h_METsig;
+        TH1F* h_METsoft;
 		TH1F* h_DeltaPhijj;
 		TH1F* h_DeltaEtajj;
 		TH1F* h_Mjj;
@@ -194,6 +196,18 @@ class MyABCDStudies : public TSelector {
         double w2_METCR_dPhiSR_dEtaCR_Mjj2000 = 0;
         double w2_METSR_dPhiCR_dEtaCR_Mjj2000 = 0;
         double w2_METSR_dPhiSR_dEtaCR_Mjj2000 = 0;
+        
+		int N_CR = 0;
+        int N_Gen50Lost = 0;
+        int N_LowResGen12 = 0;
+        int N_HighResReco60 = 0;
+        int N_PU60tag = 0;
+        int N_PU60notag = 0;
+        int N_PU50notag = 0;
+        int N_PU40notag = 0;
+        int N_Good60tag = 0;
+        int N_Good50tag = 0;
+        int N_Good40tag = 0;
 
 	public :
         TFile *outputfile = 0;

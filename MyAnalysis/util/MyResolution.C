@@ -25,6 +25,7 @@
 //
 
 #include "MyJet.h"
+#include "MyMuon.h"
 #include "MyResolution.h"
 
 void MyResolution::Begin(TTree * /*tree*/)
@@ -38,39 +39,78 @@ void MyResolution::Begin(TTree * /*tree*/)
     outputfile = new TFile("resolutions.root","RECREATE");
 
     m_VetoCone = 0.8;
-    m_MatchingCone = 0.05;
+    m_addActivityCone = 0.6;
+    m_MatchingCone = 0.1;
+    m_METmuCone = 0.1;
     m_RelGenActivityVeto = 0.01;
     m_RelRecoActivityVeto = 0.05;
+    //m_RelRecoActivityVeto = 999.;
     m_jvtcut = 0.59;
     m_lumi = 32900.;
     PtBinEdges.push_back(0);
-    //PtBinEdges.push_back(10);
+    PtBinEdges.push_back(10);
     PtBinEdges.push_back(20);
-    //PtBinEdges.push_back(30);
+    PtBinEdges.push_back(30);
     PtBinEdges.push_back(40);
-    //PtBinEdges.push_back(50);
+    PtBinEdges.push_back(50);
     PtBinEdges.push_back(70);
-    //PtBinEdges.push_back(100);
+    PtBinEdges.push_back(100);
     PtBinEdges.push_back(140);
-    //PtBinEdges.push_back(190);
+    PtBinEdges.push_back(190);
     PtBinEdges.push_back(250);
-    //PtBinEdges.push_back(320);
+    PtBinEdges.push_back(320);
     PtBinEdges.push_back(400);
-    //PtBinEdges.push_back(490);
+    PtBinEdges.push_back(490);
     PtBinEdges.push_back(590);
-    //PtBinEdges.push_back(700);
+    PtBinEdges.push_back(700);
     PtBinEdges.push_back(820);
-    //PtBinEdges.push_back(950);
+    PtBinEdges.push_back(950);
     PtBinEdges.push_back(1090);
-    //PtBinEdges.push_back(1240);
+    PtBinEdges.push_back(1240);
     PtBinEdges.push_back(1400);
-    //PtBinEdges.push_back(1570);
+    PtBinEdges.push_back(1570);
     PtBinEdges.push_back(1750);
-    //PtBinEdges.push_back(1940);
+    PtBinEdges.push_back(1940);
     PtBinEdges.push_back(2140);
-    //PtBinEdges.push_back(2350);
+    PtBinEdges.push_back(2350);
     PtBinEdges.push_back(2600);
-    //PtBinEdges.push_back(3000);
+    PtBinEdges.push_back(3000);
+    /*
+    PtBinEdges.push_back(0);
+    PtBinEdges.push_back(20);
+    PtBinEdges.push_back(30);
+    PtBinEdges.push_back(40);
+    PtBinEdges.push_back(50);
+    PtBinEdges.push_back(70);
+    PtBinEdges.push_back(90);
+    PtBinEdges.push_back(110);
+    PtBinEdges.push_back(140);
+    PtBinEdges.push_back(170);
+    PtBinEdges.push_back(200);
+    PtBinEdges.push_back(240);
+    PtBinEdges.push_back(280);
+    PtBinEdges.push_back(330);
+    PtBinEdges.push_back(380);
+    PtBinEdges.push_back(440);
+    PtBinEdges.push_back(500);
+    PtBinEdges.push_back(570);
+    PtBinEdges.push_back(640);
+    PtBinEdges.push_back(720);
+    PtBinEdges.push_back(810);
+    PtBinEdges.push_back(910);
+    PtBinEdges.push_back(1020);
+    PtBinEdges.push_back(1140);
+    PtBinEdges.push_back(1270);
+    PtBinEdges.push_back(1410);
+    PtBinEdges.push_back(1660);
+    PtBinEdges.push_back(1820);
+    PtBinEdges.push_back(1990);
+    PtBinEdges.push_back(2170);
+    PtBinEdges.push_back(2360);
+    PtBinEdges.push_back(2560);
+    PtBinEdges.push_back(3000);
+    PtBinEdges.push_back(9999);
+    */
 
     EtaBinEdges.push_back(0.0);
     EtaBinEdges.push_back(0.7);
@@ -78,25 +118,29 @@ void MyResolution::Begin(TTree * /*tree*/)
     EtaBinEdges.push_back(1.8);
     EtaBinEdges.push_back(2.5);
     EtaBinEdges.push_back(3.2);
-    //EtaBinEdges.push_back(4.0);
     EtaBinEdges.push_back(5.0);
 
     //// Array of histograms for jet resolutions (all jet multiplicities)
     ResizeHistoVector(PtResolution_tot);
     ResizeHistoVector(EtaResolution_tot);
     ResizeHistoVector(PhiResolution_tot);
+    ResizeHisto2Vector(MuRes_tot);
     ResizeHistoVector(PtResolution_LF);
     ResizeHistoVector(EtaResolution_LF);
     ResizeHistoVector(PhiResolution_LF);
+    ResizeHisto2Vector(MuRes_LF);
     ResizeHistoVector(PtResolution_HF);
     ResizeHistoVector(EtaResolution_HF);
     ResizeHistoVector(PhiResolution_HF);
+    ResizeHisto2Vector(MuRes_HF);
     ResizeHistoVector(PtResolution_nob);
     ResizeHistoVector(EtaResolution_nob);
     ResizeHistoVector(PhiResolution_nob);
+    ResizeHisto2Vector(MuRes_nob);
     ResizeHistoVector(PtResolution_b);
     ResizeHistoVector(EtaResolution_b);
     ResizeHistoVector(PhiResolution_b);
+    ResizeHisto2Vector(MuRes_b);
 
     for (unsigned int i_pt = 0; i_pt < PtBinEdges.size() - 1; ++i_pt) {
         for (unsigned int i_eta = 0; i_eta < EtaBinEdges.size() - 1; ++i_eta) {
@@ -116,6 +160,22 @@ void MyResolution::Begin(TTree * /*tree*/)
 
             TH1F* h_jetRes_b_pt = new TH1F(GetHistName(i_pt, i_eta,"b","Pt").c_str(), "p_T^{reco}/p_T^{gen}", 300, 0.0, 3.0);
             PtResolution_b.at(i_pt).at(i_eta) = h_jetRes_b_pt;
+
+            //// Book histograms Mu response
+            TH2F* h_muRes_tot_pt = new TH2F(GetHistName(i_pt, i_eta,"tot","Mu").c_str(), "p_T^{mu}/p_T^{gen}", 20, 0.0, 1.0, 20, 0.0, 1.0);
+            MuRes_tot.at(i_pt).at(i_eta) = h_muRes_tot_pt;
+
+            TH2F* h_muRes_LF_pt = new TH2F(GetHistName(i_pt, i_eta,"LF","Mu").c_str(), "p_T^{mu}/p_T^{gen}", 20, 0.0, 1.0, 20, 0.0, 1.0);
+            MuRes_LF.at(i_pt).at(i_eta) = h_muRes_LF_pt;
+
+            TH2F* h_muRes_HF_pt = new TH2F(GetHistName(i_pt, i_eta,"HF","Mu").c_str(), "p_T^{mu}/p_T^{gen}", 20, 0.0, 1.0, 20, 0.0, 1.0);
+            MuRes_HF.at(i_pt).at(i_eta) = h_muRes_HF_pt;
+
+            TH2F* h_muRes_nob_pt = new TH2F(GetHistName(i_pt, i_eta,"nob","Mu").c_str(), "p_T^{mu}/p_T^{gen}", 20, 0.0, 1.0, 20, 0.0, 1.0);
+            MuRes_nob.at(i_pt).at(i_eta) = h_muRes_nob_pt;
+
+            TH2F* h_muRes_b_pt = new TH2F(GetHistName(i_pt, i_eta,"b","Mu").c_str(), "p_T^{mu}/p_T^{gen}", 20, 0.0, 1.0, 20, 0.0, 1.0);
+            MuRes_b.at(i_pt).at(i_eta) = h_muRes_b_pt;
 
             //// Book histograms Phi resolution
             TH1F* h_jetRes_tot_phi = new TH1F(GetHistName(i_pt, i_eta,"tot","Phi").c_str(), "#Delta#phi(jet^{reco},jet^{gen})", 80, -0.2, 0.2);
@@ -219,7 +279,7 @@ Bool_t MyResolution::Process(Long64_t entry)
 
     NEvents += 1;
     //if (NEvents%1000 == 0) std::cout << NEvents << " processed: " << 100*NEvents/NTotEvents << "% done" << std::endl;
-    if (NEvents%1000 == 0) std::cout << NEvents << " processed!" << std::endl;
+    if (NEvents%100000 == 0) std::cout << NEvents << " processed!" << std::endl;
 
     if (ProcessedEvents.find(*DatasetID) == ProcessedEvents.end()) {
         ProcessedEvents[*DatasetID] = 1;
@@ -235,9 +295,7 @@ Bool_t MyResolution::Process(Long64_t entry)
 
     std::vector<MyJet> genJets;
     std::vector<MyJet> recoJets;
-    std::vector<TLorentzVector> recoElectrons;
-    std::vector<TLorentzVector> recoMuons;
-    std::vector<TLorentzVector> recoPhotons;
+    std::vector<MyMuon> recoMuons;
 
     int NJets = JetPt->size();
     //std::cout << "Njets: " << NJets << std::endl;
@@ -295,41 +353,67 @@ Bool_t MyResolution::Process(Long64_t entry)
 
     int NMuons = MuonPt->size();
     //std::cout << "NMuons: " << NMuons << std::endl;
-    //if ( NMuons > 0 ) return 1;
 
     for (int i = 0; i < NMuons; ++i) {
+        bool OR = MuonPassOR->at(i);
+        bool signal = MuonIsSignal->at(i);
+        bool bad = MuonIsBad->at(i);
         float pt = MuonPt->at(i);
         float eta = MuonEta->at(i);
         float phi = MuonPhi->at(i);
-        if (MuonIsBad->at(i)) {
+        int q = MuonCharge->at(i);
+
+        if (bad) {
             //std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
-        if (MuonIsSignal->at(i)) {
+
+        if (signal) {
             //std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
+
         }
-        if (MuonIsSignal->at(i)) {
-            TLorentzVector muon(0.,0.,0.,0.);
-            muon.SetPtEtaPhiM(pt, eta, phi, 0.1057);
-            recoMuons.push_back(muon);
-        }
+
+        /*
+                if (OR) {
+                    //std::cout << "Reject event because of baseline muon!" << std::endl;
+                    lv = true;
+                    if (!cutFlowStudies) return 1;
+                }
+        */
+        MyMuon muon(pt, eta, phi);
+        muon.SetIsSignal(signal);
+        muon.SetPassOR(OR);
+        muon.SetIsBad(bad);
+        muon.SetCharge(q);
+        recoMuons.push_back(muon);
     }
 
     int NElectrons = ElePt->size();
-    //std::cout << "NElectrons: " << NElectrons << std::endl;
-    if ( NElectrons > 0 ) {
-        //std::cout << "Reject event because of isolated electon!" << std::endl;
-        return 1;
-    }
+
     for (int i = 0; i < NElectrons; ++i) {
+        bool OR = ElePassOR->at(i);
+        bool signal = EleIsSignal->at(i);
         float pt = ElePt->at(i);
         float eta = EleEta->at(i);
         float phi = ElePhi->at(i);
-        TLorentzVector electron(0.,0.,0.,0.);
-        electron.SetPtEtaPhiM(pt, eta, phi, 0.000511);
-        recoElectrons.push_back(electron);
+        int q = EleCharge->at(i);
+
+        if (signal) {
+            //std::cout << "Reject event because of isolated electon!" << std::endl;
+            return 1;
+        }
+
+        /*
+                if (OR) {
+                    //std::cout << "Reject event because of baseline electon!" << std::endl;
+                    lv = true;
+                    if (!cutFlowStudies) return 1;
+                }
+        */
+
     }
+
 
     // Loop over all genjets in this container
     for ( auto& genjet : genJets ) {
@@ -359,7 +443,7 @@ Bool_t MyResolution::Process(Long64_t entry)
         //std::cout << "GenJet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi() << std::endl;
         for ( auto& jet : recoJets) {
             double dR = jet.DeltaR(genjet);
-            if (dR > m_VetoCone) continue;
+            if (dR > m_addActivityCone) continue;
             if (dR < dRmin_matched) {
                 if (matchedJet) {
                     addRecoActivity += *matchedJet;
@@ -376,15 +460,20 @@ Bool_t MyResolution::Process(Long64_t entry)
             }
         } // end for loop over jets
 
+        TLorentzVector JetMu(0.,0.,0.,0.);
+        for ( auto& mu : recoMuons) {
+            if (mu.DeltaR(genjet) < 0.4) JetMu += mu;
+        }
+
         bool noRecoActivity = true;
         if (matchedJet) {
             if ((addRecoActivity.Pt()/matchedJet->Pt())>m_RelRecoActivityVeto) noRecoActivity = false;
-            if (matchedJet->Pt() < (genjet.Pt() - 100.) && matchedJet->Pt() < genjet.Pt()/2. && addRecoActivity.Pt() < 50. ) {
-				std::cout << "GenJet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi() << std::endl;
-				std::cout << "MatchedJet (pt, eta, phi): " << matchedJet->Pt() << ", " << matchedJet->Eta() << ", " << matchedJet->Phi() << std::endl;
-				std::cout << "dR: " << dRmin_matched << std::endl;
-				std::cout << "addRecoActivity (pt, eta, phi): " << addRecoActivity.Pt() << ", " << addRecoActivity.Eta() << ", " << addRecoActivity.Phi() << std::endl;
-			}
+            //if (matchedJet->Pt() < (genjet.Pt() - 100.) && matchedJet->Pt() < genjet.Pt()/2. && addRecoActivity.Pt() < 50. ) {
+            //std::cout << "GenJet (pt, eta, phi): " << genjet.Pt() << ", " << genjet.Eta() << ", " << genjet.Phi() << std::endl;
+            //std::cout << "MatchedJet (pt, eta, phi): " << matchedJet->Pt() << ", " << matchedJet->Eta() << ", " << matchedJet->Phi() << std::endl;
+            //std::cout << "dR: " << dRmin_matched << std::endl;
+            //std::cout << "addRecoActivity (pt, eta, phi): " << addRecoActivity.Pt() << ", " << addRecoActivity.Eta() << ", " << addRecoActivity.Phi() << std::endl;
+            //}
         }
 
         if (noGenActivity) {
@@ -413,23 +502,28 @@ Bool_t MyResolution::Process(Long64_t entry)
             PtResolution_tot.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), eventWeight);
             PhiResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->DeltaPhi(genjet), eventWeight);
             EtaResolution_tot.at(i_pt).at(i_eta)->Fill(matchedJet->Eta()-genjet.Eta(), eventWeight);
+            MuRes_tot.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), JetMu.Pt()/genjet.Pt(), eventWeight);
             if (matchedJet->IsB()) {
                 PtResolution_b.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), eventWeight);
                 PhiResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->DeltaPhi(genjet), eventWeight);
                 EtaResolution_b.at(i_pt).at(i_eta)->Fill(matchedJet->Eta()-genjet.Eta(), eventWeight);
+                MuRes_b.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), JetMu.Pt()/genjet.Pt(), eventWeight);
             } else {
                 PtResolution_nob.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), eventWeight);
                 PhiResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->DeltaPhi(genjet), eventWeight);
                 EtaResolution_nob.at(i_pt).at(i_eta)->Fill(matchedJet->Eta()-genjet.Eta(), eventWeight);
+                MuRes_nob.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), JetMu.Pt()/genjet.Pt(), eventWeight);
             }
             if (genjet.IsB()) {
                 PtResolution_HF.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), eventWeight);
                 PhiResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->DeltaPhi(genjet), eventWeight);
                 EtaResolution_HF.at(i_pt).at(i_eta)->Fill(matchedJet->Eta()-genjet.Eta(), eventWeight);
+                MuRes_HF.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), JetMu.Pt()/genjet.Pt(), eventWeight);
             } else {
                 PtResolution_LF.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), eventWeight);
                 PhiResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->DeltaPhi(genjet), eventWeight);
                 EtaResolution_LF.at(i_pt).at(i_eta)->Fill(matchedJet->Eta()-genjet.Eta(), eventWeight);
+                MuRes_LF.at(i_pt).at(i_eta)->Fill((*matchedJet+addRecoActivity).Pt()/genjet.Pt(), JetMu.Pt()/genjet.Pt(), eventWeight);
             }
         }
     }
@@ -462,6 +556,12 @@ void MyResolution::SlaveTerminate()
             EtaResolution_HF.at(i_pt).at(i_eta)->Write();
             EtaResolution_nob.at(i_pt).at(i_eta)->Write();
             EtaResolution_b.at(i_pt).at(i_eta)->Write();
+
+            MuRes_tot.at(i_pt).at(i_eta)->Write();
+            MuRes_LF.at(i_pt).at(i_eta)->Write();
+            MuRes_HF.at(i_pt).at(i_eta)->Write();
+            MuRes_nob.at(i_pt).at(i_eta)->Write();
+            MuRes_b.at(i_pt).at(i_eta)->Write();
         }
     }
 
@@ -544,6 +644,14 @@ void MyResolution::ResizeHistoVector(std::vector<std::vector<TH1F*> > &histoVect
 
     histoVector.resize(PtBinEdges.size() - 1);
     for (std::vector<std::vector<TH1F*> >::iterator it = histoVector.begin(); it != histoVector.end(); ++it) {
+        it->resize(PtBinEdges.size() - 1);
+    }
+}
+
+void MyResolution::ResizeHisto2Vector(std::vector<std::vector<TH2F*> > &histoVector) {
+
+    histoVector.resize(PtBinEdges.size() - 1);
+    for (std::vector<std::vector<TH2F*> >::iterator it = histoVector.begin(); it != histoVector.end(); ++it) {
         it->resize(PtBinEdges.size() - 1);
     }
 }

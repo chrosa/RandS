@@ -42,14 +42,14 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 1) {
-            c->SaveAs("t.pdf");
+            c->SaveAs("TTO_data_1D.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("t.pdf(");
+                c->SaveAs("TTO_data_1D.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("t.pdf)");
+                c->SaveAs("TTO_data_1D.pdf)");
             } else {
-                c->SaveAs("t.pdf");
+                c->SaveAs("TTO_data_1D.pdf");
             }
         }
 
@@ -106,14 +106,14 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
         pt->Draw();
 
         if (N == 1) {
-            c->SaveAs("t2.pdf");
+            c->SaveAs("TTO_data_2D.pdf");
         } else {
             if ( i == 0 ) {
-                c->SaveAs("t2.pdf(");
+                c->SaveAs("TTO_data_2D.pdf(");
             } else if ( i == N - 1 ) {
-                c->SaveAs("t2.pdf)");
+                c->SaveAs("TTO_data_2D.pdf)");
             } else {
-                c->SaveAs("t2.pdf");
+                c->SaveAs("TTO_data_2D.pdf");
             }
         }
 
@@ -182,7 +182,7 @@ int plotTriggerStudies() {
 
     ////////////////////////////////////////
 
-    TFile *f = new TFile("TriggerStudiesOutput_mc.root", "READ", "", 0);
+    TFile *f = new TFile("TriggerStudiesOutput_data.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;

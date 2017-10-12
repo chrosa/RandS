@@ -65,7 +65,7 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
 
     //// Book 1d histograms
 
-	std::cout << "Booking 1D histos" << std::endl;
+    std::cout << "Booking 1D histos" << std::endl;
 
     h_Jet1_Pt = new TH1F("h_Jet1_Pt", "h_Jet1_Pt", 100, 0., 4000.);
     h_Jet1_Pt->Sumw2();
@@ -119,6 +119,14 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
     h_MET->Sumw2();
     histos_1D.push_back(h_MET);
 
+    h_METsig = new TH1F("h_METsig", "h_METsig", 100, 0., 20.);
+    h_METsig->Sumw2();
+    histos_1D.push_back(h_METsig);
+
+    h_METsoft = new TH1F("h_METsoft", "h_METsoft", 100, 0., 250.);
+    h_METsoft->Sumw2();
+    histos_1D.push_back(h_METsoft);
+
     h_DeltaPhijj = new TH1F("h_DeltaPhijj", "h_DeltaPhijj", 100, 0., TMath::Pi());
     h_DeltaPhijj->Sumw2();
     histos_1D.push_back(h_DeltaPhijj);
@@ -133,7 +141,7 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
 
     //// Book 2d histograms
 
-	std::cout << "Booking 2D histos" << std::endl;
+    std::cout << "Booking 2D histos" << std::endl;
 
     h_MET_vs_dPhi_Incl = new TH2F("h_MET_vs_dPhi_Incl", "h_MET_vs_dPhi_Incl", 100, 0., 500., 100, 0., TMath::Pi());
     h_MET_vs_dPhi_Incl->Sumw2();
@@ -175,7 +183,7 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
     h_MET_vs_dEta_Mjj2000->Sumw2();
     histos_2D.push_back(h_MET_vs_dEta_Mjj2000);
 
-	std::cout << "Booking histos: DONE" << std::endl;
+    std::cout << "Booking histos: DONE" << std::endl;
 
     //NTotEvents = fChain->GetEntries();
 
@@ -188,7 +196,7 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
     AvailableEvents[361025] = 7977600;
     AvailableEvents[361026] = 1833400;
 
-	std::cout << "Init: DONE" << std::endl;
+    std::cout << "Init: DONE" << std::endl;
 
 }
 
@@ -236,9 +244,11 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
 
     if ( *PrimaryVtx == 0 ) return 0;
 
+    if (isinf(*Weight)) return 0;
     //std::cout << "Weight: " << *Weight << std::endl;
     double eventWeight = *Weight;
     if (isMC) eventWeight *= m_lumi / AvailableEvents[*DatasetID];
+    //eventWeight = 1.; // for signal samples
 
     std::vector<MyJet> genJets;
     std::vector<MyJet> recoJets;
@@ -267,6 +277,7 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
         bool good = JetGood->at(i);
         MyJet jet(pt, eta, phi,m);
         jet.SetJVT(jvt);
+        if (fabs(jet.Eta()) > 2.4) jet.SetJVT(1.);
         jet.SetFJVT(fjvt);
         jet.SetSumPtTracks(sumpt);
         jet.SetTrackWidth(tw);
@@ -293,8 +304,8 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
                 return 1;
             }
         }
-
-        if ( jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 ) recoJets.push_back(jet);
+        if ( jet.IsGood() && jet.Pt() > 20. && fabs(jet.Eta()) < 4.5 ) recoJets.push_back(jet);
+        //if ( jet.IsGood() && jet.Pt() > 20. && fabs(jet.Eta()) < 4.5 && (jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 )) recoJets.push_back(jet);
 
     }
     GreaterByPt<MyJet> ptComparator_;
@@ -451,28 +462,32 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     MyJet* secondJet = 0;
     MyJet* thirdJet = 0;
     MyJet* fourthJet = 0;
-
+    double HT = 0;
+    TLorentzVector MHT(0., 0., 0., 0.);
     for ( auto& jet : recoJets) {
-        if (jet.IsGood() && jet.Pt() > 25. && fabs(jet.Eta()) < 4.5 && (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4)) {
-            if (firstJet == 0) {
-                firstJet = &jet;
-                //std::cout << "1: " << firstJet->Pt() << ", " << firstJet->Eta() << ", " << firstJet->Phi()<< std::endl;
-            } else if (secondJet == 0) {
-                secondJet = &jet;
-                //std::cout << "2: " << secondJet->Pt() << ", " << secondJet->Eta() << ", " << secondJet->Phi()<< std::endl;
-            } else if (thirdJet == 0) {
-                thirdJet = &jet;
-                //std::cout << "3: " << thirdJet->Pt() << ", " << thirdJet->Eta() << ", " << thirdJet->Phi()<< std::endl;
-            } else if (fourthJet == 0) {
-                fourthJet = &jet;
-                //std::cout << "4: " << fourthJet->Pt() << ", " << fourthJet->Eta() << ", " << fourthJet->Phi()<< std::endl;
-            } else {
-                break;
-            }
+        if (!(jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 )) continue;
+        HT += jet.Pt();
+        MHT -= jet;
+        if (firstJet == 0) {
+            firstJet = &jet;
+            //std::cout << "1: " << firstJet->Pt() << ", " << firstJet->Eta() << ", " << firstJet->Phi()<< std::endl;
+        } else if (secondJet == 0) {
+            secondJet = &jet;
+            //std::cout << "2: " << secondJet->Pt() << ", " << secondJet->Eta() << ", " << secondJet->Phi()<< std::endl;
+        } else if (thirdJet == 0) {
+            thirdJet = &jet;
+            //std::cout << "3: " << thirdJet->Pt() << ", " << thirdJet->Eta() << ", " << thirdJet->Phi()<< std::endl;
+        } else if (fourthJet == 0) {
+            fourthJet = &jet;
+            //std::cout << "4: " << fourthJet->Pt() << ", " << fourthJet->Eta() << ", " << fourthJet->Phi()<< std::endl;
         } else {
-            //std::cout << "removed: " << jet.Pt() << ", " << jet.Eta() << ", " << jet.Phi()<< std::endl;
+            break;
         }
     }
+
+    TLorentzVector MET;
+    MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
+    TLorentzVector METsoft = MHT - MET;
 
     double dPhijj = 0.;
     if (secondJet) dPhijj = fabs(firstJet->DeltaPhi(*secondJet));
@@ -489,15 +504,86 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     double Mjj = 0;
     if (secondJet) Mjj = (*firstJet + *secondJet).M();
 
-    TLorentzVector MET;
-    MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
+    if (secondJet && dEtajj > 3.0) {
+        if (firstJet->Pt() > 80. && secondJet->Pt() > 50.) {
+            h_METsig->Fill(MET.Pt()/sqrt(HT), eventWeight);
+            h_METsoft->Fill(METsoft.Pt(), eventWeight);
+        }
+    }
 
-    if (secondJet && !thirdJet && opphemijj && Mjj > 600. && MET.Pt() > 0) {
+    if (secondJet && !thirdJet && !fourthJet) {
+        //if (opphemijj && Mjj > 600.) {
 
         if (firstJet->Pt() < 80. || secondJet->Pt() < 50.) return 1;
-        
-        if (MET.Pt() > 150. && !triggered) return 1;
 
+        //if (thirdJet->Pt() > 50.) return 1;
+
+        if (MET.Pt() > 100. && dEtajj > 0.0 && dPhijj < 2.7) {
+
+            ++N_CR;
+
+            int i_jet = 1;
+            for ( auto& jet : recoJets) {
+                std::cout << i_jet << "th reco jet (pT, eta, phi, btag, jvt): " << jet.Pt() << ", " << jet.Eta() << ", " <<  jet.Phi() << ", " <<  jet.IsB() << ", " << jet.IsPU(0.59) << std::endl;
+                double dRmin = 999;
+                MyJet* match = 0;
+                for ( auto& genjet : genJets) {
+                    double dR = jet.DeltaR(genjet);
+                    if (dR < dRmin){
+						dRmin = dR;
+						match  = &genjet;
+					}
+                }
+                if (dRmin < 0.15) {
+                    if (jet.Pt() > 40. && jet.IsPU(0.59)) ++N_Good40tag;
+                    if (jet.Pt() > 50. && jet.IsPU(0.59)) ++N_Good50tag;
+                    if (jet.Pt() > 60. && jet.IsPU(0.59)) ++N_Good60tag;
+                }
+                if (dRmin > 0.15) {
+                    if (jet.Pt() > 40. && jet.IsNoPU(0.59)) ++N_PU40notag;
+                    if (jet.Pt() > 50. && jet.IsNoPU(0.59)) ++N_PU50notag;
+                    if (jet.Pt() > 60. && jet.IsNoPU(0.59)) ++N_PU60notag;
+                    if (jet.Pt() > 60. && jet.IsPU(0.59)) ++N_PU60tag;
+                }
+                ++i_jet;
+            }
+
+            i_jet = 1;
+            for ( auto& genjet : genJets) {
+                std::cout << i_jet << "th gen jet (pT, eta, phi, hf): " << genjet.Pt() << ", " << genjet.Eta() << ", " <<  genjet.Phi() << ", " <<  genjet.IsB() << std::endl;
+                double dRmin = 999;
+                MyJet* match = 0;
+                for ( auto& jet : recoJets) {
+                    double dR = jet.DeltaR(genjet);
+                    if (dR < dRmin) {
+						dRmin = dR;
+						match  = &jet;
+					}
+                }
+                if (dRmin > 0.15) {
+                    if (genjet.Pt() > 50) ++N_Gen50Lost;
+                }
+                if (dRmin < 0.15 && i_jet < 3) {
+                    if ( (match->Pt()/genjet.Pt()) < 0.5) ++N_LowResGen12;
+                    if (match->Pt() > 60. && (match->Pt()/genjet.Pt()) > 2.) ++N_HighResReco60;
+                }
+                ++i_jet;
+            }
+
+            std::cout << "MET (pt, phi): " << *MET_pt << ", " << *MET_phi << std::endl;
+            std::cout << "METmu (pt, phi): " << *METmu_pt << ", " << *METmu_phi << std::endl;
+            std::cout << "Mjj: " << Mjj << std::endl;
+            std::cout << "dEtajj: " << dEtajj << std::endl;
+
+        }
+        //}
+    }
+
+    if (secondJet && !thirdJet && opphemijj && Mjj > 0. && MET.Pt() > 0.) {
+
+        if (firstJet->Pt() < 80. || secondJet->Pt() < 50.) return 1;
+
+        if (MET.Pt() > 150. && !triggered) return 1;
         if (dEtajj > 4.8) h_MET_vs_dPhi_Incl->Fill(MET.Pt(), dPhijj, eventWeight);
         if (dPhijj > dPhijjMin_CR && dPhijj < dPhijjMax_CR) h_MET_vs_dEta_Incl->Fill(MET.Pt(), dEtajj, eventWeight);
         if (Mjj > 600. && Mjj < 1000.) {
@@ -513,11 +599,11 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
             if (dPhijj > dPhijjMin_CR && dPhijj < dPhijjMax_CR) h_MET_vs_dEta_Mjj1500->Fill(MET.Pt(), dEtajj, eventWeight);
         }
         if (Mjj > 2000. ) {
-             if (dEtajj > 4.8) h_MET_vs_dPhi_Mjj2000->Fill(MET.Pt(), dPhijj, eventWeight);
+            if (dEtajj > 4.8) h_MET_vs_dPhi_Mjj2000->Fill(MET.Pt(), dPhijj, eventWeight);
             if (dPhijj > dPhijjMin_CR && dPhijj < dPhijjMax_CR) h_MET_vs_dEta_Mjj2000->Fill(MET.Pt(), dEtajj, eventWeight);
         }
 
-        if (dEtajj > 4.8) {
+        if (dEtajj > 0) {
 
             if (firstJet) {
                 double dphi = fabs(MET.DeltaPhi(*firstJet));
@@ -543,10 +629,10 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
                 h_Jet3_DeltaPhi->Fill(dphi ,eventWeight);
             }
 
-            h_MET->Fill(MET.Pt(), eventWeight);
-            h_DeltaPhijj->Fill(dPhijj, eventWeight);
-            h_DeltaEtajj->Fill(dEtajj, eventWeight);
-            h_Mjj->Fill(Mjj, eventWeight);
+            if (dEtajj > 0.0 && Mjj > 0.) h_MET->Fill(MET.Pt(), eventWeight);
+            if (dEtajj > 0.0 && Mjj > 0.) h_DeltaPhijj->Fill(dPhijj, eventWeight);
+            if (dEtajj > 0.0 && Mjj > 0.) h_DeltaEtajj->Fill(dEtajj, eventWeight);
+            if (dEtajj > 0.0 && Mjj > 0.) h_Mjj->Fill(Mjj, eventWeight);
 
             if (MET.Pt() > METMin_CR && MET.Pt() < METMax_CR) {
                 if (dPhijj > dPhijjMin_CR && dPhijj < dPhijjMax_CR) {
@@ -857,6 +943,21 @@ void MyABCDStudies::SlaveTerminate()
     std::cout << "N_METCR_dPhiSR_dEtaCR_Mjj2000 = " << N_METCR_dPhiSR_dEtaCR_Mjj2000 << "+-" << sqrt(w2_METCR_dPhiSR_dEtaCR_Mjj2000) << std::endl;
     std::cout << "N_METSR_dPhiCR_dEtaCR_Mjj2000 = " << N_METSR_dPhiCR_dEtaCR_Mjj2000 << "+-" << sqrt(w2_METSR_dPhiCR_dEtaCR_Mjj2000) << std::endl;
     std::cout << "N_METSR_dPhiSR_dEtaCR_Mjj2000 = " << N_METSR_dPhiSR_dEtaCR_Mjj2000 << "+-" << sqrt(w2_METSR_dPhiSR_dEtaCR_Mjj2000) << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "N_CR: " << N_CR << std::endl;
+    std::cout << "N_Gen50Lost: " << N_Gen50Lost << std::endl;
+    std::cout << "N_LowResGen12: " << N_LowResGen12 << std::endl;
+    std::cout << "N_HighResReco60: " << N_HighResReco60 << std::endl;
+    std::cout << "N_PU60tag: " << N_PU60tag << std::endl;
+    std::cout << "N_PU60notag: " << N_PU60notag << std::endl;
+    std::cout << "N_PU50notag: " << N_PU50notag << std::endl;
+    std::cout << "N_PU40notag: " << N_PU40notag << std::endl;
+    std::cout << "N_Good60tag: " << N_Good60tag << std::endl;
+    std::cout << "N_Good50tag: " << N_Good50tag << std::endl;
+    std::cout << "N_Good40tag: " << N_Good40tag << std::endl;
+
 
     for (unsigned int i = 0; i < histos_1D.size(); ++i) {
         histos_1D.at(i)->Write();

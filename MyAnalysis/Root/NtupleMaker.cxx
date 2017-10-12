@@ -218,8 +218,6 @@ EL::StatusCode NtupleMaker :: fileExecute ()
     return EL::StatusCode::SUCCESS;
 }
 
-
-
 EL::StatusCode NtupleMaker :: changeInput (bool firstFile)
 {
     // Here you do everything you need to do when we change input files,
@@ -348,7 +346,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
 
-        EL_RETURN_CHECK("execute", objTool->ApplyPRWTool() );
+        //EL_RETURN_CHECK("execute", objTool->ApplyPRWTool() );
         isMC = true; // can do something with this later
         //extra event-level information you might need:
         dsid_ =  eventInfo->mcChannelNumber();
@@ -409,6 +407,8 @@ EL::StatusCode NtupleMaker :: execute ()
                 PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
             }
         }
+        //std::sort(PresenTriggers.begin(), PresenTriggers.end());
+        
         std::vector<std::string> single_jet_triggers;
         std::vector<double> single_jet_theshold;
         for (std::map<int, std::string>::iterator it = PresenTriggers.begin(); it != PresenTriggers.end(); it++) {
@@ -456,7 +456,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
         int i_highest_threshold = -1;
         for (int i  = single_jet_theshold.size()-1; i > 0; i--) {
-            //std::cout << "threshold i: " << i << std::endl;
+            //std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
             if (single_jet_theshold.at(i) < HLTjetPt) {
                 i_highest_threshold = i;
                 break;
@@ -464,13 +464,34 @@ EL::StatusCode NtupleMaker :: execute ()
         }
 
         //// if another (higher) trigger could have fired -> event weight = 0;
+        double combined_PS = 1.;
         if (i_highest_fire == -1) {
             eventWeight = 0.;
-            Info( "execute()", "No relevant single jet trigger has fired" );
+            //Info( "execute()", "No relevant single jet trigger has fired" );
             return EL::StatusCode::SUCCESS;
+        } else {
+			for (int i = 0; i <= i_highest_threshold; i++) {
+				//std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
+				auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i));
+				std::map<std::string,int> triggerCounts;
+				for (auto &trig : chainGroup->getListOfTriggers()) {
+					auto cg = objTool->GetTrigChainGroup(trig);
+					std::string thisTrig = trig;
+					//Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+					double ps = cg->getPrescale();
+					if (ps > 0) {
+						combined_PS *= (1. - 1./ps);
+					}
+				}
+            }
+			eventWeight = 1. / (1. - combined_PS);
+		}
+		//std::cout << "Effective prescale: " << eventWeight << std::endl;
+		
+		/*
         } else if ( i_highest_fire < i_highest_threshold) {
             eventWeight = 0.;
-            //Info( "execute()", "%30s chain passed, but %.1f threshold could be passed", single_jet_triggers.at(i_highest_fire).c_str(), single_jet_theshold.at(i_highest_threshold));
+            Info( "execute()", "%30s chain passed, but %.1f threshold could be passed", single_jet_triggers.at(i_highest_fire).c_str(), single_jet_theshold.at(i_highest_threshold));
             return EL::StatusCode::SUCCESS;
         } else {
             //// else event weight = prescale
@@ -479,11 +500,12 @@ EL::StatusCode NtupleMaker :: execute ()
             std::map<std::string,int> triggerCounts;
             for (auto &trig : chainGroup->getListOfTriggers()) {
                 auto cg = objTool->GetTrigChainGroup(trig);
-                //std::string thisTrig = trig;
-                //Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+                std::string thisTrig = trig;
+                Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
                 eventWeight = cg->getPrescale();
             }
         }
+        */
 
         weight_ = eventWeight;
 

@@ -3,6 +3,7 @@
 
 #include "TF1.h"
 #include "TH1F.h"
+#include "TH2F.h"
 
 #include <string>
 #include <vector>
@@ -13,9 +14,9 @@ class SmearFunction {
 
     public:
         SmearFunction(std::string smearingfile_,
-                      std::string inputhistPtHF_, std::string inputhistEtaHF_, std::string inputhistPhiHF_,
-                      std::string inputhistPtLF_, std::string inputhistEtaLF_, std::string inputhistPhiLF_,
-                      std::vector<double> PtBinEdges_, std::vector<double> EtaBinEdges_, std::vector<double> PtBinEdges_scaling_, std::vector<double> EtaBinEdges_scaling_,
+                      std::string inputhistPtHF_, std::string inputhistEtaHF_, std::string inputhistPhiHF_, std::string inputhistResMuHF_,
+                      std::string inputhistPtLF_, std::string inputhistEtaLF_, std::string inputhistPhiLF_, std::string inputhistResMuLF_,
+                      std::vector<double> PtBinEdges_, std::vector<double> EtaBinEdges_, std::vector<double> ResBinEdges_, std::vector<double> PtBinEdges_scaling_, std::vector<double> EtaBinEdges_scaling_,
                       std::vector<double> AdditionalSmearing_,
                       std::vector<double> LowerTailScaling_, std::vector<double> UpperTailScaling_,
                       double AdditionalSmearing_variation_, double LowerTailScaling_variation_, double UpperTailScaling_variation_,
@@ -29,6 +30,7 @@ class SmearFunction {
 
         std::vector<std::vector<std::vector<double> > > SigmaEta;
         std::vector<std::vector<std::vector<double> > > SigmaPhi;
+        std::vector<std::vector<std::vector<TH1D*> > > muRes;
 
         std::vector<TH1F*> RecoEff_tot;
         std::vector<TH1F*> RecoEff_b;
@@ -55,9 +57,12 @@ class SmearFunction {
         std::string inputhistPtLF_;
         std::string inputhistEtaLF_;
         std::string inputhistPhiLF_;
+        std::string inputhistResMuHF_;
+        std::string inputhistResMuLF_;
 
         std::vector<double> PtBinEdges_;
         std::vector<double> EtaBinEdges_;
+        std::vector<double> ResBinEdges_;
         std::vector<double> PtBinEdges_scaling_;
         std::vector<double> EtaBinEdges_scaling_;
         std::vector<double> AdditionalSmearing_;

@@ -39,7 +39,7 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("METStudiesOutput_0LL.root","RECREATE");
+    outputfile = new TFile("METStudiesOutput_data.root","RECREATE");
 
     m_MatchingCone = 0.1;
     m_jvtcut = 0.59;
@@ -47,11 +47,11 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     //// Book 1d histograms
 
-    h_Jet1_Pt = new TH1F("h_Jet1_Pt", "h_Jet1_Pt", 100, 0., 4000.);
+    h_Jet1_Pt = new TH1F("h_Jet1_Pt", "h_Jet1_Pt", 100, 0., 1000.);
     h_Jet1_Pt->Sumw2();
     histos_1D.push_back(h_Jet1_Pt);
 
-    h_Jet2_Pt = new TH1F("h_Jet2_Pt", "h_Jet2_Pt", 100, 0., 4000.);
+    h_Jet2_Pt = new TH1F("h_Jet2_Pt", "h_Jet2_Pt", 100, 0., 1000.);
     h_Jet2_Pt->Sumw2();
     histos_1D.push_back(h_Jet2_Pt);
 
@@ -275,6 +275,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
 
     if ( *PrimaryVtx == 0 ) return 0;
 
+	if (isinf(*Weight)) return 0;
     //std::cout << "Weight: " << *Weight << std::endl;
     double eventWeight = *Weight;
     if (isMC) eventWeight *= m_lumi / AvailableEvents[*DatasetID];
@@ -789,6 +790,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             }
         }
         h_TruthMHT->Fill(TruthMHT.Pt(), eventWeight);
+	}
 
         TLorentzVector MET;
         MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
@@ -931,7 +933,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
         if (GoodJetCount > 1) {
 
             //if (firstJet->Pt() > 80. && secondJet->Pt() > 50. && fabs(firstJet->Eta() - secondJet->Eta()) > 3.5 && (firstJet->Eta()*secondJet->Eta()) < 0. ) {
-            if ( MHTnoJVT.Pt() > 150 || MHTnoJVTnoOR.Pt() > 150. ) {
+            //if ( MHTnoJVT.Pt() > 150 || MHTnoJVTnoOR.Pt() > 150. ) {
             //if ( fabs(MET.Pt() - MHTnoOR.Pt()) > 200) {
             //if ( METgamma.Pt() > 100 ) {
             //if ( MET.Pt() > 150 && ( (METgamma.Pt() > 200) || (METtrack.Pt() > 200) || (JVTjets.Pt() > 200) ) ){
@@ -939,7 +941,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
             //if ( MET.Pt() > 400 && METele.Pt() > 400.){
             //if ( MHT.Pt() < 100 && MET.Pt() > 200 && ( (METtrack.Pt() > 300) ) ) {
             //if ( MHT.Pt() > 150 && METele.Pt() < 20. && METmu.Pt() < 20. ) {
-			//if ( JVTjets.Pt() > 150 ) {
+			if ( JVTjets.Pt() > 11150 ) {
 
                 std::cout << "----------------------" << std::endl;
                 std::cout << "EventNo, DatasetID/RunNo: " << *EventNo << ", " << *DatasetID << std::endl;
@@ -1018,7 +1020,7 @@ Bool_t MyMETStudies::Process(Long64_t entry)
 
         }
 
-    } // isMC
+    //} // isMC
 
     return kTRUE;
 }

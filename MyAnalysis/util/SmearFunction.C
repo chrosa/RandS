@@ -18,9 +18,10 @@
 using namespace std;
 
 SmearFunction::SmearFunction(std::string smearingfile,
-                             std::string inputhistPtHF, std::string inputhistEtaHF, std::string inputhistPhiHF,
-                             std::string inputhistPtLF, std::string inputhistEtaLF, std::string inputhistPhiLF,
-                             std::vector<double> PtBinEdges, std::vector<double> EtaBinEdges, std::vector<double> PtBinEdges_scaling, std::vector<double> EtaBinEdges_scaling,
+                             std::string inputhistPtHF, std::string inputhistEtaHF, std::string inputhistPhiHF, std::string inputhistResMuHF,
+                             std::string inputhistPtLF, std::string inputhistEtaLF, std::string inputhistPhiLF, std::string inputhistResMuLF,
+                             std::vector<double> PtBinEdges, std::vector<double> EtaBinEdges, std::vector<double> ResBinEdges,
+                             std::vector<double> PtBinEdges_scaling, std::vector<double> EtaBinEdges_scaling,
                              std::vector<double> AdditionalSmearing,
                              std::vector<double> LowerTailScaling, std::vector<double> UpperTailScaling,
                              double AdditionalSmearing_variation, double LowerTailScaling_variation, double UpperTailScaling_variation,
@@ -35,8 +36,11 @@ SmearFunction::SmearFunction(std::string smearingfile,
     inputhistPtLF_ = inputhistPtLF;
     inputhistEtaLF_ = inputhistEtaLF;
     inputhistPhiLF_ = inputhistPhiLF;
+    inputhistResMuHF_ = inputhistResMuHF;
+    inputhistResMuLF_ = inputhistResMuLF;
     PtBinEdges_ = PtBinEdges;
     EtaBinEdges_ = EtaBinEdges;
+    ResBinEdges_ = ResBinEdges;
     PtBinEdges_scaling_ = PtBinEdges_scaling;
     EtaBinEdges_scaling_ = EtaBinEdges_scaling;
     AdditionalSmearing_ = AdditionalSmearing;
@@ -113,6 +117,47 @@ void SmearFunction::CalculateSmearFunctions() {
         RecoEff_nob.push_back(eff_nob);
     }
 
+    //// Fetch histos of muon response and merge eta bins
+    for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
+        //// Get the histos
+        char hname[100];
+        int i_eta = 0;
+        //// get no heavy flavor hists
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuLF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        TH2F* tmp = (TH2F*) f1->FindObjectAny(hname)->Clone();
+        i_eta = 1;
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuLF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        tmp->Add((TH2F*) f1->FindObjectAny(hname));
+        i_eta = 2;
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuLF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        tmp->Add((TH2F*) f1->FindObjectAny(hname));
+        for (unsigned int i_Res = 0; i_Res < ResBinEdges_.size() - 1; ++i_Res) {
+			sprintf(hname, "%s_Pt%i_Res%i", inputhistResMuLF_.c_str(), i_Pt, i_Res);
+            muRes.at(0).at(i_Pt).at(i_Res) = tmp->ProjectionY(hname, i_Res+1, i_Res+1);
+        }
+
+        //// get heavy flavor hists
+        i_eta = 0;
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuHF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        TH2F* tmp2 = (TH2F*) f1->FindObjectAny(hname)->Clone();
+        i_eta = 1;
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuHF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        tmp2->Add((TH2F*) f1->FindObjectAny(hname));
+        i_eta = 2;
+        sprintf(hname, "%s_Pt%i_Eta%i", inputhistResMuHF_.c_str(), i_Pt, i_eta);
+        cout << hname << endl;
+        tmp2->Add((TH2F*) f1->FindObjectAny(hname));
+        for (unsigned int i_Res = 0; i_Res < ResBinEdges_.size() - 1; ++i_Res) {
+			sprintf(hname, "%s_Pt%i_Res%i", inputhistResMuHF_.c_str(), i_Pt, i_Res);
+            muRes.at(1).at(i_Pt).at(i_Res) = tmp2->ProjectionY(hname, i_Res+1, i_Res+1);
+        }
+    }
+
     //// Fetch histos and fit gaussian core
     for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
         for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
@@ -171,9 +216,9 @@ void SmearFunction::CalculateSmearFunctions() {
 
                 // check if bin is meaningfull (Pt(E_bin)>>20 GeV)
                 // otherwise reco jet pT threshold biases jet response to larger values
-                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
-                bool BinIsOK = true;
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && BinIsOK) {
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
+                //bool BinIsOK = true;
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && BinIsOK) {
                     double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
                     double MEAN = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetMean();
                     TF1* fitfunction = new TF1("f", "gaus(0)", MEAN - 1 * RMS, MEAN + 1 * RMS);
@@ -320,9 +365,9 @@ void SmearFunction::CalculateSmearFunctions() {
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmin(),
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmax());
 
-                //bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
-                bool BinIsOK = true;
-                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 50 && BinIsOK) {
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
+                //bool BinIsOK = true;
+                if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && BinIsOK) {
                     //// fold core and tail with additional gaussian
                     TH1F smearFunc_Core_tmp(*smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt));
                     TH1F smearFunc_LowerTail_tmp(*smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt));
@@ -466,6 +511,20 @@ void SmearFunction::CalculateSmearFunctions() {
             }
         }
     }
+    for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
+        for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
+            for (unsigned int i_res = 0; i_res < ResBinEdges_.size() - 1; ++i_res) {
+                char cname[100];
+                sprintf(cname, "c_Pt%i_Res%i_JetFlavor%i", i_Pt, i_res, i_flav);
+                c->SetName(cname);
+                c->SetLogy();
+                muRes.at(i_flav).at(i_Pt).at(i_res)->SetTitle(cname);
+                muRes.at(i_flav).at(i_Pt).at(i_res)->SetLineColor(kBlack);
+                muRes.at(i_flav).at(i_Pt).at(i_res)->Draw("hist");
+                c->Print(psfile + ".pdf");
+            }
+        }
+    }
     for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
         char cname[100];
         sprintf(cname, "c_Eff_Eta%i", i_eta);
@@ -598,6 +657,11 @@ void SmearFunction::ResizeSmearFunctions() {
         cout << *it << ", ";
     }
     cout << endl;
+    cout << "ResBinEdges: ";
+    for (std::vector<double>:: iterator it = ResBinEdges_.begin(); it != ResBinEdges_.end(); ++it) {
+        cout << *it << ", ";
+    }
+    cout << endl;
 
     cout << "smearFunc" << endl;
     smearFunc.resize(2); //// two bins for jet flavour
@@ -716,6 +780,15 @@ void SmearFunction::ResizeSmearFunctions() {
         it->resize(EtaBinEdges_.size() - 1);
     }
 
+    cout << "MuRes" << endl;
+    muRes.resize(2); //// two bins for jet flavour
+    for (std::vector<std::vector<std::vector<TH1D*> > >::iterator it = muRes.begin(); it != muRes.end(); ++it) {
+        it->resize(PtBinEdges_.size() - 1);
+        for (std::vector<std::vector<TH1D*> >::iterator jt = it->begin(); jt != it->end(); ++jt) {
+            jt->resize(ResBinEdges_.size() - 1);
+        }
+    }
+
 }
 //--------------------------------------------------------------------------
 
@@ -766,6 +839,15 @@ SmearFunction::~SmearFunction() {
         }
     }
     smearFunc_scaled.clear();
+
+    for (std::vector<std::vector<std::vector<TH1D*> > >::iterator it = muRes.begin(); it != muRes.end(); ++it) {
+        for (std::vector<std::vector<TH1D*> >::iterator jt = it->begin(); jt != it->end(); ++jt) {
+            for (std::vector<TH1D*>::iterator kt = jt->begin(); kt != jt->end(); ++kt) {
+                delete *kt;
+            }
+        }
+    }
+    muRes.clear();
 
 }
 //--------------------------------------------------------------------------
