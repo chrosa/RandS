@@ -245,7 +245,6 @@ EL::StatusCode NtupleMaker :: initialize ()
 
     xAOD::TEvent* event = wk()->xaodEvent();
 
-
     isMC = false;
     const xAOD::EventInfo* eventInfo = 0;
     EL_RETURN_CHECK("initialize",event->retrieve( eventInfo, "EventInfo"));
@@ -294,22 +293,16 @@ EL::StatusCode NtupleMaker :: initialize ()
 
     // GRL
     m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
-    const char* grlFilePath = "$ROOTCOREBIN/data/MyAnalysis/data16_13TeV.periodAllYear_DetStatus-v83-pro20-15_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml";
-    const char* fullGRLFilePath = gSystem->ExpandPathName (grlFilePath);
+    const char* grlFilePath16 = "$ROOTCOREBIN/data/MyAnalysis/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml";
+    const char* fullGRLFilePath16 = gSystem->ExpandPathName (grlFilePath16);
+    const char* grlFilePath15 = "$ROOTCOREBIN/data/MyAnalysis/data15_13TeV.periodAllYear_DetStatus-v79-repro20-02_DQDefects-00-02-02_PHYS_StandardGRL_All_Good_25ns.xml";
+    const char* fullGRLFilePath15 = gSystem->ExpandPathName (grlFilePath15);
     std::vector<std::string> vecStringGRL;
-    vecStringGRL.push_back(fullGRLFilePath);
+    vecStringGRL.push_back(fullGRLFilePath16);
+    vecStringGRL.push_back(fullGRLFilePath15);
     EL_RETURN_CHECK("initialize()",m_grl->setProperty( "GoodRunsListVec", vecStringGRL));
     EL_RETURN_CHECK("initialize()",m_grl->setProperty("PassThrough", false)); // if true (default) will ignore result of GRL and will just pass all events
     EL_RETURN_CHECK("initialize()",m_grl->initialize());
-
-    // Initialize and configure trigger tools
-    //m_trigConfigTool = new TrigConf::xAODConfigTool("xAODConfigTool"); // gives us access to the meta-data
-    //EL_RETURN_CHECK("initialize",  m_trigConfigTool->initialize() );
-    //ToolHandle< TrigConf::ITrigConfigTool > trigConfigHandle( m_trigConfigTool );
-    //m_trigDecisionTool = new Trig::TrigDecisionTool("TrigDecisionTool");
-    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "ConfigTool", trigConfigHandle ) ); // connect the TrigDecisionTool to the ConfigTool
-    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->setProperty( "TrigDecisionKey", "xTrigDecision" ) );
-    //EL_RETURN_CHECK("initialize", m_trigDecisionTool->initialize() );
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of events = %lli", event->getEntries() ); // print long long int
@@ -335,6 +328,7 @@ EL::StatusCode NtupleMaker :: execute ()
     //----------------------------
     // Event information
     //---------------------------
+
     const xAOD::EventInfo* eventInfo = 0;
     EL_RETURN_CHECK("execute",event->retrieve( eventInfo, "EventInfo"));
 
@@ -342,7 +336,7 @@ EL::StatusCode NtupleMaker :: execute ()
     // (many tools are applied either to data or MC)
     bool isMC = false;
     // check if the event is MC
-    double eventWeight = 1;
+    double eventWeight = 1.;
 
     if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
 
@@ -366,7 +360,6 @@ EL::StatusCode NtupleMaker :: execute ()
 
         //std::cout << "eventWeight = " << eventWeight << std::endl;
     }
-    weight_ = eventWeight;
 
     if (!isMC) { // it's data!
 
@@ -376,9 +369,9 @@ EL::StatusCode NtupleMaker :: execute ()
 
 
         // check if event passes GRL
-        if (!m_grl->passRunLB(*eventInfo)) {
-            return EL::StatusCode::SUCCESS;
-        }
+        //if (!m_grl->passRunLB(*eventInfo)) {
+        //    return EL::StatusCode::SUCCESS;
+        //}
 
         // event cleaning
         bool eventPassesCleaning(true);
@@ -395,6 +388,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
         //// Get list of single jet triggers
 
+        /*
         auto chainGroup = objTool->GetTrigChainGroup("HLT_j.*");
         std::map<int, std::string> PresenTriggers;
         for (auto &trig : chainGroup->getListOfTriggers()) {
@@ -407,15 +401,27 @@ EL::StatusCode NtupleMaker :: execute ()
                 PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
             }
         }
-        //std::sort(PresenTriggers.begin(), PresenTriggers.end());
-        
+		//std::sort(PresenTriggers.begin(), PresenTriggers.end());
+		*/
+						
+		std::string chainGroup[20] = {"HLT_j460","HLT_j440","HLT_j420","HLT_j400","HLT_j380","HLT_j360","HLT_j320","HLT_j300","HLT_j260","HLT_j200","HLT_j175","HLT_j150","HLT_j110","HLT_j100","HLT_j85","HLT_j60","HLT_j55","HLT_j35","HLT_j25","HLT_j15"};
+		std::map<int, std::string> PresenTriggers;
+		for (int i = 0; i < 20; ++i) {
+			std::string thisTrig = chainGroup[i];
+			//Info( "execute()", thisTrig.c_str() );
+			//// Extract threshold
+			std::string str_thres = thisTrig.substr(5);
+			//std::cout << str_thres << " to " << atoi(str_thres.c_str()) << std::endl;
+			PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
+		}
+				
         std::vector<std::string> single_jet_triggers;
         std::vector<double> single_jet_theshold;
         for (std::map<int, std::string>::iterator it = PresenTriggers.begin(); it != PresenTriggers.end(); it++) {
             single_jet_triggers.push_back(it->second);
             single_jet_theshold.push_back(int(it->first));
         }
-
+		
         //// calculate the prescale weight from single jet triggers
 
         std::vector<bool > triggersPass;
@@ -440,32 +446,47 @@ EL::StatusCode NtupleMaker :: execute ()
             Error("execute()", Form("failed to retrieve %s", mc_name.Data()));
 
         double HLTjetPt = 0;
+        double HLTjetEta = 0;
+        double HLTjetPhi = 0;
         if (hlt_jet->size() > 0) {
-            HLTjetPt = hlt_jet->at(0)->pt()/1000.;
-            //Info( "execute()", "Leading jet pT: %.1f ", HLTjetPt);
-        }
+			//HLTjetPt = hlt_jet->at(0)->pt()/1000.;
+			//HLTjetEta = hlt_jet->at(0)->eta();
+			//HLTjetPhi = hlt_jet->at(0)->phi();
+			for  (int i = 0; i < hlt_jet->size(); ++i) {
+				if (hlt_jet->at(i)->pt()/1000. > HLTjetPt) {
+					HLTjetPt = hlt_jet->at(i)->pt()/1000.;
+					HLTjetEta = hlt_jet->at(i)->eta();
+					HLTjetPhi = hlt_jet->at(i)->phi();
+					//Info( "execute()", "Leading jet pT: %.1f ", HLTjetPt);
+					//Info( "execute()", "Leading jet eta: %.1f ", HLTjetEta);
+					//Info( "execute()", "Leading jet phi: %.1f ", HLTjetPhi);
+				}
+			}
+		} else {
+            Info( "execute()", "No trigger object (jet) available" );
+            return EL::StatusCode::SUCCESS;			
+		}
 
         int i_highest_fire = -1;
-        for (int i  = triggersPass.size()-1; i > 0; i--) {
-            //std::cout << "fire i: " << i << std::endl;
+        for (int i  = triggersPass.size()-1; i >= 0; i--) {
             if (triggersPass.at(i)) {
+				//std::cout << "fire i: " << i << std::endl;
                 i_highest_fire = i;
                 break;
             }
         }
 
         int i_highest_threshold = -1;
-        for (int i  = single_jet_theshold.size()-1; i > 0; i--) {
-            //std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
-            if (single_jet_theshold.at(i) < HLTjetPt) {
+        for (int i  = single_jet_theshold.size()-1; i >= 0; i--) {
+            if (float(single_jet_theshold.at(i)) <= HLTjetPt) {
+				//std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
                 i_highest_threshold = i;
                 break;
             }
         }
 
-        //// if another (higher) trigger could have fired -> event weight = 0;
         double combined_PS = 1.;
-        if (i_highest_fire == -1) {
+        if (i_highest_fire == -1 || i_highest_threshold == -1) {
             eventWeight = 0.;
             //Info( "execute()", "No relevant single jet trigger has fired" );
             return EL::StatusCode::SUCCESS;
@@ -473,7 +494,6 @@ EL::StatusCode NtupleMaker :: execute ()
 			for (int i = 0; i <= i_highest_threshold; i++) {
 				//std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
 				auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i));
-				std::map<std::string,int> triggerCounts;
 				for (auto &trig : chainGroup->getListOfTriggers()) {
 					auto cg = objTool->GetTrigChainGroup(trig);
 					std::string thisTrig = trig;
@@ -488,37 +508,17 @@ EL::StatusCode NtupleMaker :: execute ()
 		}
 		//std::cout << "Effective prescale: " << eventWeight << std::endl;
 		
-		/*
-        } else if ( i_highest_fire < i_highest_threshold) {
-            eventWeight = 0.;
-            Info( "execute()", "%30s chain passed, but %.1f threshold could be passed", single_jet_triggers.at(i_highest_fire).c_str(), single_jet_theshold.at(i_highest_threshold));
-            return EL::StatusCode::SUCCESS;
-        } else {
-            //// else event weight = prescale
-            //// examine the HLT_jxxx.* chains, see if they passed/failed and their total prescale
-            auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i_highest_fire));
-            std::map<std::string,int> triggerCounts;
-            for (auto &trig : chainGroup->getListOfTriggers()) {
-                auto cg = objTool->GetTrigChainGroup(trig);
-                std::string thisTrig = trig;
-                Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
-                eventWeight = cg->getPrescale();
-            }
-        }
-        */
-
-        weight_ = eventWeight;
-
         // end if not MC
 
     } else {
 
         // it's MC!
-
         xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
         xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE60");
 
     }
+
+    weight_ = eventWeight;
 
     pvtx_ = true;
     if (objTool->GetPrimVtx() == nullptr) {
@@ -807,7 +807,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     }
 
-    GreaterByPt2<myJet> ptComparator_;
+    GreaterByPt<myJet> ptComparator_;
     std::sort(GenJets.begin(), GenJets.end(), ptComparator_);
     std::sort(GenJetsNoNu.begin(), GenJetsNoNu.end(), ptComparator_);
     std::sort(GenJetsNoNuMu.begin(), GenJetsNoNuMu.end(), ptComparator_);
@@ -1088,16 +1088,6 @@ EL::StatusCode NtupleMaker :: finalize ()
 
     // SUSYTools
     delete objTool;
-
-    // cleaning up trigger tools
-    //if( m_trigConfigTool ) {
-    //    delete m_trigConfigTool;
-    //    m_trigConfigTool = 0;
-    //}
-    //if( m_trigDecisionTool ) {
-    //    delete m_trigDecisionTool;
-    //    m_trigDecisionTool = 0;
-    //}
 
     return EL::StatusCode::SUCCESS;
 }

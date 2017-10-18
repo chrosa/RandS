@@ -49,10 +49,6 @@ class NtupleMaker : public EL::Algorithm
 		std::string prw_file_;
 		std::string ilumicalc_file_;
 
-		// trigger tools member variables
-		//Trig::TrigDecisionTool *m_trigDecisionTool; //!
-		//TrigConf::xAODConfigTool *m_trigConfigTool; //!
-
         // variables that don't get filled at submission time should be
         // protected from being send from the submission node to the worker
         // node (done by the //!)
@@ -258,7 +254,7 @@ class NtupleMaker : public EL::Algorithm
 };
 
 template<typename T>
-struct GreaterByPt2 {
+struct GreaterByPt {
     typedef T first_argument_type;
     typedef T second_argument_type;
     bool operator()( const T & t1, const T & t2 ) const {

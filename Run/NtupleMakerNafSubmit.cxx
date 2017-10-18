@@ -8,7 +8,8 @@ void NtupleMakerNafSubmit( const std::string& submitDir ) {
 
 	//SH::readFileList (sh, "sample", "filelist_input_Wtau.txt");
 	//SH::readFileList (sh, "sample", "filelist_input_pythia.txt");
-	SH::readFileList (sh, "sample", "filelist_input_data2015.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_data2015.txt");
+	SH::readFileList (sh, "sample", "filelist_input_data2016.txt");
     
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.

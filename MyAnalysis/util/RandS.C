@@ -37,9 +37,9 @@ void RandS::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    isMC_ = true;
+    isMC_ = false;
     jvtcut_= 0.59; //// 0.59 (medium)
-    lumi_ = 36000.;
+    lumi_ = 36100.;
     smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v2.root";
     //inputhistPtHF_ = "h_tot_JetAll_ResPt";
     //inputhistEtaHF_ = "h_tot_JetAll_ResEta";
@@ -101,7 +101,7 @@ void RandS::Begin(TTree * /*tree*/)
     debug_ = 0;
     outputfile_ = "RandS.root";
     cleverPrescaleTreating_ = true; // "true", to get better statistical  precision for high weight seed events
-    maxCleverWeight_ = 1000; // the larger, the better (but also much slower), not greater than O(1000)
+    maxCleverWeight_ = 5000; // the larger, the better (but also much slower), not greater than O(1000)
     HTSeedMin_ = 0.;
     MHTSeedMax_ = 99999.;
     MHTSigSeedMax_ = 4.;

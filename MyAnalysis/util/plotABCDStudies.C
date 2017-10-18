@@ -192,7 +192,7 @@ int plotABCDStudies() {
     vector<string> x;
     vector<string> y;
 
-	string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 4.8";
+	string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV, Jet3 p_{T} < 25 GeV";
 
     h_Jet1_Pt  =  (TH1F*) f->FindObjectAny("h_Jet1_Pt");
     h.push_back(h_Jet1_Pt);
@@ -314,7 +314,7 @@ int plotABCDStudies() {
 
 	//// end overlay plotting MET
 
-	string SelTitle2 = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV & #Delta#eta > 3.0";
+	string SelTitle2 = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV, Jet2 p_{T} < 25 GeV";
     TH1F* h_METsig  =  (TH1F*) f->FindObjectAny("h_METsig");
     h.push_back(h_METsig);
     t.push_back(SelTitle2);
