@@ -7,7 +7,7 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
     TString xTitle;
     TString yTitle;
 
-    LumiTitle = "ATLAS internal, L = 36 fb^{  -1}, #sqrt{s} = 13 TeV";
+    LumiTitle = "ATLAS internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
 
@@ -69,7 +69,7 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
     TString yTitle;
     TString zTitle;
 
-    LumiTitle = "ATLAS internal, L = 36 fb^{  -1}, #sqrt{s} = 13 TeV";
+    LumiTitle = "ATLAS internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
 

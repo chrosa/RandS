@@ -16,11 +16,11 @@ def submit_job(index, jobDir):
 #filelist = open("../filelist_mc_v1.txt")
 filelist = open("../filelist_data_v2.txt")
 line = "init"
-jobDir = "MyTest_data_METsoft_withMETmu_METsig4_N20_v23"
+jobDir = "MyTest_data_METsoftPhiSmear_muRes_noAngSmear_smear15_N20_v1b"
 #500k for sim
 #2.5M for data
 #2.5M for Wtau
-Nevts_max = 1500000
+Nevts_max = 500000
 
 system("mkdir /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir)
 # loop over ntuple files

@@ -249,16 +249,16 @@ int main()
     bool VBF = true;
     bool VBFSR = true;
     bool HTMHT = false;
-    //TString postfix = "_MyTest_mc_MHTsoft_METsig4_N20_SR_v20"; //CR2: MET < 120; SR2 with trigger weight
-    TString postfix = "_test";
+    TString postfix = "_MyTest_data_METsoftSmeared_muRes_noAngSmear_N20_SRtw_v1"; //CRlm: MET < 120; SRtw with trigger weight
+    //TString postfix = "_test";
 
     pred_ = new Prediction(*prediction, postfix);
 
     cout << "after prediction in main" << endl;
 
     TString LumiTitle;
-    if( isData ) LumiTitle = "ATLAS internal, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
-    else LumiTitle = "Simulation, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
+    if( isData ) LumiTitle = "ATLAS internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
+    else LumiTitle = "Simulation, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");
@@ -374,6 +374,9 @@ int main()
     xTitle_VBF_presel.push_back("Jet3 #eta");
     xTitle_VBF_presel.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_presel.push_back("MET (GeV)");
+    xTitle_VBF_presel.push_back("METsoft (GeV)");
+    xTitle_VBF_presel.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_presel.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_presel.push_back("#Delta#phi(MET,j_{3}))");
@@ -390,6 +393,9 @@ int main()
     xTitle_VBF_presel_4JV_dPhiSide.push_back("Jet3 #eta");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("MET (GeV)");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("METsoft (GeV)");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_presel_4JV_dPhiSide.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_presel_4JV_dPhiSide.push_back("#Delta#phi(MET,j_{3})");
@@ -406,6 +412,9 @@ int main()
     xTitle_VBF_dEta.push_back("Jet3 #eta");
     xTitle_VBF_dEta.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta.push_back("MET (GeV)");
+    xTitle_VBF_dEta.push_back("METsoft (GeV)");
+    xTitle_VBF_dEta.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_dEta.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_dEta.push_back("#Delta#phi(MET,j_{3})");
@@ -422,6 +431,9 @@ int main()
     xTitle_VBF_dEta_3JV.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta_3JV.push_back("MET (GeV)");
+    xTitle_VBF_dEta_3JV.push_back("METsoft (GeV)");
+    xTitle_VBF_dEta_3JV.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_dEta_3JV.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_dEta_3JV.push_back("#Delta#phi(MET,j_{3})");
@@ -438,6 +450,9 @@ int main()
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("Jet3 #eta");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("MET (GeV)");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("METsoft (GeV)");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_dEta_3JV_dPhiPTjj.push_back("#Delta#phi(MET,j_{3})");
@@ -454,6 +469,9 @@ int main()
     xTitle_VBF_jj.push_back("Jet3 #eta");
     xTitle_VBF_jj.push_back("p_{T}(j_{1},j_{2}) (GeV)");
     xTitle_VBF_jj.push_back("MET (GeV)");
+    xTitle_VBF_jj.push_back("METsoft (GeV)");
+    xTitle_VBF_jj.push_back("METsig (GeV^{1/2})");
+    xTitle_VBF_jj.push_back("MHTsig (GeV^{1/2})");
     xTitle_VBF_jj.push_back("#Delta#phi(MET,j_{1})");
     xTitle_VBF_jj.push_back("#Delta#phi(MET,j_{2})");
     xTitle_VBF_jj.push_back("#Delta#phi(MET,j_{3})");
@@ -572,6 +590,9 @@ int main()
     hist_type_VBF_presel.push_back("VBF_Jet3Eta_presel");
     hist_type_VBF_presel.push_back("VBF_PTjj_presel");
     hist_type_VBF_presel.push_back("VBF_MET_presel");
+    hist_type_VBF_presel.push_back("VBF_METsoft_presel");
+    hist_type_VBF_presel.push_back("VBF_METsig_presel");
+    hist_type_VBF_presel.push_back("VBF_MHTsig_presel");
     hist_type_VBF_presel.push_back("VBF_minDeltaPhiPTj12_presel");
     hist_type_VBF_presel.push_back("VBF_maxDeltaPhiPTj12_presel");
     hist_type_VBF_presel.push_back("VBF_DeltaPhiPTj3_presel");
@@ -588,6 +609,9 @@ int main()
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_Jet3Eta_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_PTjj_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_MET_presel_4JV_dPhiSide");
+    hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_METsoft_presel_4JV_dPhiSide");
+    hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_METsig_presel_4JV_dPhiSide");
+    hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_MHTsig_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide");
     hist_type_VBF_presel_4JV_dPhiSide.push_back("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide");
@@ -604,6 +628,9 @@ int main()
     hist_type_VBF_dEta.push_back("VBF_Jet3Eta_dEta");
     hist_type_VBF_dEta.push_back("VBF_PTjj_dEta");
     hist_type_VBF_dEta.push_back("VBF_MET_dEta");
+    hist_type_VBF_dEta.push_back("VBF_METsoft_dEta");
+    hist_type_VBF_dEta.push_back("VBF_METsig_dEta");
+    hist_type_VBF_dEta.push_back("VBF_MHTsig_dEta");
     hist_type_VBF_dEta.push_back("VBF_minDeltaPhiPTj12_dEta");
     hist_type_VBF_dEta.push_back("VBF_maxDeltaPhiPTj12_dEta");
     hist_type_VBF_dEta.push_back("VBF_DeltaPhiPTj3_dEta");
@@ -620,6 +647,9 @@ int main()
     hist_type_VBF_dEta_3JV.push_back("VBF_Jet3Eta_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_PTjj_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_MET_dEta_3JV");
+    hist_type_VBF_dEta_3JV.push_back("VBF_METsoft_dEta_3JV");
+    hist_type_VBF_dEta_3JV.push_back("VBF_METsig_dEta_3JV");
+    hist_type_VBF_dEta_3JV.push_back("VBF_MHTsig_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_minDeltaPhiPTj12_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_maxDeltaPhiPTj12_dEta_3JV");
     hist_type_VBF_dEta_3JV.push_back("VBF_DeltaPhiPTj3_dEta_3JV");
@@ -636,6 +666,9 @@ int main()
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_Jet3Eta_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_PTjj_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_MET_dEta_3JV_dPhiPTjj");
+    hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_METsoft_dEta_3JV_dPhiPTjj");
+    hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_METsig_dEta_3JV_dPhiPTjj");
+    hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_MHTsig_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj");
     hist_type_VBF_dEta_3JV_dPhiPTjj.push_back("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj");
@@ -652,6 +685,9 @@ int main()
     hist_type_VBF_jj.push_back("VBF_Jet3Eta_jj");
     hist_type_VBF_jj.push_back("VBF_PTjj_jj");
     hist_type_VBF_jj.push_back("VBF_MET_jj");
+    hist_type_VBF_jj.push_back("VBF_METsoft_jj");
+    hist_type_VBF_jj.push_back("VBF_METsig_jj");
+    hist_type_VBF_jj.push_back("VBF_MHTsig_jj");
     hist_type_VBF_jj.push_back("VBF_minDeltaPhiPTj12_jj");
     hist_type_VBF_jj.push_back("VBF_maxDeltaPhiPTj12_jj");
     hist_type_VBF_jj.push_back("VBF_DeltaPhiPTj3_jj");
@@ -664,9 +700,9 @@ int main()
     if (VBF) {
 
         if (VBFSR) {
-            Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+            Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         } else {
-            Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+            Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         }
 
         if( hist_type_VBF_presel.size() != xTitle_VBF_presel.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;
@@ -677,9 +713,9 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=3, M_{jj}>1.0 TeV, MET>150 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+            Title = "N_{j}=3, M_{jj}>1.0 TeV, MET>150 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         } else {
-            Title = "N_{j}=3, M_{jj}>0.6 TeV, MET>100 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+            Title = "N_{j}=3, M_{jj}>0.6 TeV, MET>100 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         }
 
         if( hist_type_VBF_presel_4JV_dPhiSide.size() != xTitle_VBF_presel_4JV_dPhiSide.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;

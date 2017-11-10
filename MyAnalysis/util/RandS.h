@@ -107,16 +107,14 @@ class RandS : public TSelector {
         double MjjFirstPt_;
         double MjjSecondPt_;
 
-        double HTSeed;
-        int NJetSeed;
         double MHTSeedMax_;
-        double MHTSigSeedMax_;
-        double METsoftSeedMax_;
         double HTSeedMin_;
+        double HTSeedMax_;
         int NJetsSeedMin_;
         int NJetsSeedMax_;
         bool doSmearing_;
         bool doJVT_;
+        bool fixJVTjets_;
         double JVTeta_;
         bool doMETmu_;
 
@@ -130,6 +128,7 @@ class RandS : public TSelector {
         double MHTjjSave_;
         double MjjSave_;
         double dPhiSave_;
+        double dEtaSave_;
         double jet3PtSave_;
 
         UShort_t Njets_stored;
@@ -256,18 +255,21 @@ class RandS : public TSelector {
         double MuResponse(const double&, const double&, const int&);
         int GetIndex(const double&, const std::vector<double>*);
 
-        double calcHT(std::vector<MyJet>&);
+        double calcHT(std::vector<MyJet>&, const bool&);
         TLorentzVector calcMHT(std::vector<MyJet>&, const double&, const double&, const bool&);
-        int calcNJets(std::vector<MyJet>&);
-        int calcNBJets(std::vector<MyJet>&);
+        int calcNJets(std::vector<MyJet>&, const bool&);
+        int calcNBJets(std::vector<MyJet>&, const bool&);
         bool calcMinDeltaPhi(std::vector<MyJet>&, TLorentzVector&);
         void calcPredictions(std::vector<MyJet>&, TLorentzVector&, const int&, const float&);
         void calcLeadingJetPredictions(std::vector<MyJet>&, TLorentzVector&);
+        bool calcJJ(std::vector<MyJet>&, float&, float&, float&, float&, float&);
         double calcMjj(std::vector<MyJet>&);
         double calcMHTjj(std::vector<MyJet>&);
         double calcDPhijj(std::vector<MyJet>&);
+        double calcDEtajj(std::vector<MyJet>&);
         double calcJet3Pt(std::vector<MyJet>&);
         bool calcMjjSeed(std::vector<MyJet>&, const float&, const float&, const float&);
+        bool RebPossible(std::vector<MyJet>&, TLorentzVector&);
 
         bool RebalanceJets_KinFitter(std::vector<MyJet>&, std::vector<MyJet>&, std::vector<MyJet>&, TLorentzVector&);
         void SmearingJets(std::vector<MyJet>&, TLorentzVector&, const float&);
@@ -308,15 +310,18 @@ class RandS : public TSelector {
         Float_t MET_pred;
         Float_t MHTphi_pred;
         Float_t METphi_pred;
+        Float_t METsig_seed;
+        Float_t MHTsig_seed;
+        Float_t METsoft_seed;
         std::vector<Float_t>  JetPt_p; //!
         std::vector<Float_t> * JetPt_pred = &JetPt_p;
-        std::vector<Float_t>  JetEta_p;
+        std::vector<Float_t>  JetEta_p; //!
         std::vector<Float_t> * JetEta_pred = &JetEta_p;
-        std::vector<Float_t>  JetPhi_p;
+        std::vector<Float_t>  JetPhi_p; //!
         std::vector<Float_t> * JetPhi_pred = &JetPhi_p;
-        std::vector<Float_t>  JetM_p;
+        std::vector<Float_t>  JetM_p; //!
         std::vector<Float_t> * JetM_pred = &JetM_p;
-        std::vector<Float_t>  DeltaPhi_p;
+        std::vector<Float_t>  DeltaPhi_p; //!
         std::vector<Float_t> * DeltaPhi_pred = &DeltaPhi_p;
         Float_t weight;
         Float_t triggerWeight;

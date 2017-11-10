@@ -42,13 +42,13 @@ class METvsMHTSelector : public TSelector {
         TTreeReaderValue<Float_t> Weight = {fReader, "Weight"};
         TTreeReaderValue<UInt_t> DatasetID = {fReader, "DatasetID"};
         TTreeReaderValue<Bool_t> PrimaryVtx = {fReader, "PrimaryVtx"};
-        TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetNoMuPt"};
-        TTreeReaderValue<std::vector<Float_t>> JetEta = {fReader, "JetNoMuEta"};
-        TTreeReaderValue<std::vector<Float_t>> JetPhi = {fReader, "JetNoMuPhi"};
-        TTreeReaderValue<std::vector<Float_t>> JetM = {fReader, "JetNoMuM"};
-        TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetNoMuBtag"};
-        TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetNoMuJVT"};
-        TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetNoMuGood"};
+        TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};
+        TTreeReaderValue<std::vector<Float_t>> JetEta = {fReader, "JetEta"};
+        TTreeReaderValue<std::vector<Float_t>> JetPhi = {fReader, "JetPhi"};
+        TTreeReaderValue<std::vector<Float_t>> JetM = {fReader, "JetM"};
+        TTreeReaderValue<std::vector<bool>> JetBtag = {fReader, "JetBtag"};
+        TTreeReaderValue<std::vector<Float_t>> JetJVT = {fReader, "JetJVT"};
+        TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
         TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
@@ -62,6 +62,7 @@ class METvsMHTSelector : public TSelector {
         TTreeReaderValue<std::vector<Float_t>> ElePt = {fReader, "ElePt"};
         TTreeReaderValue<std::vector<Float_t>> EleEta = {fReader, "EleEta"};
         TTreeReaderValue<std::vector<Float_t>> ElePhi = {fReader, "ElePhi"};
+        TTreeReaderValue<std::vector<bool>> EleIsSignal = {fReader, "EleIsSignal"};
         TTreeReaderValue<std::vector<Float_t>> PhotonPt = {fReader, "PhotonPt"};
         TTreeReaderValue<std::vector<Float_t>> PhotonEta = {fReader, "PhotonEta"};
         TTreeReaderValue<std::vector<Float_t>> PhotonPhi = {fReader, "PhotonPhi"};
@@ -120,16 +121,23 @@ class METvsMHTSelector : public TSelector {
 
     private:
 
-        TH2F *h_MHTtruerebPhiRes_vs_MHTrebMinusMET;
-        TH2F *h_MHTtruerebPtRes_vs_MHTrebMinusMET;
-        TH2F *h_MHTtruerebPt_vs_MHTrebMinusMET;
+        TH2F *h_MHTtruerebPhiRes_vs_MHTtruereb;
+        TH2F *h_MHTtruerebPhiRes_vs_MET;
+        TH2F *h_MHTtruerebPt_vs_MET;
+        TH2F *h_MHTtruerebPhiRes_vs_MHT;
+        TH2F *h_MHTtruerebPt_vs_MHT;
+        TH2F *h_MHTtruerebPhiRes_vs_MHTnoJVT;
+        TH2F *h_MHTtruerebPt_vs_MHTnoJVT;
+        TH2F *h_MHTtruerebPhiRes_vs_METsoft;
+        TH2F *h_MHTtruerebPt_vs_METsoft;
         TH2F *h_MHT_vs_MET;
+        TH2F *h_MHTnoJVT_vs_MET;
 
         int NEvents = 0;
 		std::map<UInt_t, UInt_t> AvailableEvents;
 		double rebalancedJetPt_ = 20.;
 		double jvtcut_ = 0.59;
-		double lumi_ = 30000.;
+		double lumi_ = 36100.;
 
 };
 

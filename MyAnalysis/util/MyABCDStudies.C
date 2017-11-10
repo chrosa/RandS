@@ -234,6 +234,7 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     //if (NEvents%1000 == 0) std::cout << NEvents << " processed: " << 100*NEvents/NTotEvents << "% done" << std::endl;
     if (NEvents%100000 == 0) std::cout << NEvents << " processed!" << std::endl;
 
+
     if (ProcessedEvents.find(*DatasetID) == ProcessedEvents.end()) {
         ProcessedEvents[*DatasetID] = 1;
     } else {
@@ -245,6 +246,8 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     if ( *PrimaryVtx == 0 ) return 0;
 
     if (isinf(*Weight)) return 0;
+    if (isnan(*Weight)) return 0;
+    
     //std::cout << "Weight: " << *Weight << std::endl;
     double eventWeight = *Weight;
     if (isMC) eventWeight *= m_lumi / AvailableEvents[*DatasetID];

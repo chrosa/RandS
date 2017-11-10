@@ -38,8 +38,8 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
     outputfile = new TFile("TriggerStudiesOutput_data.root","RECREATE");
 
     m_jvtcut = 0.59;
-    m_lumi = 30000.;
-    isData = false;
+    m_lumi = 36100.;
+    isData = true;
     double MHTmax = 500;
     int MHTbins = 50;
     double HTmax = 2000;
@@ -213,7 +213,7 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
             }
         }
 
-        recoJets.push_back(jet);
+        if (good) recoJets.push_back(jet);
         //if ( jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 ) recoJets.push_back(jet);
 
     }
@@ -321,18 +321,18 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     }
 
     if (JetCount == 2) {
-        h_MHT2jet_all->Fill(MHT.Pt());
-        h_MHT2jetvsHT_all->Fill(MHT.Pt(),HT);
+        h_MHT2jet_all->Fill(NoJVTMHT.Pt());
+        h_MHT2jetvsHT_all->Fill(NoJVTMHT.Pt(),NoJVTHT);
         if (*xe90triggered || *xe110triggered) {
-            h_MHT2jet_triggered->Fill(MHT.Pt());
-            h_MHT2jetvsHT_triggered->Fill(MHT.Pt(),HT);
+            h_MHT2jet_triggered->Fill(NoJVTMHT.Pt());
+            h_MHT2jetvsHT_triggered->Fill(NoJVTMHT.Pt(),NoJVTHT);
         }
     } else {
-        h_MHT_all->Fill(MHT.Pt());
-        h_MHTvsHT_all->Fill(MHT.Pt(),HT);
+        h_MHT_all->Fill(NoJVTMHT.Pt());
+        h_MHTvsHT_all->Fill(NoJVTMHT.Pt(),NoJVTHT);
         if (*xe90triggered || *xe110triggered) {
-            h_MHT_triggered->Fill(MHT.Pt());
-            h_MHTvsHT_triggered->Fill(MHT.Pt(),HT);
+            h_MHT_triggered->Fill(NoJVTMHT.Pt());
+            h_MHTvsHT_triggered->Fill(NoJVTMHT.Pt(),NoJVTHT);
         }
     }
 

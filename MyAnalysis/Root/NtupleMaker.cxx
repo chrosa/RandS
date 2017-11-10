@@ -63,9 +63,9 @@ ClassImp(NtupleMaker)
 
 NtupleMaker :: NtupleMaker ()
 {
-    debug_ = 0;
+    debug_ = 1;
     outputfile_ = "NtupleMaker.root";
-    calculateTrueMET_ = false;
+    calculateTrueMET_ = true;
     rebalancedJetPt_ = 20000.;
     AddMuToJets_ = true;
 
@@ -323,6 +323,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     // print every 100 events, so we know where we are:
     if( (m_eventCounter % 100) ==0 ) Info("execute()", "Event number = %i", m_eventCounter );
+
     m_eventCounter++;
 
     //----------------------------
@@ -340,7 +341,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     if(eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
 
-        //EL_RETURN_CHECK("execute", objTool->ApplyPRWTool() );
+        EL_RETURN_CHECK("execute", objTool->ApplyPRWTool() );
         isMC = true; // can do something with this later
         //extra event-level information you might need:
         dsid_ =  eventInfo->mcChannelNumber();
@@ -556,9 +557,9 @@ EL::StatusCode NtupleMaker :: execute ()
     EL_RETURN_CHECK("execute()", objTool->GetMuons(muons_nominal, muons_nominal_aux) );
 
     // Taus
-    xAOD::TauJetContainer* taus_nominal(0);
-    xAOD::ShallowAuxContainer* taus_nominal_aux(0);
-    EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal, taus_nominal_aux) );
+    //xAOD::TauJetContainer* taus_nominal(0);
+    //xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    //EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal, taus_nominal_aux) );
 
     // Jets
     xAOD::JetContainer* jets_nominal(0);
@@ -576,7 +577,7 @@ EL::StatusCode NtupleMaker :: execute ()
     xAOD::PhotonContainer* photons(photons_nominal);
     xAOD::MuonContainer* muons(muons_nominal);
     xAOD::JetContainer* jets(jets_nominal);
-    xAOD::TauJetContainer* taus(taus_nominal);
+    //xAOD::TauJetContainer* taus(taus_nominal);
     xAOD::MissingETContainer* mettst(mettst_nominal);
     // Aux containers too
     //xAOD::MissingETAuxContainer* mettst_aux(mettst_nominal_aux);
@@ -665,6 +666,7 @@ EL::StatusCode NtupleMaker :: execute ()
                   std::endl;
     }
 
+    /*
     //// tau vector
     //std::vector<myTau> Taus;
     float tau_ptcut = 20000;
@@ -697,6 +699,7 @@ EL::StatusCode NtupleMaker :: execute ()
                   passOR << ", " <<
                   std::endl;
     }
+	*/
 
     //// photon vector
     //std::vector<myPhoton> Photons;
@@ -946,7 +949,7 @@ EL::StatusCode NtupleMaker :: execute ()
 
     if (calculateTrueMET_ && isMC) {
         for ( const auto* it : *genparticles ) {
-            if (it->pt() > 0. && it->status() == 3 && !(it->hasDecayVtx())) { // status() == 1 for pythia samples
+            if (it->pt() > 0. && it->status() == 1 && !(it->hasDecayVtx())) { // status() == 1 for pythia samples
                 if (abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 )
                     vgenMET += it->p4();
                 if (abs(it->pdgId()) == 12 || abs(it->pdgId()) == 14 || abs(it->pdgId()) == 16 || abs(it->pdgId()) == 11 || abs(it->pdgId()) == 13 || abs(it->pdgId()) == 15 )

@@ -25,8 +25,8 @@ int main()
 
     // ------------------------------------------------------------------- //
 
-    std::ifstream myfile ("filelist_mc_v1.txt");
-    //std::ifstream myfile ("filelist_data_v1.txt");
+    //std::ifstream myfile ("filelist_mc_v1.txt");
+    std::ifstream myfile ("filelist_data_v2.txt");
     //std::ifstream myfile ("filelist_mc.txt");
 
     std::string root_file;
@@ -37,13 +37,14 @@ int main()
             if (root_file.length() > 0) {
                 TString path = root_file;
                 res_chain->Add(path);
+                std::cout << "Number of total events: " << res_chain->GetEntries() << std::endl; 
             }
         }
         myfile.close();
     }
 
-	Long64_t nentries = res_chain->GetEntries();
-	std::cout << "Number of total events: " << nentries << std::endl; 
+	//Long64_t nentries = res_chain->GetEntries();
+	//std::cout << "Number of total events: " << nentries << std::endl; 
 	//Int_t cachesize = 30*1024*1024;
 	//res_chain->SetCacheSize(cachesize);
 	//res_chain->AddBranchToCache("*",kTRUE); //<<< add all branches to the cache

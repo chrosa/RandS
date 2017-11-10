@@ -25,7 +25,7 @@ using namespace std;
 int METvsMHTRun()
 {
 
-    TFile *f = new TFile("sample_MHTTrueRebWithMu.root");
+    TFile *f = new TFile("sample_AOD.root");
     TTree *t = (TTree *) f->Get("EventTree");
     t->Process("METvsMHTSelector.C+");
 

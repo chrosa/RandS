@@ -32,10 +32,16 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     // set histogram attributes
     int Npseudo = 20;
     int NbinsMHT = 100;
+    int NbinsMHTsoft = 100;
+    int NbinsMHTsig = 100;
     int NbinsHT = 100;
     int NbinsJetPt = 100;
     int NbinsJetEta = 100;
     int NbinsJetPhi = 100;
+    double MHTsigmin = 0.;
+    double MHTsigmax = 20.;
+    double MHTsoftmin = 0.;
+    double MHTsoftmax = 100.;
     double MHTmin = 0.;
     double MHTmax = 1000.;
     double HTmin = 0.;
@@ -53,18 +59,29 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double MHTSave = 9999.;
     double MjjSave = 600.;
     double dPhijjSave = 2.7;
+    double dEtajjSave = 2.5;
     int NJetsSave = 0;
 
-	double DEtaLoose = 3.0;
-	double DEtaTight = 4.8;
-	double DEtajj = 2.5;
+    double DEtaLoose = 3.0;
+    double DEtaTight = 4.8;
+    double DEtajj = 2.5;
     double DPhiSR = 1.8;
     double DPhiCRMax = 2.7;
     double DPhiCRMin = 1.8;
     double MjjCut = 1000.;
     double METCut = 150.;
+    
+    //double MHTSigSeedMax = 5.;
+    //double METSigSeedMax = 4.;
+    //double METSoftSeedMax = 40.;
+    //double MHTSigSeedMax = 10.;
+    //double METSigSeedMax = 5.;
+    //double METSoftSeedMax = 30.;
+    double MHTSigSeedMax = 999999.;
+    double METSigSeedMax = 999999.;
+    double METSoftSeedMax = 999999.;
 
-    bool blindSR = true;
+    bool blindSR = false;
     bool VBF = true;
     bool HTMHT = false;
 
@@ -215,7 +232,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_presel_pred_raw = new TH2F("VBF_Jet2Eta_presel_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_presel_pred_raw = new TH2F("VBF_Jet3Eta_presel_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_presel_pred_raw = new TH2F("VBF_PTjj_presel_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_presel_pred_raw = new TH2F("VBF_MET_presel_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_presel_pred_raw = new TH2F("VBF_MET_presel_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_presel_pred_raw = new TH2F("VBF_METsoft_presel_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_presel_pred_raw = new TH2F("VBF_METsig_presel_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_presel_pred_raw = new TH2F("VBF_MHTsig_presel_prediction","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_presel_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_presel_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_presel_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_presel_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_presel_pred_raw = new TH2F("VBF_DeltaPhiPTj3_presel_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -230,7 +250,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet2Eta_presel_4JV_dPhiSide_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_Jet3Eta_presel_4JV_dPhiSide_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_PTjj_presel_4JV_dPhiSide_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_MET_presel_4JV_dPhiSide_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_MET_presel_4JV_dPhiSide_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_METsoft_presel_4JV_dPhiSide_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_METsig_presel_4JV_dPhiSide_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_MHTsig_presel_4JV_dPhiSide_prediction","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw = new TH2F("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -245,7 +268,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_pred_raw = new TH2F("VBF_Jet2Eta_dEta_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_dEta_pred_raw = new TH2F("VBF_Jet3Eta_dEta_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_dEta_pred_raw = new TH2F("VBF_PTjj_dEta_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_dEta_pred_raw = new TH2F("VBF_MET_dEta_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_dEta_pred_raw = new TH2F("VBF_MET_dEta_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_dEta_pred_raw = new TH2F("VBF_METsoft_dEta_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_dEta_pred_raw = new TH2F("VBF_METsig_dEta_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_dEta_pred_raw = new TH2F("VBF_MHTssig_dEta_prediction","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_dEta_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_dEta_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_dEta_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -260,7 +286,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_jj_pred_raw = new TH2F("VBF_Jet2Eta_jj_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_jj_pred_raw = new TH2F("VBF_Jet3Eta_jj_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_jj_pred_raw = new TH2F("VBF_PTjj_jj_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_jj_pred_raw = new TH2F("VBF_MET_jj_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_jj_pred_raw = new TH2F("VBF_MET_jj_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_jj_pred_raw = new TH2F("VBF_METsoft_jj_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_jj_pred_raw = new TH2F("VBF_METsig_jj_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_jj_pred_raw = new TH2F("VBF_MHTsig_jj_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_jj_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_jj_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_jj_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_jj_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_jj_pred_raw = new TH2F("VBF_DeltaPhiPTj3_jj_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -275,7 +304,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_3JV_pred_raw = new TH2F("VBF_Jet2Eta_dEta_3JV_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_dEta_3JV_pred_raw = new TH2F("VBF_Jet3Eta_dEta_3JV_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_dEta_3JV_pred_raw = new TH2F("VBF_PTjj_dEta_3JV_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_dEta_3JV_pred_raw = new TH2F("VBF_MET_dEta_3JV_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_dEta_3JV_pred_raw = new TH2F("VBF_MET_dEta_3JV_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_dEta_3JV_pred_raw = new TH2F("VBF_METsoft_dEta_3JV_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_dEta_3JV_pred_raw = new TH2F("VBF_METsig_dEta_3JV_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_dEta_3JV_pred_raw = new TH2F("VBF_MHTsig_dEta_3JV_prediction","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_3JV_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_3JV_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_dEta_3JV_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_3JV_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -290,7 +322,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet2Eta_dEta_3JV_dPhiPTjj_prediction","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_Jet3Eta_dEta_3JV_dPhiPTjj_prediction","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_PTjj_dEta_3JV_dPhiPTjj_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
-    VBF_MET_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_MET_dEta_3JV_dPhiPTjj_prediction","PTjj", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MET_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_MET_dEta_3JV_dPhiPTjj_prediction","MET", NbinsMHT, MHTmin, MHTmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsoft_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_METsoft_dEta_3JV_dPhiPTjj_prediction","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_METsig_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_METsig_dEta_3JV_dPhiPTjj_prediction","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
+    VBF_MHTsig_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_MHTsig_dEta_3JV_dPhiPTjj_prediction","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax, Npseudo, 0.5, Npseudo + 0.5);
     VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_prediction","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_prediction","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
     VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw = new TH2F("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_prediction","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi(), Npseudo, 0.5, Npseudo + 0.5);
@@ -458,7 +493,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_presel_sel = new TH1F("VBF_Jet2Eta_presel_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_presel_sel = new TH1F("VBF_Jet3Eta_presel_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_presel_sel = new TH1F("VBF_PTjj_presel_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_presel_sel = new TH1F("VBF_MET_presel_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_presel_sel = new TH1F("VBF_MET_presel_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_presel_sel = new TH1F("VBF_METsoft_presel_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_presel_sel = new TH1F("VBF_METsig_presel_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_presel_sel = new TH1F("VBF_MHTsig_presel_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_presel_sel = new TH1F("VBF_minDeltaPhiPTj12_presel_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_presel_sel = new TH1F("VBF_maxDeltaPhiPTj12_presel_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_presel_sel = new TH1F("VBF_DeltaPhiPTj3_presel_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -473,7 +511,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet2Eta_presel_4JV_dPhiSide_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_presel_4JV_dPhiSide_sel = new TH1F("VBF_Jet3Eta_presel_4JV_dPhiSide_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_presel_4JV_dPhiSide_sel = new TH1F("VBF_PTjj_presel_4JV_dPhiSide_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_presel_4JV_dPhiSide_sel = new TH1F("VBF_MET_presel_4JV_dPhiSide_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_presel_4JV_dPhiSide_sel = new TH1F("VBF_MET_presel_4JV_dPhiSide_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_presel_4JV_dPhiSide_sel = new TH1F("VBF_METsoft_presel_4JV_dPhiSide_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_presel_4JV_dPhiSide_sel = new TH1F("VBF_METsig_presel_4JV_dPhiSide_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_presel_4JV_dPhiSide_sel = new TH1F("VBF_MHTsig_presel_4JV_dPhiSide_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel = new TH1F("VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel = new TH1F("VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel = new TH1F("VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -488,7 +529,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_sel = new TH1F("VBF_Jet2Eta_dEta_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_dEta_sel = new TH1F("VBF_Jet3Eta_dEta_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_dEta_sel = new TH1F("VBF_PTjj_dEta_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_dEta_sel = new TH1F("VBF_MET_dEta_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_dEta_sel = new TH1F("VBF_MET_dEta_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_dEta_sel = new TH1F("VBF_METsoft_dEta_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_dEta_sel = new TH1F("VBF_METsig_dEta_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_dEta_sel = new TH1F("VBF_MHTsig_dEta_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_dEta_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_dEta_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_dEta_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -503,7 +547,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_jj_sel = new TH1F("VBF_Jet2Eta_jj_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_jj_sel = new TH1F("VBF_Jet3Eta_jj_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_jj_sel = new TH1F("VBF_PTjj_jj_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_jj_sel = new TH1F("VBF_MET_jj_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_jj_sel = new TH1F("VBF_MET_jj_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_jj_sel = new TH1F("VBF_METsoft_jj_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_jj_sel = new TH1F("VBF_METsig_jj_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_jj_sel = new TH1F("VBF_MHTsig_jj_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_jj_sel = new TH1F("VBF_minDeltaPhiPTj12_jj_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_jj_sel = new TH1F("VBF_maxDeltaPhiPTj12_jj_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_jj_sel = new TH1F("VBF_DeltaPhiPTj3_jj_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -518,7 +565,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_3JV_sel = new TH1F("VBF_Jet2Eta_dEta_3JV_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_dEta_3JV_sel = new TH1F("VBF_Jet3Eta_dEta_3JV_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_dEta_3JV_sel = new TH1F("VBF_PTjj_dEta_3JV_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_dEta_3JV_sel = new TH1F("VBF_MET_dEta_3JV_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_dEta_3JV_sel = new TH1F("VBF_MET_dEta_3JV_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_dEta_3JV_sel = new TH1F("VBF_METsoft_dEta_3JV_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_dEta_3JV_sel = new TH1F("VBF_METsig_dEta_3JV_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_dEta_3JV_sel = new TH1F("VBF_MHTsig_dEta_3JV_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_dEta_3JV_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_3JV_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_dEta_3JV_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_3JV_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_dEta_3JV_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_3JV_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -533,7 +583,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet2Eta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet2Eta_dEta_3JV_dPhiPTjj_selection","Jet2Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_Jet3Eta_dEta_3JV_dPhiPTjj_selection","Jet3Eta", NbinsJetEta, JetEtamin, JetEtamax);
     VBF_PTjj_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_PTjj_dEta_3JV_dPhiPTjj_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
-    VBF_MET_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_MET_dEta_3JV_dPhiPTjj_selection","PTjj", NbinsMHT, MHTmin, MHTmax);
+    VBF_MET_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_MET_dEta_3JV_dPhiPTjj_selection","MET", NbinsMHT, MHTmin, MHTmax);
+    VBF_METsoft_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_METsoft_dEta_3JV_dPhiPTjj_selection","METsoft", NbinsMHTsoft, MHTsoftmin, MHTsoftmax);
+    VBF_METsig_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_METsig_dEta_3JV_dPhiPTjj_selection","METsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
+    VBF_MHTsig_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_MHTsig_dEta_3JV_dPhiPTjj_selection","MHTsig", NbinsMHTsig, MHTsigmin, MHTsigmax);
     VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_selection","minDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_selection","maxDeltaPhiPTj12", NbinsJetPhi, 0., TMath::Pi());
     VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel = new TH1F("VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_selection","DeltaPhiPTj3", NbinsJetPhi, 0., TMath::Pi());
@@ -572,6 +625,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     QCDPrediction.SetBranchAddress("MHTphi",&MHTphi);
     QCDPrediction.SetBranchAddress("MET",&MET);
     QCDPrediction.SetBranchAddress("METphi",&METphi);
+    QCDPrediction.SetBranchAddress("METsig",&METsig);
+    QCDPrediction.SetBranchAddress("MHTsig",&MHTsig);
+    QCDPrediction.SetBranchAddress("METsoft",&METsoft);
     QCDPrediction.SetBranchAddress("JetPt",&JetPt);
     QCDPrediction.SetBranchAddress("JetEta",&JetEta);
     QCDPrediction.SetBranchAddress("JetPhi",&JetPhi);
@@ -590,30 +646,39 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         if (i == 0 ) cout << "loaded first event successfully!" << endl;
 
         float weight = weight0 * triggerWeight;
-        //if (Ntries > 0) weight = 0.;
 
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << " (" << 100*double(i)/nentries << "%)"<< '\n';
 
         double Mjj = CalcMjj();
         double MHTjj = CalcMHTjj();
+        double DPhi = CalcDeltaPhi();
+        double DEta = CalcDeltaEta();
 
         // apply some baseline cuts as used for storing in result tree
-        if( HT > HTSave && ( MHTjj > MHTjjSave || MHT > MHTSave || MET > METSave ) && NJets >= NJetsSave && Mjj > MjjSave && CalcDeltaPhi() < dPhijjSave) {
+        if( HT > HTSave && ( MHTjj > MHTjjSave || MHT > MHTSave || MET > METSave ) && NJets >= NJetsSave && Mjj > MjjSave && DPhi < dPhijjSave && DEta > dEtajjSave) {
+
+            //std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
+            //std::cout << "pTjj, HT: " << MHTjj <<  ", " << HT << std::endl;
+            //std::cout << "MET (pt, phi): " << MET <<  ", " << METphi << std::endl;
+            //std::cout << "DPhi, DEta: " << DPhi <<  ", " << DEta << std::endl;
+            //std::cout << "Mjj: " << Mjj << std::endl;
+            //std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(0)  << ", " << JetPhi->at(0) << std::endl;
+            //std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(1)  << ", " << JetPhi->at(1) << std::endl;
+            //std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
+            //std::cout << std::endl;
 
             double DPhiMET1, DPhiMET2, DPhiMET3;
             TLorentzVector vMET(0., 0., 0., 0.);
             vMET.SetPtEtaPhiM(MET, 0., METphi, 0.);
             CalcDPhiMET(DPhiMET1, DPhiMET2, DPhiMET3, vMET);
-            double DPhi = CalcDeltaPhi();
-            double DEta = CalcDeltaEta();
 
             if (VBF) {
 
-                if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DEta > DEtaLoose && DPhi < DPhiCRMax && DPhi > DPhiCRMin) {
+                if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DEta > DEtajj && DPhi < DPhiCRMax && DPhi > DPhiCRMin) {
 
                     if ( Soft3rd() && Veto4th() ) {
 
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             VBF_dPhi_presel_4JV_dPhiSide_pred_raw->Fill(DPhi, Ntries, weight);
                             VBF_dEta_presel_4JV_dPhiSide_pred_raw->Fill(DEta, Ntries, weight);
                             VBF_Mjj_presel_4JV_dPhiSide_pred_raw->Fill(Mjj, Ntries, weight);
@@ -625,6 +690,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_presel_4JV_dPhiSide_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_presel_4JV_dPhiSide_pred_raw->Fill(MET, Ntries, weight);
+                            VBF_METsoft_presel_4JV_dPhiSide_pred_raw->Fill(METsoft, Ntries, weight);
+                            VBF_METsig_presel_4JV_dPhiSide_pred_raw->Fill(METsig, Ntries, weight);
+                            VBF_MHTsig_presel_4JV_dPhiSide_pred_raw->Fill(MHTsig, Ntries, weight);
                             VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET1, Ntries, weight);
                             VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET2, Ntries, weight);
                             VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -640,7 +708,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_4JV_dPhiSide_sel->Fill(JetEta->at(2), weight);
                             VBF_PTjj_presel_4JV_dPhiSide_sel->Fill(MHTjj, weight);
                             VBF_MET_presel_4JV_dPhiSide_sel->Fill(MET, weight);
-                            VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMET1, weight);
+                            VBF_METsoft_presel_4JV_dPhiSide_sel->Fill(METsoft, weight);
+							VBF_METsig_presel_4JV_dPhiSide_sel->Fill(METsig, weight);
+                            VBF_MHTsig_presel_4JV_dPhiSide_sel->Fill(MHTsig, weight);
+							VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMET1, weight);
                             VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Fill(DPhiMET2, weight);
                             VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Fill(DPhiMET3, weight);
                         }
@@ -649,11 +720,11 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
                 }
 
-                if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DPhi < DPhiSR) {
+                if (MjjJetSel() && MET > METCut && DPhi < DPhiCRMax) {
 
-                    if ( ((Soft3rd() && Veto4th()) || (Veto3rd() && Veto4th())) && DEta > DEtaLoose ) {
+                    if ( ((Soft3rd() && Veto4th()) || (Veto3rd() && Veto4th())) && DEta > DEtajj && Mjj > MjjCut) {
 
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             VBF_dPhi_presel_pred_raw->Fill(DPhi, Ntries, weight);
                             VBF_dEta_presel_pred_raw->Fill(DEta, Ntries, weight);
                             VBF_Mjj_presel_pred_raw->Fill(Mjj, Ntries, weight);
@@ -665,6 +736,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_presel_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_presel_pred_raw->Fill(MET, Ntries, weight);
+                            VBF_METsoft_presel_pred_raw->Fill(METsoft, Ntries, weight);
+                            VBF_METsig_presel_pred_raw->Fill(METsig, Ntries, weight);
+                            VBF_MHTsig_presel_pred_raw->Fill(MHTsig, Ntries, weight);
                             VBF_minDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMET1, Ntries, weight);
                             VBF_maxDeltaPhiPTj12_presel_pred_raw->Fill(DPhiMET2, Ntries, weight);
                             VBF_DeltaPhiPTj3_presel_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -680,14 +754,17 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_presel_sel->Fill(JetEta->at(2), weight);
                             VBF_PTjj_presel_sel->Fill(MHTjj, weight);
                             VBF_MET_presel_sel->Fill(MET, weight);
+                            VBF_METsoft_presel_sel->Fill(METsoft, weight);
+                            VBF_METsig_presel_sel->Fill(METsig, weight);
+                            VBF_MHTsig_presel_sel->Fill(MHTsig, weight);
                             VBF_minDeltaPhiPTj12_presel_sel->Fill(DPhiMET1, weight);
                             VBF_maxDeltaPhiPTj12_presel_sel->Fill(DPhiMET2, weight);
                             VBF_DeltaPhiPTj3_presel_sel->Fill(DPhiMET3, weight);
                         }
 
-                        if (DEta > DEtaTight) {
+                        if (DEta > DEtaTight && DPhi < DPhiSR) {
 
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 VBF_dPhi_dEta_pred_raw->Fill(DPhi, Ntries, weight);
                                 VBF_dEta_dEta_pred_raw->Fill(DEta, Ntries, weight);
                                 VBF_Mjj_dEta_pred_raw->Fill(Mjj, Ntries, weight);
@@ -699,6 +776,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                                 VBF_PTjj_dEta_pred_raw->Fill(MHTjj, Ntries, weight);
                                 VBF_MET_dEta_pred_raw->Fill(MET, Ntries, weight);
+                                VBF_METsoft_dEta_pred_raw->Fill(METsoft, Ntries, weight);
+                                VBF_METsig_dEta_pred_raw->Fill(METsig, Ntries, weight);
+                                VBF_MHTsig_dEta_pred_raw->Fill(MHTsig, Ntries, weight);
                                 VBF_minDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMET1, Ntries, weight);
                                 VBF_maxDeltaPhiPTj12_dEta_pred_raw->Fill(DPhiMET2, Ntries, weight);
                                 VBF_DeltaPhiPTj3_dEta_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -714,6 +794,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_sel->Fill(JetEta->at(2), weight);
                                 VBF_PTjj_dEta_sel->Fill(MHTjj, weight);
                                 VBF_MET_dEta_sel->Fill(MET, weight);
+                                VBF_METsoft_dEta_sel->Fill(METsoft, weight);
+                                VBF_METsig_dEta_sel->Fill(METsig, weight);
+                                VBF_MHTsig_dEta_sel->Fill(MHTsig, weight);
                                 VBF_minDeltaPhiPTj12_dEta_sel->Fill(DPhiMET1, weight);
                                 VBF_maxDeltaPhiPTj12_dEta_sel->Fill(DPhiMET2, weight);
                                 VBF_DeltaPhiPTj3_dEta_sel->Fill(DPhiMET3, weight);
@@ -722,9 +805,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
                     }
 
-                    if (DEta > DEtajj && Veto3rd()) {
+                    if (DPhi < DPhiSR && DEta > DEtajj && Mjj < MjjCut && Veto3rd()) { // && ( (fabs(JetEta->at(0))<2.4 && fabs(JetEta->at(1))>2.4 ) || (fabs(JetEta->at(1))<2.4 && fabs(JetEta->at(0))>2.4 ) ) ) {
 
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             VBF_dPhi_jj_pred_raw->Fill(DPhi, Ntries, weight);
                             VBF_dEta_jj_pred_raw->Fill(DEta, Ntries, weight);
                             VBF_Mjj_jj_pred_raw->Fill(Mjj, Ntries, weight);
@@ -736,6 +819,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_jj_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_jj_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_jj_pred_raw->Fill(MET, Ntries, weight);
+                            VBF_METsoft_jj_pred_raw->Fill(METsoft, Ntries, weight);
+                            VBF_METsig_jj_pred_raw->Fill(METsig, Ntries, weight);
+                            VBF_MHTsig_jj_pred_raw->Fill(MHTsig, Ntries, weight);
                             VBF_minDeltaPhiPTj12_jj_pred_raw->Fill(DPhiMET1, Ntries, weight);
                             VBF_maxDeltaPhiPTj12_jj_pred_raw->Fill(DPhiMET2, Ntries, weight);
                             VBF_DeltaPhiPTj3_jj_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -751,24 +837,27 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_jj_sel->Fill(JetEta->at(2), weight);
                             VBF_PTjj_jj_sel->Fill(MHTjj, weight);
                             VBF_MET_jj_sel->Fill(MET, weight);
+                            VBF_METsoft_jj_sel->Fill(METsoft, weight);
+                            VBF_METsig_jj_sel->Fill(METsig, weight);
+                            VBF_MHTsig_jj_sel->Fill(MHTsig, weight);
                             VBF_minDeltaPhiPTj12_jj_sel->Fill(DPhiMET1,weight);
                             VBF_maxDeltaPhiPTj12_jj_sel->Fill(DPhiMET2, weight);
                             VBF_DeltaPhiPTj3_jj_sel->Fill(DPhiMET3, weight);
                         }
 
-					}
-                    
-                    if (DEta > DEtaTight && Veto3rd()) {
+                    }
 
-                        std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
-                        std::cout << "pTjj, HT: " << MHTjj <<  ", " << HT << std::endl;
-                        std::cout << "MET (pt, phi): " << MET <<  ", " << METphi << std::endl;
-                        std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(0)  << ", " << JetPhi->at(0) << std::endl;
-                        std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(1)  << ", " << JetPhi->at(1) << std::endl;
-                        std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
-						std::cout << std::endl;
+                    if (DEta > DEtaTight && Veto3rd() && Mjj > MjjCut && DPhi < DPhiSR) {
 
-                        if (Ntries > 0) {
+                        //std::cout << "Ntries, weight, MC weight, triggerWeight: " << Ntries << ", " << weight << ", " << weight0 << ", " << triggerWeight << std::endl;
+                        //std::cout << "pTjj, HT: " << MHTjj <<  ", " << HT << std::endl;
+                        //std::cout << "MET (pt, phi): " << MET <<  ", " << METphi << std::endl;
+                        //std::cout << "1st jet (pt, eta, phi): " << JetPt->at(0) << ", " << JetEta->at(0)  << ", " << JetPhi->at(0) << std::endl;
+                        //std::cout << "2nd jet (pt, eta, phi): " << JetPt->at(1) << ", " << JetEta->at(1)  << ", " << JetPhi->at(1) << std::endl;
+                        //std::cout << "3rd jet (pt, eta, phi): " << JetPt->at(2) << ", " << JetEta->at(2)  << ", " << JetPhi->at(2) << std::endl;
+                        //std::cout << std::endl;
+
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             VBF_dPhi_dEta_3JV_pred_raw->Fill(DPhi, Ntries, weight);
                             VBF_dEta_dEta_3JV_pred_raw->Fill(DEta, Ntries, weight);
                             VBF_Mjj_dEta_3JV_pred_raw->Fill(Mjj, Ntries, weight);
@@ -780,6 +869,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_dEta_3JV_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                             VBF_PTjj_dEta_3JV_pred_raw->Fill(MHTjj, Ntries, weight);
                             VBF_MET_dEta_3JV_pred_raw->Fill(MET, Ntries, weight);
+                            VBF_METsoft_dEta_3JV_pred_raw->Fill(METsoft, Ntries, weight);
+                            VBF_METsig_dEta_3JV_pred_raw->Fill(METsig, Ntries, weight);
+                            VBF_MHTsig_dEta_3JV_pred_raw->Fill(MHTsig, Ntries, weight);
                             VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMET1, Ntries, weight);
                             VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw->Fill(DPhiMET2, Ntries, weight);
                             VBF_DeltaPhiPTj3_dEta_3JV_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -795,6 +887,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_Jet3Eta_dEta_3JV_sel->Fill(JetEta->at(2), (!blindSR)*weight);
                             VBF_PTjj_dEta_3JV_sel->Fill(MHTjj, (!blindSR)*weight);
                             VBF_MET_dEta_3JV_sel->Fill(MET, (!blindSR)*weight);
+                            VBF_METsoft_dEta_3JV_sel->Fill(METsoft, (!blindSR)*weight);
+                            VBF_METsig_dEta_3JV_sel->Fill(METsig, (!blindSR)*weight);
+                            VBF_MHTsig_dEta_3JV_sel->Fill(MHTsig, (!blindSR)*weight);
                             VBF_minDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMET1, (!blindSR)*weight);
                             VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Fill(DPhiMET2, (!blindSR)*weight);
                             VBF_DeltaPhiPTj3_dEta_3JV_sel->Fill(DPhiMET3, (!blindSR)*weight);
@@ -802,7 +897,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
                         if (DPhiMET1 > 1.0 && DPhiMET2 > 1.0) {
 
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 VBF_dPhi_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhi, Ntries, weight);
                                 VBF_dEta_dEta_3JV_dPhiPTjj_pred_raw->Fill(DEta, Ntries, weight);
                                 VBF_Mjj_dEta_3JV_dPhiPTjj_pred_raw->Fill(Mjj, Ntries, weight);
@@ -814,6 +909,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw->Fill(JetEta->at(2), Ntries, weight);
                                 VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw->Fill(MHTjj, Ntries, weight);
                                 VBF_MET_dEta_3JV_dPhiPTjj_pred_raw->Fill(MET, Ntries, weight);
+                                VBF_METsoft_dEta_3JV_dPhiPTjj_pred_raw->Fill(METsoft, Ntries, weight);
+                                VBF_METsig_dEta_3JV_dPhiPTjj_pred_raw->Fill(METsig, Ntries, weight);
+                                VBF_MHTsig_dEta_3JV_dPhiPTjj_pred_raw->Fill(MHTsig, Ntries, weight);
                                 VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET1, Ntries, weight);
                                 VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET2, Ntries, weight);
                                 VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw->Fill(DPhiMET3, Ntries, weight);
@@ -829,6 +927,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel->Fill(JetEta->at(2), (!blindSR)*weight);
                                 VBF_PTjj_dEta_3JV_dPhiPTjj_sel->Fill(MHTjj, (!blindSR)*weight);
                                 VBF_MET_dEta_3JV_dPhiPTjj_sel->Fill(MET, (!blindSR)*weight);
+                                VBF_METsoft_dEta_3JV_dPhiPTjj_sel->Fill(METsoft, (!blindSR)*weight);
+                                VBF_METsig_dEta_3JV_dPhiPTjj_sel->Fill(METsig, (!blindSR)*weight);
+                                VBF_MHTsig_dEta_3JV_dPhiPTjj_sel->Fill(MHTsig, (!blindSR)*weight);
                                 VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET1, (!blindSR)*weight);
                                 VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET2, (!blindSR)*weight);
                                 VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Fill(DPhiMET3, (!blindSR)*weight);
@@ -849,7 +950,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                 // ------------------------------------------------------------- //
 
                 if( NJets >=2 ) {
-                    if (Ntries > 0) {
+                    if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                         HT_presel_pred_raw->Fill(HT, Ntries, weight);
                         MHT_presel_pred_raw->Fill(MHT, Ntries, weight);
                         MET_presel_pred_raw->Fill(MET, Ntries, weight);
@@ -888,7 +989,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                 // HT baseline cut
                 if( HT > 500. ) {
                     if( NJets >= 4 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             NJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
                             NBJets_baseline_withoutDeltaPhi_withoutMET_pred_raw->Fill(BTags, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -897,7 +998,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                     }
                     if( NJets == 2 || NJets == 3 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -906,7 +1007,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                     }
                     else if( NJets == 4 ||  NJets == 5 || NJets == 6) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -915,7 +1016,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                     }
                     else if( NJets == 7  ||  NJets == 8 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -924,7 +1025,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                     }
                     else if( NJets >= 9 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -936,7 +1037,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     // MHT baseline cut
                     if( MET > 200. ) {
                         if( NJets >= 4 ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 NJets_baseline_withoutDeltaPhi_pred_raw->Fill(NJets, Ntries, weight);
                                 NBJets_baseline_withoutDeltaPhi_pred_raw->Fill(BTags, Ntries, weight);
                             } else if (Ntries == -2) {
@@ -946,7 +1047,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                         // jet bin 1
                         if( NJets == 2 || NJets == 3) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet1Eta_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(JetEta->at(0), Ntries, weight);
@@ -964,7 +1065,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                         // jet bin 2
                         else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet3Pt_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
@@ -988,7 +1089,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                         // jet bin 3
                         else if( NJets == 7  ||  NJets == 8 ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet3Pt_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
@@ -1012,7 +1113,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
                         // jet bin 4
                         else if( NJets >= 9 ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet3Pt_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(JetPt->at(2), Ntries, weight);
@@ -1040,28 +1141,28 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                 // MHT baseline cut
                 if( MET > 200. ) {
                     if( NJets == 2 || NJets == 3 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             HT_JetBin1_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
                         } else if (Ntries == -2) {
                             HT_JetBin1_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
                         }
                     }
                     else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             HT_JetBin2_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
                         } else if (Ntries == -2) {
                             HT_JetBin2_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
                         }
                     }
                     else if(  NJets == 7  ||  NJets == 8 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             HT_JetBin3_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
                         } else if (Ntries == -2) {
                             HT_JetBin3_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
                         }
                     }
                     else if(  NJets >= 9 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             HT_JetBin4_baseline_withoutDeltaPhi_pred_raw->Fill(HT, Ntries, weight);
                         } else if (Ntries == -2) {
                             HT_JetBin4_baseline_withoutDeltaPhi_sel->Fill(HT, weight);
@@ -1078,7 +1179,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     // fill histos after deltaPhi cut
                     // ------------------------------------------------------------- //
                     if( NJets >= 4 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             HT_deltaPhi_pred_raw->Fill(HT, Ntries, weight);
                             MHT_deltaPhi_pred_raw->Fill(MHT, Ntries, weight);
                             MET_deltaPhi_pred_raw->Fill(MET, Ntries, weight);
@@ -1104,7 +1205,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         // fill baseline histos
                         // ------------------------------------------------------------- //
                         if( HT > 500. ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 MHT_baseline_pred_raw->Fill(MHT, Ntries, weight);
                                 MET_baseline_pred_raw->Fill(MET, Ntries, weight);
                                 NJets_baseline_withoutMET_pred_raw->Fill(NJets, Ntries, weight);
@@ -1116,7 +1217,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                                 NBJets_baseline_withoutMET_sel->Fill(BTags, weight);
                             }
                             if( MET > 200. ) {
-                                if (Ntries > 0) {
+                                if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                     NJets_baseline_pred_raw->Fill(NJets, Ntries, weight);
                                     NBJets_baseline_pred_raw->Fill(BTags, Ntries, weight);
                                 } else if (Ntries == -2) {
@@ -1126,7 +1227,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             }
                         }
                         if( MET > 200. ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 HT_baseline_pred_raw->Fill(HT, Ntries, weight);
                             } else if (Ntries == -2) {
                                 HT_baseline_sel->Fill(HT, weight);
@@ -1139,7 +1240,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     // ------------------------------------------------------------- //
                     // jet bin 1
                     if( NJets == 2 || NJets == 3) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin1_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin1_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -1148,7 +1249,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
 
                         if( MET > 200. ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin1_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet1Eta_JetBin1_baseline_pred_raw->Fill(JetEta->at(0), Ntries, weight);
@@ -1168,7 +1269,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     }
                     // jet bin 2
                     else if( NJets == 4 || NJets == 5 ||  NJets == 6 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin2_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin2_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -1177,7 +1278,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
 
                         if( MET > 200. ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                                 Jet1Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet3Pt_JetBin2_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
@@ -1203,7 +1304,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     }
                     // jet bin 3
                     else if(  NJets == 7  ||  NJets == 8 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin3_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin3_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -1212,7 +1313,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                         }
 
                         if( MET > 200. ) {
-                            if (Ntries > 0) {
+                            if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax) {
                                 Jet1Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(0), Ntries, weight);
                                 Jet2Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(1), Ntries, weight);
                                 Jet3Pt_JetBin3_baseline_pred_raw->Fill(JetPt->at(2), Ntries, weight);
@@ -1238,7 +1339,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                     }
                     // jet bin 4
                     else if(  NJets >= 9 ) {
-                        if (Ntries > 0) {
+                        if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             MHT_JetBin4_HTinclusive_pred_raw->Fill(MHT, Ntries, weight);
                             MET_JetBin4_HTinclusive_pred_raw->Fill(MET, Ntries, weight);
                         } else if (Ntries == -2) {
@@ -1416,6 +1517,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_presel_pred_raw, VBF_Jet3Eta_presel_sel, 5);
     DoRebinning(VBF_PTjj_presel_pred_raw, VBF_PTjj_presel_sel, -2);
     DoRebinning(VBF_MET_presel_pred_raw, VBF_MET_presel_sel, -2);
+    DoRebinning(VBF_METsoft_presel_pred_raw, VBF_METsoft_presel_sel, 2);
+    DoRebinning(VBF_METsig_presel_pred_raw, VBF_METsig_presel_sel, 2);
+    DoRebinning(VBF_MHTsig_presel_pred_raw, VBF_MHTsig_presel_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_presel_pred_raw, VBF_minDeltaPhiPTj12_presel_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_presel_pred_raw, VBF_maxDeltaPhiPTj12_presel_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_presel_pred_raw, VBF_DeltaPhiPTj3_presel_sel, 5);
@@ -1431,6 +1535,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw, VBF_Jet3Eta_presel_4JV_dPhiSide_sel, 5);
     DoRebinning(VBF_PTjj_presel_4JV_dPhiSide_pred_raw, VBF_PTjj_presel_4JV_dPhiSide_sel, -2);
     DoRebinning(VBF_MET_presel_4JV_dPhiSide_pred_raw, VBF_MET_presel_4JV_dPhiSide_sel, -2);
+    DoRebinning(VBF_METsoft_presel_4JV_dPhiSide_pred_raw, VBF_METsoft_presel_4JV_dPhiSide_sel, 2);
+    DoRebinning(VBF_METsig_presel_4JV_dPhiSide_pred_raw, VBF_METsig_presel_4JV_dPhiSide_sel, 2);
+    DoRebinning(VBF_MHTsig_presel_4JV_dPhiSide_pred_raw, VBF_MHTsig_presel_4JV_dPhiSide_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw, VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw, VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw, VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel, 5);
@@ -1446,6 +1553,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_dEta_pred_raw, VBF_Jet3Eta_dEta_sel, 5);
     DoRebinning(VBF_PTjj_dEta_pred_raw, VBF_PTjj_dEta_sel, -2);
     DoRebinning(VBF_MET_dEta_pred_raw, VBF_MET_dEta_sel, -2);
+    DoRebinning(VBF_METsoft_dEta_pred_raw, VBF_METsoft_dEta_sel, 2);
+    DoRebinning(VBF_METsig_dEta_pred_raw, VBF_METsig_dEta_sel, 2);
+    DoRebinning(VBF_MHTsig_dEta_pred_raw, VBF_MHTsig_dEta_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_dEta_pred_raw, VBF_minDeltaPhiPTj12_dEta_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_dEta_pred_raw, VBF_maxDeltaPhiPTj12_dEta_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_dEta_pred_raw, VBF_DeltaPhiPTj3_dEta_sel, 5);
@@ -1461,6 +1571,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_jj_pred_raw, VBF_Jet3Eta_jj_sel, 5);
     DoRebinning(VBF_PTjj_jj_pred_raw, VBF_PTjj_jj_sel, -2);
     DoRebinning(VBF_MET_jj_pred_raw, VBF_MET_jj_sel, -2);
+    DoRebinning(VBF_METsoft_jj_pred_raw, VBF_METsoft_jj_sel, 2);
+    DoRebinning(VBF_METsig_jj_pred_raw, VBF_METsig_jj_sel, 2);
+    DoRebinning(VBF_MHTsig_jj_pred_raw, VBF_MHTsig_jj_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_jj_pred_raw, VBF_minDeltaPhiPTj12_jj_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_jj_pred_raw, VBF_maxDeltaPhiPTj12_jj_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_jj_pred_raw, VBF_DeltaPhiPTj3_jj_sel, 5);
@@ -1476,6 +1589,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_dEta_3JV_pred_raw, VBF_Jet3Eta_dEta_3JV_sel, 5);
     DoRebinning(VBF_PTjj_dEta_3JV_pred_raw, VBF_PTjj_dEta_3JV_sel, -2);
     DoRebinning(VBF_MET_dEta_3JV_pred_raw, VBF_MET_dEta_3JV_sel, -2);
+    DoRebinning(VBF_METsoft_dEta_3JV_pred_raw, VBF_METsoft_dEta_3JV_sel, 2);
+    DoRebinning(VBF_METsig_dEta_3JV_pred_raw, VBF_METsig_dEta_3JV_sel, 2);
+    DoRebinning(VBF_MHTsig_dEta_3JV_pred_raw, VBF_MHTsig_dEta_3JV_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw, VBF_minDeltaPhiPTj12_dEta_3JV_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw, VBF_maxDeltaPhiPTj12_dEta_3JV_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_dEta_3JV_pred_raw, VBF_DeltaPhiPTj3_dEta_3JV_sel, 5);
@@ -1491,6 +1607,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     DoRebinning(VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw, VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel, 5);
     DoRebinning(VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw, VBF_PTjj_dEta_3JV_dPhiPTjj_sel, -2);
     DoRebinning(VBF_MET_dEta_3JV_dPhiPTjj_pred_raw, VBF_MET_dEta_3JV_dPhiPTjj_sel, -2);
+    DoRebinning(VBF_METsoft_dEta_3JV_dPhiPTjj_pred_raw, VBF_METsoft_dEta_3JV_dPhiPTjj_sel, 2);
+    DoRebinning(VBF_METsig_dEta_3JV_dPhiPTjj_pred_raw, VBF_METsig_dEta_3JV_dPhiPTjj_sel, 2);
+    DoRebinning(VBF_MHTsig_dEta_3JV_dPhiPTjj_pred_raw, VBF_MHTsig_dEta_3JV_dPhiPTjj_sel, 2);
     DoRebinning(VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw, VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel, 5);
     DoRebinning(VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw, VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel, 5);
     DoRebinning(VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw, VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel, 5);
@@ -1646,6 +1765,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_presel_pred = CalcPrediction( VBF_Jet3Eta_presel_pred_raw);
     VBF_PTjj_presel_pred = CalcPrediction( VBF_PTjj_presel_pred_raw);
     VBF_MET_presel_pred = CalcPrediction( VBF_MET_presel_pred_raw);
+    VBF_METsoft_presel_pred = CalcPrediction( VBF_METsoft_presel_pred_raw);
+    VBF_METsig_presel_pred = CalcPrediction( VBF_METsig_presel_pred_raw);
+    VBF_MHTsig_presel_pred = CalcPrediction( VBF_MHTsig_presel_pred_raw);
     VBF_minDeltaPhiPTj12_presel_pred = CalcPrediction( VBF_minDeltaPhiPTj12_presel_pred_raw);
     VBF_maxDeltaPhiPTj12_presel_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_presel_pred_raw);
     VBF_DeltaPhiPTj3_presel_pred = CalcPrediction( VBF_DeltaPhiPTj3_presel_pred_raw);
@@ -1661,6 +1783,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw);
     VBF_PTjj_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_PTjj_presel_4JV_dPhiSide_pred_raw);
     VBF_MET_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_MET_presel_4JV_dPhiSide_pred_raw);
+    VBF_METsoft_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_METsoft_presel_4JV_dPhiSide_pred_raw);
+    VBF_METsig_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_METsig_presel_4JV_dPhiSide_pred_raw);
+    VBF_MHTsig_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_MHTsig_presel_4JV_dPhiSide_pred_raw);
     VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw);
     VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred_raw);
     VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred = CalcPrediction( VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred_raw);
@@ -1676,6 +1801,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_dEta_pred = CalcPrediction( VBF_Jet3Eta_dEta_pred_raw);
     VBF_PTjj_dEta_pred = CalcPrediction( VBF_PTjj_dEta_pred_raw);
     VBF_MET_dEta_pred = CalcPrediction( VBF_MET_dEta_pred_raw);
+    VBF_METsoft_dEta_pred = CalcPrediction( VBF_METsoft_dEta_pred_raw);
+    VBF_METsig_dEta_pred = CalcPrediction( VBF_METsig_dEta_pred_raw);
+    VBF_MHTsig_dEta_pred = CalcPrediction( VBF_MHTsig_dEta_pred_raw);
     VBF_minDeltaPhiPTj12_dEta_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_pred_raw);
     VBF_maxDeltaPhiPTj12_dEta_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_pred_raw);
     VBF_DeltaPhiPTj3_dEta_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_pred_raw);
@@ -1691,6 +1819,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_jj_pred = CalcPrediction( VBF_Jet3Eta_jj_pred_raw);
     VBF_PTjj_jj_pred = CalcPrediction( VBF_PTjj_jj_pred_raw);
     VBF_MET_jj_pred = CalcPrediction( VBF_MET_jj_pred_raw);
+    VBF_METsoft_jj_pred = CalcPrediction( VBF_METsoft_jj_pred_raw);
+    VBF_METsig_jj_pred = CalcPrediction( VBF_METsig_jj_pred_raw);
+    VBF_MHTsig_jj_pred = CalcPrediction( VBF_MHTsig_jj_pred_raw);
     VBF_minDeltaPhiPTj12_jj_pred = CalcPrediction( VBF_minDeltaPhiPTj12_jj_pred_raw);
     VBF_maxDeltaPhiPTj12_jj_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_jj_pred_raw);
     VBF_DeltaPhiPTj3_jj_pred = CalcPrediction( VBF_DeltaPhiPTj3_jj_pred_raw);
@@ -1706,6 +1837,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_dEta_3JV_pred = CalcPrediction( VBF_Jet3Eta_dEta_3JV_pred_raw);
     VBF_PTjj_dEta_3JV_pred = CalcPrediction( VBF_PTjj_dEta_3JV_pred_raw);
     VBF_MET_dEta_3JV_pred = CalcPrediction( VBF_MET_dEta_3JV_pred_raw);
+    VBF_METsoft_dEta_3JV_pred = CalcPrediction( VBF_METsoft_dEta_3JV_pred_raw);
+    VBF_METsig_dEta_3JV_pred = CalcPrediction( VBF_METsig_dEta_3JV_pred_raw);
+    VBF_MHTsig_dEta_3JV_pred = CalcPrediction( VBF_MHTsig_dEta_3JV_pred_raw);
     VBF_minDeltaPhiPTj12_dEta_3JV_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_3JV_pred_raw);
     VBF_maxDeltaPhiPTj12_dEta_3JV_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_3JV_pred_raw);
     VBF_DeltaPhiPTj3_dEta_3JV_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_3JV_pred_raw);
@@ -1721,6 +1855,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw);
     VBF_PTjj_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw);
     VBF_MET_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_MET_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_METsoft_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_METsoft_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_METsig_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_METsig_dEta_3JV_dPhiPTjj_pred_raw);
+    VBF_MHTsig_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_MHTsig_dEta_3JV_dPhiPTjj_pred_raw);
     VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw);
     VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred_raw);
     VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred = CalcPrediction( VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred_raw);
@@ -1882,6 +2019,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_presel_pred->Write();
         VBF_PTjj_presel_pred->Write();
         VBF_MET_presel_pred->Write();
+        VBF_METsoft_presel_pred->Write();
+        VBF_METsig_presel_pred->Write();
+        VBF_MHTsig_presel_pred->Write();
         VBF_minDeltaPhiPTj12_presel_pred->Write();
         VBF_maxDeltaPhiPTj12_presel_pred->Write();
         VBF_DeltaPhiPTj3_presel_pred->Write();
@@ -1897,6 +2037,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_presel_4JV_dPhiSide_pred->Write();
         VBF_PTjj_presel_4JV_dPhiSide_pred->Write();
         VBF_MET_presel_4JV_dPhiSide_pred->Write();
+        VBF_METsoft_presel_4JV_dPhiSide_pred->Write();
+        VBF_METsig_presel_4JV_dPhiSide_pred->Write();
+        VBF_MHTsig_presel_4JV_dPhiSide_pred->Write();
         VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred->Write();
         VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred->Write();
         VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred->Write();
@@ -1912,6 +2055,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_pred->Write();
         VBF_PTjj_dEta_pred->Write();
         VBF_MET_dEta_pred->Write();
+        VBF_METsoft_dEta_pred->Write();
+        VBF_METsig_dEta_pred->Write();
+        VBF_MHTsig_dEta_pred->Write();
         VBF_minDeltaPhiPTj12_dEta_pred->Write();
         VBF_maxDeltaPhiPTj12_dEta_pred->Write();
         VBF_DeltaPhiPTj3_dEta_pred->Write();
@@ -1927,6 +2073,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_jj_pred->Write();
         VBF_PTjj_jj_pred->Write();
         VBF_MET_jj_pred->Write();
+        VBF_METsoft_jj_pred->Write();
+        VBF_METsig_jj_pred->Write();
+        VBF_MHTsig_jj_pred->Write();
         VBF_minDeltaPhiPTj12_jj_pred->Write();
         VBF_maxDeltaPhiPTj12_jj_pred->Write();
         VBF_DeltaPhiPTj3_jj_pred->Write();
@@ -1942,6 +2091,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_3JV_pred->Write();
         VBF_PTjj_dEta_3JV_pred->Write();
         VBF_MET_dEta_3JV_pred->Write();
+        VBF_METsoft_dEta_3JV_pred->Write();
+        VBF_METsig_dEta_3JV_pred->Write();
+        VBF_MHTsig_dEta_3JV_pred->Write();
         VBF_minDeltaPhiPTj12_dEta_3JV_pred->Write();
         VBF_maxDeltaPhiPTj12_dEta_3JV_pred->Write();
         VBF_DeltaPhiPTj3_dEta_3JV_pred->Write();
@@ -1957,6 +2109,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred->Write();
         VBF_PTjj_dEta_3JV_dPhiPTjj_pred->Write();
         VBF_MET_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_METsoft_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_METsig_dEta_3JV_dPhiPTjj_pred->Write();
+        VBF_MHTsig_dEta_3JV_dPhiPTjj_pred->Write();
         VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred->Write();
         VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred->Write();
         VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred->Write();
@@ -2115,6 +2270,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_presel_sel->Write();
         VBF_PTjj_presel_sel->Write();
         VBF_MET_presel_sel->Write();
+        VBF_METsoft_presel_sel->Write();
+        VBF_METsig_presel_sel->Write();
+        VBF_MHTsig_presel_sel->Write();
         VBF_minDeltaPhiPTj12_presel_sel->Write();
         VBF_maxDeltaPhiPTj12_presel_sel->Write();
         VBF_DeltaPhiPTj3_presel_sel->Write();
@@ -2130,6 +2288,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_presel_4JV_dPhiSide_sel->Write();
         VBF_PTjj_presel_4JV_dPhiSide_sel->Write();
         VBF_MET_presel_4JV_dPhiSide_sel->Write();
+        VBF_METsoft_presel_4JV_dPhiSide_sel->Write();
+        VBF_METsig_presel_4JV_dPhiSide_sel->Write();
+        VBF_MHTsig_presel_4JV_dPhiSide_sel->Write();
         VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Write();
         VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel->Write();
         VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel->Write();
@@ -2145,6 +2306,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_sel->Write();
         VBF_PTjj_dEta_sel->Write();
         VBF_MET_dEta_sel->Write();
+        VBF_METsoft_dEta_sel->Write();
+        VBF_METsig_dEta_sel->Write();
+        VBF_MHTsig_dEta_sel->Write();
         VBF_minDeltaPhiPTj12_dEta_sel->Write();
         VBF_maxDeltaPhiPTj12_dEta_sel->Write();
         VBF_DeltaPhiPTj3_dEta_sel->Write();
@@ -2160,6 +2324,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_jj_sel->Write();
         VBF_PTjj_jj_sel->Write();
         VBF_MET_jj_sel->Write();
+        VBF_METsoft_jj_sel->Write();
+        VBF_METsig_jj_sel->Write();
+        VBF_MHTsig_jj_sel->Write();
         VBF_minDeltaPhiPTj12_jj_sel->Write();
         VBF_maxDeltaPhiPTj12_jj_sel->Write();
         VBF_DeltaPhiPTj3_jj_sel->Write();
@@ -2175,6 +2342,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_3JV_sel->Write();
         VBF_PTjj_dEta_3JV_sel->Write();
         VBF_MET_dEta_3JV_sel->Write();
+        VBF_METsoft_dEta_3JV_sel->Write();
+        VBF_METsig_dEta_3JV_sel->Write();
+        VBF_MHTsig_dEta_3JV_sel->Write();
         VBF_minDeltaPhiPTj12_dEta_3JV_sel->Write();
         VBF_maxDeltaPhiPTj12_dEta_3JV_sel->Write();
         VBF_DeltaPhiPTj3_dEta_3JV_sel->Write();
@@ -2190,6 +2360,9 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel->Write();
         VBF_PTjj_dEta_3JV_dPhiPTjj_sel->Write();
         VBF_MET_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_METsoft_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_METsig_dEta_3JV_dPhiPTjj_sel->Write();
+        VBF_MHTsig_dEta_3JV_dPhiPTjj_sel->Write();
         VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Write();
         VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel->Write();
         VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel->Write();
@@ -2664,6 +2837,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_presel") return VBF_Jet3Eta_presel_sel;
     if ( type == "VBF_PTjj_presel") return VBF_PTjj_presel_sel;
     if ( type == "VBF_MET_presel") return VBF_MET_presel_sel;
+    if ( type == "VBF_METsoft_presel") return VBF_METsoft_presel_sel;
+    if ( type == "VBF_METsig_presel") return VBF_METsig_presel_sel;
+    if ( type == "VBF_MHTsig_presel") return VBF_MHTsig_presel_sel;
     if ( type == "VBF_minDeltaPhiPTj12_presel") return VBF_minDeltaPhiPTj12_presel_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_presel") return VBF_maxDeltaPhiPTj12_presel_sel;
     if ( type == "VBF_DeltaPhiPTj3_presel") return VBF_DeltaPhiPTj3_presel_sel;
@@ -2679,6 +2855,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_presel_4JV_dPhiSide") return VBF_Jet3Eta_presel_4JV_dPhiSide_sel;
     if ( type == "VBF_PTjj_presel_4JV_dPhiSide") return VBF_PTjj_presel_4JV_dPhiSide_sel;
     if ( type == "VBF_MET_presel_4JV_dPhiSide") return VBF_MET_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_METsoft_presel_4JV_dPhiSide") return VBF_METsoft_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_METsig_presel_4JV_dPhiSide") return VBF_METsig_presel_4JV_dPhiSide_sel;
+    if ( type == "VBF_MHTsig_presel_4JV_dPhiSide") return VBF_MHTsig_presel_4JV_dPhiSide_sel;
     if ( type == "VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_sel;
     if ( type == "VBF_DeltaPhiPTj3_presel_4JV_dPhiSide") return VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_sel;
@@ -2694,6 +2873,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta") return VBF_Jet3Eta_dEta_sel;
     if ( type == "VBF_PTjj_dEta") return VBF_PTjj_dEta_sel;
     if ( type == "VBF_MET_dEta") return VBF_MET_dEta_sel;
+    if ( type == "VBF_METsoft_dEta") return VBF_METsoft_dEta_sel;
+    if ( type == "VBF_METsig_dEta") return VBF_METsig_dEta_sel;
+    if ( type == "VBF_MHTsig_dEta") return VBF_MHTsig_dEta_sel;
     if ( type == "VBF_minDeltaPhiPTj12_dEta") return VBF_minDeltaPhiPTj12_dEta_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta") return VBF_maxDeltaPhiPTj12_dEta_sel;
     if ( type == "VBF_DeltaPhiPTj3_dEta") return VBF_DeltaPhiPTj3_dEta_sel;
@@ -2709,6 +2891,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_jj") return VBF_Jet3Eta_jj_sel;
     if ( type == "VBF_PTjj_jj") return VBF_PTjj_jj_sel;
     if ( type == "VBF_MET_jj") return VBF_MET_jj_sel;
+    if ( type == "VBF_METsoft_jj") return VBF_METsoft_jj_sel;
+    if ( type == "VBF_METsig_jj") return VBF_METsig_jj_sel;
+    if ( type == "VBF_MHTsig_jj") return VBF_MHTsig_jj_sel;
     if ( type == "VBF_minDeltaPhiPTj12_jj") return VBF_minDeltaPhiPTj12_jj_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_jj") return VBF_maxDeltaPhiPTj12_jj_sel;
     if ( type == "VBF_DeltaPhiPTj3_jj") return VBF_DeltaPhiPTj3_jj_sel;
@@ -2724,6 +2909,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta_3JV") return VBF_Jet3Eta_dEta_3JV_sel;
     if ( type == "VBF_PTjj_dEta_3JV") return VBF_PTjj_dEta_3JV_sel;
     if ( type == "VBF_MET_dEta_3JV") return VBF_MET_dEta_3JV_sel;
+    if ( type == "VBF_METsoft_dEta_3JV") return VBF_METsoft_dEta_3JV_sel;
+    if ( type == "VBF_METsig_dEta_3JV") return VBF_METsig_dEta_3JV_sel;
+    if ( type == "VBF_MHTsig_dEta_3JV") return VBF_MHTsig_dEta_3JV_sel;
     if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV") return VBF_minDeltaPhiPTj12_dEta_3JV_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV") return VBF_maxDeltaPhiPTj12_dEta_3JV_sel;
     if ( type == "VBF_DeltaPhiPTj3_dEta_3JV") return VBF_DeltaPhiPTj3_dEta_3JV_sel;
@@ -2739,6 +2927,9 @@ TH1F* Prediction::GetSelectionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta_3JV_dPhiPTjj") return VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel;
     if ( type == "VBF_PTjj_dEta_3JV_dPhiPTjj") return VBF_PTjj_dEta_3JV_dPhiPTjj_sel;
     if ( type == "VBF_MET_dEta_3JV_dPhiPTjj") return VBF_MET_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_METsoft_dEta_3JV_dPhiPTjj") return VBF_METsoft_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_METsig_dEta_3JV_dPhiPTjj") return VBF_METsig_dEta_3JV_dPhiPTjj_sel;
+    if ( type == "VBF_MHTsig_dEta_3JV_dPhiPTjj") return VBF_MHTsig_dEta_3JV_dPhiPTjj_sel;
     if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_sel;
     if ( type == "VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj") return VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_sel;
@@ -2900,6 +3091,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_presel") return VBF_Jet3Eta_presel_pred;
     if ( type == "VBF_PTjj_presel") return VBF_PTjj_presel_pred;
     if ( type == "VBF_MET_presel") return VBF_MET_presel_pred;
+    if ( type == "VBF_METsoft_presel") return VBF_METsoft_presel_pred;
+    if ( type == "VBF_METsig_presel") return VBF_METsig_presel_pred;
+    if ( type == "VBF_MHTsig_presel") return VBF_MHTsig_presel_pred;
     if ( type == "VBF_minDeltaPhiPTj12_presel") return VBF_minDeltaPhiPTj12_presel_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_presel") return VBF_maxDeltaPhiPTj12_presel_pred;
     if ( type == "VBF_DeltaPhiPTj3_presel") return VBF_DeltaPhiPTj3_presel_pred;
@@ -2915,6 +3109,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_presel_4JV_dPhiSide") return VBF_Jet3Eta_presel_4JV_dPhiSide_pred;
     if ( type == "VBF_PTjj_presel_4JV_dPhiSide") return VBF_PTjj_presel_4JV_dPhiSide_pred;
     if ( type == "VBF_MET_presel_4JV_dPhiSide") return VBF_MET_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_METsoft_presel_4JV_dPhiSide") return VBF_METsoft_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_METsig_presel_4JV_dPhiSide") return VBF_METsig_presel_4JV_dPhiSide_pred;
+    if ( type == "VBF_MHTsig_presel_4JV_dPhiSide") return VBF_MHTsig_presel_4JV_dPhiSide_pred;
     if ( type == "VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_minDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide") return VBF_maxDeltaPhiPTj12_presel_4JV_dPhiSide_pred;
     if ( type == "VBF_DeltaPhiPTj3_presel_4JV_dPhiSide") return VBF_DeltaPhiPTj3_presel_4JV_dPhiSide_pred;
@@ -2930,6 +3127,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta") return VBF_Jet3Eta_dEta_pred;
     if ( type == "VBF_PTjj_dEta") return VBF_PTjj_dEta_pred;
     if ( type == "VBF_MET_dEta") return VBF_MET_dEta_pred;
+    if ( type == "VBF_METsoft_dEta") return VBF_METsoft_dEta_pred;
+    if ( type == "VBF_METsig_dEta") return VBF_METsig_dEta_pred;
+    if ( type == "VBF_MHTsig_dEta") return VBF_MHTsig_dEta_pred;
     if ( type == "VBF_minDeltaPhiPTj12_dEta") return VBF_minDeltaPhiPTj12_dEta_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta") return VBF_maxDeltaPhiPTj12_dEta_pred;
     if ( type == "VBF_DeltaPhiPTj3_dEta") return VBF_DeltaPhiPTj3_dEta_pred;
@@ -2945,6 +3145,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_jj") return VBF_Jet3Eta_jj_pred;
     if ( type == "VBF_PTjj_jj") return VBF_PTjj_jj_pred;
     if ( type == "VBF_MET_jj") return VBF_MET_jj_pred;
+    if ( type == "VBF_METsoft_jj") return VBF_METsoft_jj_pred;
+    if ( type == "VBF_METsig_jj") return VBF_METsig_jj_pred;
+    if ( type == "VBF_MHTsig_jj") return VBF_MHTsig_jj_pred;
     if ( type == "VBF_minDeltaPhiPTj12_jj") return VBF_minDeltaPhiPTj12_jj_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_jj") return VBF_maxDeltaPhiPTj12_jj_pred;
     if ( type == "VBF_DeltaPhiPTj3_jj") return VBF_DeltaPhiPTj3_jj_pred;
@@ -2960,6 +3163,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta_3JV") return VBF_Jet3Eta_dEta_3JV_pred;
     if ( type == "VBF_PTjj_dEta_3JV") return VBF_PTjj_dEta_3JV_pred;
     if ( type == "VBF_MET_dEta_3JV") return VBF_MET_dEta_3JV_pred;
+    if ( type == "VBF_METsoft_dEta_3JV") return VBF_METsoft_dEta_3JV_pred;
+    if ( type == "VBF_METsig_dEta_3JV") return VBF_METsig_dEta_3JV_pred;
+    if ( type == "VBF_MHTsig_dEta_3JV") return VBF_MHTsig_dEta_3JV_pred;
     if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV") return VBF_minDeltaPhiPTj12_dEta_3JV_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV") return VBF_maxDeltaPhiPTj12_dEta_3JV_pred;
     if ( type == "VBF_DeltaPhiPTj3_dEta_3JV") return VBF_DeltaPhiPTj3_dEta_3JV_pred;
@@ -2975,6 +3181,9 @@ TH1F* Prediction::GetPredictionHisto(TString type) {
     if ( type == "VBF_Jet3Eta_dEta_3JV_dPhiPTjj") return VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred;
     if ( type == "VBF_PTjj_dEta_3JV_dPhiPTjj") return VBF_PTjj_dEta_3JV_dPhiPTjj_pred;
     if ( type == "VBF_MET_dEta_3JV_dPhiPTjj") return VBF_MET_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_METsoft_dEta_3JV_dPhiPTjj") return VBF_METsoft_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_METsig_dEta_3JV_dPhiPTjj") return VBF_METsig_dEta_3JV_dPhiPTjj_pred;
+    if ( type == "VBF_MHTsig_dEta_3JV_dPhiPTjj") return VBF_MHTsig_dEta_3JV_dPhiPTjj_pred;
     if ( type == "VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_minDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
     if ( type == "VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj") return VBF_maxDeltaPhiPTj12_dEta_3JV_dPhiPTjj_pred;
     if ( type == "VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj") return VBF_DeltaPhiPTj3_dEta_3JV_dPhiPTjj_pred;

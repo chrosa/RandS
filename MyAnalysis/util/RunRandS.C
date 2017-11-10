@@ -26,7 +26,7 @@ int main()
     // ------------------------------------------------------------------- //
 
     //std::ifstream myfile ("filelist_test.txt");
-    //std::ifstream myfile ("filelist_data_v1.txt");
+    //std::ifstream myfile ("filelist_data_v2.txt");
     std::ifstream myfile ("filelist_mc.txt");
 
     std::string root_file;
