@@ -216,7 +216,7 @@ void SmearFunction::CalculateSmearFunctions() {
 
                 // check if bin is meaningfull (Pt(E_bin)>>20 GeV)
                 // otherwise reco jet pT threshold biases jet response to larger values
-                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 50.);
                 //bool BinIsOK = true;
                 if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && BinIsOK) {
                     double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();
@@ -365,7 +365,7 @@ void SmearFunction::CalculateSmearFunctions() {
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmin(),
                         smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetXaxis()->GetXmax());
 
-                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 25.);
+                bool BinIsOK = (PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta)) > 50.);
                 //bool BinIsOK = true;
                 if (smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetEntries() > 100 && BinIsOK) {
                     //// fold core and tail with additional gaussian

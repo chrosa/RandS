@@ -57,7 +57,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double METSave = 100;
     double MHTjjSave = 9999.;
     double MHTSave = 9999.;
-    double MjjSave = 600.;
+    double MjjSave = 0.;
     double dPhijjSave = 2.7;
     double dEtajjSave = 2.5;
     int NJetsSave = 0;
@@ -71,17 +71,15 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double MjjCut = 1000.;
     double METCut = 150.;
     
-    //double MHTSigSeedMax = 5.;
-    //double METSigSeedMax = 4.;
-    //double METSoftSeedMax = 40.;
-    //double MHTSigSeedMax = 10.;
-    //double METSigSeedMax = 5.;
-    //double METSoftSeedMax = 30.;
-    double MHTSigSeedMax = 999999.;
+    double MHTSigSeedMax = 5.;
     double METSigSeedMax = 999999.;
-    double METSoftSeedMax = 999999.;
+    double METSoftSeedMax = 30.;
 
-    bool blindSR = false;
+    //double MHTSigSeedMax = 999999.;
+    //double METSigSeedMax = 999999.;
+    //double METSoftSeedMax = 999999.;
+
+    bool blindSR = true;
     bool VBF = true;
     bool HTMHT = false;
 
@@ -645,7 +643,10 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         QCDPrediction.GetEntry(i);
         if (i == 0 ) cout << "loaded first event successfully!" << endl;
 
-        float weight = weight0 * triggerWeight;
+		float tw = triggerWeight;
+		tw = 1.; // for CRs
+		//if (Ntries > 0 && triggerWeight < 5.e-2) tw = 0.;
+        float weight = weight0 * tw;
 
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << " (" << 100*double(i)/nentries << "%)"<< '\n';
 
@@ -674,7 +675,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
             if (VBF) {
 
-                if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DEta > DEtajj && DPhi < DPhiCRMax && DPhi > DPhiCRMin) {
+                if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DEta > DEtaLoose && DPhi < DPhiCRMax && DPhi > DPhiCRMin) {
 
                     if ( Soft3rd() && Veto4th() ) {
 

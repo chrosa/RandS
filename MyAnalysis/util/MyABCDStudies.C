@@ -42,7 +42,7 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
     outputfile = new TFile("ABCDStudiesOutput.root","RECREATE");
 
     m_jvtcut = 0.59;
-    m_lumi = 32900.;
+    m_lumi = 36100.;
 
     dPhijjMin_SR = 0.;
     dPhijjMax_SR = 1.8;

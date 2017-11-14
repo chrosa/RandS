@@ -82,7 +82,7 @@ void RandS::Begin(TTree * /*tree*/)
     doMETmu_ = true;
     PtBinEdges_scaling_ = {0.,3000.};
     EtaBinEdges_scaling_ = {0.,5.};
-    AdditionalSmearing_ = {1.0};
+    AdditionalSmearing_ = {1.1};
     LowerTailScaling_ = {1.0};
     UpperTailScaling_ = {1.0};
     AdditionalSmearing_variation_ = 1.0;
@@ -102,7 +102,7 @@ void RandS::Begin(TTree * /*tree*/)
     debug_ = 0;
     outputfile_ = "RandS.root";
     cleverPrescaleTreating_ = true; // "true", to get better statistical  precision for high weight seed events
-    maxCleverWeight_ = 5000; // the larger, the better (but also much slower), not greater than O(1000)
+    maxCleverWeight_ = 1000; // the larger, the better (but also much slower), not greater than O(1000)
     HTSeedMin_ = 0.;
     HTSeedMax_ = 99999.;
     MHTSeedMax_ = 99999.;
@@ -544,6 +544,7 @@ Bool_t RandS::Process(Long64_t entry)
     float METSig = 99999;
     if (HTSeedJVT > 0) METSig = (MET.Pt()/sqrt(HTSeedJVT));
     METsig_seed = METSig;
+    if (debug_ > 0) cout << "--------------------" << endl;
     if (debug_ > 0) cout << "MET significance: " << METSig << endl;
     if (debug_ > 0) cout << "HTSeedJVT: " << HTSeedJVT << endl;
     float MHTSig = 99999;
@@ -553,7 +554,6 @@ Bool_t RandS::Process(Long64_t entry)
     if (debug_ > 0) cout << "HTSeednoJVT: " << HTSeednoJVT << endl;
 
     if (debug_ > 0) {
-        cout << "---------------" << endl;
         cout << "recoMHTall (pt,phi): " << recoMHTall.Pt() << ", " << recoMHTall.Phi() << endl;
         cout << "recoMHTreb (pt,phi): " << recoMHTreb.Pt() << ", " << recoMHTreb.Phi() << endl;
         cout << "MET (pt,phi)    : " << MET.Pt() << ", " << MET.Phi() << endl;
@@ -1573,7 +1573,7 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
             if( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && dEtajj > dEtaSave_ && jet3Pt < jet3PtSave_) {
 
                 if (debug_ && MET_pred > METSave_ && mjj > MjjSave_ && dPhijj < 1.8 && jet3Pt < 25. ) {
-                    cout << "ALARM !!!! " << endl;
+                    cout << "ALARM !!!!!!! " << endl;
                     int ii = 0;
                     TLorentzVector vhigh(0,0,0,0);
                     TLorentzVector vlow(0,0,0,0);
@@ -1584,7 +1584,7 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                              it->Eta() << ", " <<
                              it->Phi() << ", " <<
                              it->IsB() << ", " <<
-                             it->IsPU(jvtcut_) <<
+                             it->IsPU(jvtcut_) << 
                              std::endl;
                         if (it->Pt() > 25.) vhigh += (*it);
                         ++ii;
@@ -1610,13 +1610,17 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                     std::cout << "smeared JetVecHigh (pt, phi): " << vhigh1.Pt() << ", " << vhigh1.Phi() << std::endl;
                     std::cout << "smeared JetVecLow  (pt, phi): " << vlow1.Pt() << ", " << vlow1.Phi() << std::endl;
                     cout << "MET_pred, MHTjj: " << MET_pred << ", " << MHTjj << endl;
-                    std::cout << std::endl;
+                    cout << "vMHTnoJVTpred, HTnoJVTpred: " << vMHTnoJVTpred.Pt() << ", " << HTnoJVTpred << endl;
                 } //end of debug
 
                 if (useTriggerTurnOn_) {
                     Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(vMHTnoJVTpred.Pt());
                     Int_t biny = h_MHTvsHT_eff->GetYaxis()->FindFixBin(HTnoJVTpred);
                     triggerWeight = h_MHTvsHT_eff->GetBinContent(binx, biny);
+                    if (debug_ && MET_pred > METSave_ && mjj > MjjSave_ && dPhijj < 1.8 && jet3Pt < 25. ){
+						cout << "Trigger weight: " << triggerWeight << endl;
+						cout << "eventWeight: " << eventWeight << endl;
+					}
                     //if (MET_pred > 200) triggerWeight = 1.;
                 } else {
                     triggerWeight = 1.;

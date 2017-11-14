@@ -40,7 +40,7 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
     m_jvtcut = 0.59;
     m_lumi = 36100.;
     isData = true;
-    double MHTmax = 500;
+    double MHTmax = 200;
     int MHTbins = 50;
     double HTmax = 2000;
     double HTbins = 40;

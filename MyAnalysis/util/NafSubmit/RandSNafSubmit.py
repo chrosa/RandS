@@ -16,7 +16,7 @@ def submit_job(index, jobDir):
 #filelist = open("../filelist_mc_v1.txt")
 filelist = open("../filelist_data_v2.txt")
 line = "init"
-jobDir = "MyTest_data_METsoftPhiSmear_muRes_noAngSmear_smear15_N20_v1b"
+jobDir = "MyTest_data_METsoftPhiSmear_muRes_noAngSmear_smear15_N20_JERUP_v2"
 #500k for sim
 #2.5M for data
 #2.5M for Wtau

@@ -43,7 +43,7 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     m_MatchingCone = 0.1;
     m_jvtcut = 0.59;
-    m_lumi = 32900.;
+    m_lumi = 36100.;
 
     //// Book 1d histograms
 
