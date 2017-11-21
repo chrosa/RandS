@@ -262,7 +262,7 @@ class RandS : public TSelector {
         bool calcMinDeltaPhi(std::vector<MyJet>&, TLorentzVector&);
         void calcPredictions(std::vector<MyJet>&, TLorentzVector&, const int&, const float&);
         void calcLeadingJetPredictions(std::vector<MyJet>&, TLorentzVector&);
-        bool calcJJ(std::vector<MyJet>&, float&, float&, float&, float&, float&);
+        bool calcJJ(std::vector<MyJet>&, float&, float&, float&, float&, float&, float&);
         double calcMjj(std::vector<MyJet>&);
         double calcMHTjj(std::vector<MyJet>&);
         double calcDPhijj(std::vector<MyJet>&);

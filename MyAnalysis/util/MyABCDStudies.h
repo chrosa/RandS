@@ -69,6 +69,7 @@ class MyABCDStudies : public TSelector {
         
         TH1F* h_MET;
         TH1F* h_METsig;
+        TH1F* h_MHTsig;
         TH1F* h_METsoft;
 		TH1F* h_DeltaPhijj;
 		TH1F* h_DeltaEtajj;

@@ -224,8 +224,8 @@ int main()
     string root_file;
     TChain* prediction = new TChain("PredictionTree");
 
-    //ifstream myfile1 ("filelist_RnS_data_all.txt");
-    ifstream myfile1 ("filelist_RnS_mc_all.txt");
+    ifstream myfile1 ("filelist_RnS_data_all.txt");
+    //ifstream myfile1 ("filelist_RnS_mc_all.txt");
     //ifstream myfile1 ("filelist_RnS.txt");
 
     if (myfile1.is_open()) {
@@ -245,12 +245,12 @@ int main()
 
     // initialize new Prediction object
     Prediction *pred_;
-    bool isData = false;
+    bool isData = true;
     bool VBF = true;
     bool VBFSR = false;
     bool HTMHT = false;
-    TString postfix = "_MyTest_mc_METsoftSmeared_muRes_noAngSmear_N20_MHTSig5_METsoft30_CR_v2"; //CRlm: MET < 120; SRtw with trigger weight
-    //TString postfix = "_test";
+    TString postfix = "_MyTest_data_METsoftSmeared_noAngSmear_N20_CR_v3"; //CRlm: MET < 120; SRtw with trigger weight
+    //TString postfix = "_test_mc";
 
     pred_ = new Prediction(*prediction, postfix);
 
@@ -752,9 +752,9 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
+            Title = "N_{j}=2, M_{jj}<1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
         } else {
-            Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
+            Title = "N_{j}=2, M_{jj}<0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
         }
 
         if( hist_type_VBF_jj.size() != xTitle_VBF_jj.size() ) cout << "Error: Missing xTitles VBF_jj!!" << endl;

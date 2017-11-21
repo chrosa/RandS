@@ -7,7 +7,7 @@ int plot1D(vector<TH1F*> h, vector<string> t, vector<string> x, vector<string> y
     TString xTitle;
     TString yTitle;
 
-    //LumiTitle = "Simulation, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
+    //LumiTitle = "Simulation, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
     LumiTitle = "Simulation, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
@@ -70,7 +70,7 @@ int plot2D(vector<TH2F*> h, vector<string> t, vector<string> x, vector<string> y
     TString yTitle;
     TString zTitle;
 
-    //LumiTitle = "Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV";
+    //LumiTitle = "Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
     LumiTitle = "Simulation, #sqrt{s} = 13 TeV";
 
     for (int i = 0; i < N; ++i) {
@@ -185,7 +185,7 @@ int plotABCDStudies() {
     ////////////////////////////////////////
 
     TFile *f = new TFile("ABCDStudiesOutput_mc.root", "READ", "", 0);
-    TFile *f2 = new TFile("ABCDStudiesOutput_signal.root", "READ", "", 0);
+    TFile *f2 = new TFile("ABCDStudiesOutput_data.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;
@@ -306,15 +306,16 @@ int plotABCDStudies() {
 	jt->SetTextFont(42);
 	jt->SetTextSize(0.04);
 	jt->AddText(SelTitle.c_str());
-	//jt->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
-	jt->AddText("Simulation, #sqrt{s} = 13 TeV");
+	jt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	//jt->AddText("Simulation, #sqrt{s} = 13 TeV");
 	jt->Draw();
 
 	j->SaveAs("MET.pdf");
 
 	//// end overlay plotting MET
 
-	string SelTitle2 = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV, Jet2 p_{T} < 25 GeV";
+	//string SelTitle2 = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV, Jet2 p_{T} < 25 GeV";
+	string SelTitle2 = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV";
     TH1F* h_METsig  =  (TH1F*) f->FindObjectAny("h_METsig");
     h.push_back(h_METsig);
     t.push_back(SelTitle2);
@@ -355,13 +356,57 @@ int plotABCDStudies() {
 	pt->SetTextFont(42);
 	pt->SetTextSize(0.04);
 	pt->AddText(SelTitle2.c_str());
-	pt->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
+	pt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
 	pt->Draw();
 
 	c->SaveAs("METsig.pdf");
 
+	//// end overlay plotting METsig
+
+    TH1F* h_MHTsig  =  (TH1F*) f->FindObjectAny("h_MHTsig");
+    h.push_back(h_MHTsig);
+    t.push_back(SelTitle2);
+    x.push_back("MHT/#sqrt{HT} (GeV^{1/2})");
+    y.push_back("Events");
+
+    TH1F* h_MHTsig2  =  (TH1F*) f2->FindObjectAny("h_MHTsig");
+    
 	//// overlay plotting MET significance
 
+	h_MHTsig->SetMarkerStyle(20);
+	h_MHTsig->SetMarkerSize(0.9);
+	h_MHTsig->SetMarkerColor(kBlack);
+	h_MHTsig->SetXTitle("MHT/#sqrt{HT} (GeV^{1/2})");
+	h_MHTsig->SetYTitle("Events");
+
+	h_MHTsig2->SetMarkerStyle(20);
+	h_MHTsig2->SetMarkerSize(0.9);
+	h_MHTsig2->SetMarkerColor(kRed);
+	h_MHTsig2->SetXTitle("MHT/#sqrt{HT} (GeV^{1/2})");
+	h_MHTsig2->SetYTitle("Events");
+	h_MHTsig2->SetMinimum(1.);
+
+	TCanvas *c2 = new TCanvas("c2", "c2", 800, 600);
+	c2->cd();
+	c2->SetLogy();
+
+	h_MHTsig2->Draw();
+	h_MHTsig->Draw("same");
+
+	TPaveText* pt2 = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
+	pt2->SetBorderSize(0);
+	pt2->SetFillStyle(0);
+	pt2->SetTextAlign(12);
+	pt2->SetTextFont(42);
+	pt2->SetTextSize(0.04);
+	pt2->AddText(SelTitle2.c_str());
+	pt2->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	pt2->Draw();
+
+	c2->SaveAs("MHTsig.pdf");
+
+	//// end overlay plotting METsig
+	
     TH1F* h_METsoft  =  (TH1F*) f->FindObjectAny("h_METsoft");
     h.push_back(h_METsoft);
     t.push_back(SelTitle2);
@@ -399,8 +444,8 @@ int plotABCDStudies() {
 	bt->SetTextFont(42);
 	bt->SetTextSize(0.04);
 	bt->AddText(SelTitle2.c_str());
-	//bt->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
-	bt->AddText("Simulation, #sqrt{s} = 13 TeV");
+	bt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	//bt->AddText("Simulation, #sqrt{s} = 13 TeV");
 	bt->Draw();
 
 	d->SaveAs("METsoft.pdf");
@@ -447,8 +492,8 @@ int plotABCDStudies() {
 	it->SetTextFont(42);
 	it->SetTextSize(0.04);
 	it->AddText(SelTitle.c_str());
-	//it->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
-	it->AddText("Simulation, #sqrt{s} = 13 TeV");
+	it->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	//it->AddText("Simulation, #sqrt{s} = 13 TeV");
 	it->Draw();
 
 	i->SaveAs("dPhijj.pdf");
@@ -495,8 +540,8 @@ int plotABCDStudies() {
 	et->SetTextFont(42);
 	et->SetTextSize(0.04);
 	et->AddText(SelTitle.c_str());
-	//et->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
-	et->AddText("Simulation, #sqrt{s} = 13 TeV");
+	et->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	//et->AddText("Simulation, #sqrt{s} = 13 TeV");
 	et->Draw();
 
 	e->SaveAs("DeltaEtajj.pdf");
@@ -543,8 +588,8 @@ int plotABCDStudies() {
 	gt->SetTextFont(42);
 	gt->SetTextSize(0.04);
 	gt->AddText(SelTitle.c_str());
-	//gt->AddText("Data, L = 32.9 fb^{  -1}, #sqrt{s} = 13 TeV");
-	gt->AddText("Simulation, #sqrt{s} = 13 TeV");
+	gt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
+	//gt->AddText("Simulation, #sqrt{s} = 13 TeV");
 	gt->Draw();
 
 	g->SaveAs("Mjj.pdf");

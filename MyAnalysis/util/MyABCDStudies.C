@@ -123,6 +123,10 @@ void MyABCDStudies::Begin(TTree * /*tree*/)
     h_METsig->Sumw2();
     histos_1D.push_back(h_METsig);
 
+    h_MHTsig = new TH1F("h_MHTsig", "h_MHTsig", 100, 0., 20.);
+    h_MHTsig->Sumw2();
+    histos_1D.push_back(h_MHTsig);
+
     h_METsoft = new TH1F("h_METsoft", "h_METsoft", 100, 0., 250.);
     h_METsoft->Sumw2();
     histos_1D.push_back(h_METsoft);
@@ -466,8 +470,12 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     MyJet* thirdJet = 0;
     MyJet* fourthJet = 0;
     double HT = 0;
+    double HTnoJVT = 0;
     TLorentzVector MHT(0., 0., 0., 0.);
+    TLorentzVector MHTnoJVT(0., 0., 0., 0.);
     for ( auto& jet : recoJets) {
+		if (jet.Pt() > 20.) MHTnoJVT -= jet;
+		if (jet.Pt() > 25.) HTnoJVT += jet.Pt();
         if (!(jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 )) continue;
         HT += jet.Pt();
         MHT -= jet;
@@ -490,7 +498,8 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
 
     TLorentzVector MET;
     MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
-    TLorentzVector METsoft = MHT - MET;
+    TLorentzVector METsoft;
+    METsoft.SetPtEtaPhiM(*METtrack_pt, 0, *METtrack_phi, 0);;
 
     double dPhijj = 0.;
     if (secondJet) dPhijj = fabs(firstJet->DeltaPhi(*secondJet));
@@ -507,12 +516,12 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
     double Mjj = 0;
     if (secondJet) Mjj = (*firstJet + *secondJet).M();
 
-    if (secondJet && dEtajj > 3.0) {
-        if (firstJet->Pt() > 80. && secondJet->Pt() > 50.) {
-            h_METsig->Fill(MET.Pt()/sqrt(HT), eventWeight);
-            h_METsoft->Fill(METsoft.Pt(), eventWeight);
-        }
-    }
+	if (secondJet) {
+		if (firstJet->Pt() < 80. || secondJet->Pt() < 50.) return 1;
+		h_METsig->Fill(MET.Pt()/sqrt(HT), eventWeight);
+		h_MHTsig->Fill(MHTnoJVT.Pt()/sqrt(HTnoJVT), eventWeight);
+		h_METsoft->Fill(METsoft.Pt(), eventWeight);
+	}
 
     if (secondJet && !thirdJet && !fourthJet) {
         //if (opphemijj && Mjj > 600.) {

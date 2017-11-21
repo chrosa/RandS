@@ -57,7 +57,7 @@ int compare(){
 
     ////////////////////////////////////////
 
-	TFile *f1 = new TFile("output_GetPrediction/prediction_histos_MyTest_data_METsoft_noMETmu_METsig4_N20_CR_v20.root", "READ", "", 0);
+	TFile *f1 = new TFile("output_GetPrediction/prediction_histos_MyTest_data_METsoftSmeared_noAngSmear_N20_CR_v3.root", "READ", "", 0);
     TFile *f2 = new TFile("output_GetPrediction/bkg.root", "READ", "", 0);
 	selection = (TH1F*) f1->FindObjectAny("VBF_MET_presel_4JV_dPhiSide_selection");
 	prediction = (TH1F*) f1->FindObjectAny("VBF_MET_presel_4JV_dPhiSide_prediction_px");
@@ -96,7 +96,7 @@ int compare(){
     TString xTitle;
     TString yTitle;
 
-	LumiTitle = "ATLAS internal, L = 32.6 fb^{  -1}, #sqrt{s} = 13 TeV";
+	LumiTitle = "ATLAS internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     Title = "3 jets, 1.8<#Delta#phi(jj)<2.7, MET>150 GeV, M(jj)>0.6 TeV, p_{T}^{3rd}<50 GeV";
     xTitle = "#slash{E}_{T} (GeV)";
@@ -147,6 +147,7 @@ int compare(){
     prediction->SetFillColor(kAzure-3);
     prediction->SetFillStyle(3354);
     prediction->DrawCopy("e2same");
+    background->Scale(36.1/32.6);
     background->Draw("same");
 
     prediction->SetFillStyle(1001);

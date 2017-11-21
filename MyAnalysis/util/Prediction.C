@@ -68,20 +68,22 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double DPhiSR = 1.8;
     double DPhiCRMax = 2.7;
     double DPhiCRMin = 1.8;
-    double MjjCut = 1000.;
-    double METCut = 150.;
+    double MjjCut = 600.;
+    double METCut = 100.;
+    double highMETCut = 9999.;
     
-    double MHTSigSeedMax = 5.;
-    double METSigSeedMax = 999999.;
-    double METSoftSeedMax = 30.;
-
-    //double MHTSigSeedMax = 999999.;
+    //double MHTSigSeedMax = 5.;
     //double METSigSeedMax = 999999.;
-    //double METSoftSeedMax = 999999.;
+    //double METSoftSeedMax = 30.;
 
-    bool blindSR = true;
+    double MHTSigSeedMax = 999999.;
+    double METSigSeedMax = 999999.;
+    double METSoftSeedMax = 999999.;
+
+    bool blindSR = false;
     bool VBF = true;
     bool HTMHT = false;
+    bool doTW = false;
 
     // define prediction histograms
     // preselection
@@ -644,9 +646,8 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
         if (i == 0 ) cout << "loaded first event successfully!" << endl;
 
 		float tw = triggerWeight;
-		tw = 1.; // for CRs
-		//if (Ntries > 0 && triggerWeight < 5.e-2) tw = 0.;
-        float weight = weight0 * tw;
+        float weight = weight0;
+        if (doTW) weight*= tw;
 
         if( i%100000 == 0 ) std::cout << "event (prediction): " << i << " (" << 100*double(i)/nentries << "%)"<< '\n';
 
@@ -677,7 +678,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
 
                 if (MjjJetSel() && Mjj > MjjCut && MET > METCut && DEta > DEtaLoose && DPhi < DPhiCRMax && DPhi > DPhiCRMin) {
 
-                    if ( Soft3rd() && Veto4th() ) {
+                    if ( Soft3rd() && Veto4th() && MET < highMETCut ) {
 
                         if (Ntries > 0 && METsig < METSigSeedMax && MHTsig < MHTSigSeedMax && METsoft < METSoftSeedMax) {
                             VBF_dPhi_presel_4JV_dPhiSide_pred_raw->Fill(DPhi, Ntries, weight);
@@ -827,23 +828,23 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
                             VBF_maxDeltaPhiPTj12_jj_pred_raw->Fill(DPhiMET2, Ntries, weight);
                             VBF_DeltaPhiPTj3_jj_pred_raw->Fill(DPhiMET3, Ntries, weight);
                         }  else if (Ntries == -2) {
-                            VBF_dPhi_jj_sel->Fill(DPhi, weight);
-                            VBF_dEta_jj_sel->Fill(DEta, weight);
-                            VBF_Mjj_jj_sel->Fill(Mjj, weight);
-                            VBF_Jet1Pt_jj_sel->Fill(JetPt->at(0), weight);
-                            VBF_Jet2Pt_jj_sel->Fill(JetPt->at(1), weight);
-                            VBF_Jet3Pt_jj_sel->Fill(JetPt->at(2), weight);
-                            VBF_Jet1Eta_jj_sel->Fill(JetEta->at(0), weight);
-                            VBF_Jet2Eta_jj_sel->Fill(JetEta->at(1), weight);
-                            VBF_Jet3Eta_jj_sel->Fill(JetEta->at(2), weight);
-                            VBF_PTjj_jj_sel->Fill(MHTjj, weight);
-                            VBF_MET_jj_sel->Fill(MET, weight);
-                            VBF_METsoft_jj_sel->Fill(METsoft, weight);
-                            VBF_METsig_jj_sel->Fill(METsig, weight);
-                            VBF_MHTsig_jj_sel->Fill(MHTsig, weight);
-                            VBF_minDeltaPhiPTj12_jj_sel->Fill(DPhiMET1,weight);
-                            VBF_maxDeltaPhiPTj12_jj_sel->Fill(DPhiMET2, weight);
-                            VBF_DeltaPhiPTj3_jj_sel->Fill(DPhiMET3, weight);
+                            VBF_dPhi_jj_sel->Fill(DPhi, (!blindSR)*weight);
+                            VBF_dEta_jj_sel->Fill(DEta, (!blindSR)*weight);
+                            VBF_Mjj_jj_sel->Fill(Mjj, (!blindSR)*weight);
+                            VBF_Jet1Pt_jj_sel->Fill(JetPt->at(0), (!blindSR)*weight);
+                            VBF_Jet2Pt_jj_sel->Fill(JetPt->at(1), (!blindSR)*weight);
+                            VBF_Jet3Pt_jj_sel->Fill(JetPt->at(2), (!blindSR)*weight);
+                            VBF_Jet1Eta_jj_sel->Fill(JetEta->at(0), (!blindSR)*weight);
+                            VBF_Jet2Eta_jj_sel->Fill(JetEta->at(1), (!blindSR)*weight);
+                            VBF_Jet3Eta_jj_sel->Fill(JetEta->at(2), (!blindSR)*weight);
+                            VBF_PTjj_jj_sel->Fill(MHTjj, (!blindSR)*weight);
+                            VBF_MET_jj_sel->Fill(MET, (!blindSR)*weight);
+                            VBF_METsoft_jj_sel->Fill(METsoft, (!blindSR)*weight);
+                            VBF_METsig_jj_sel->Fill(METsig, (!blindSR)*weight);
+                            VBF_MHTsig_jj_sel->Fill(MHTsig, (!blindSR)*weight);
+                            VBF_minDeltaPhiPTj12_jj_sel->Fill(DPhiMET1,(!blindSR)*weight);
+                            VBF_maxDeltaPhiPTj12_jj_sel->Fill(DPhiMET2, (!blindSR)*weight);
+                            VBF_DeltaPhiPTj3_jj_sel->Fill(DPhiMET3, (!blindSR)*weight);
                         }
 
                     }
@@ -2380,7 +2381,7 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     value = VBF_Mjj_presel_4JV_dPhiSide_pred->IntegralAndError (2, 6, error);
     cout << "VR (dPhi side band): " << value << "+-" << error << endl;
 
-    value = VBF_Mjj_jj_pred->IntegralAndError (2, 6, error);
+    value = VBF_Mjj_jj_pred->IntegralAndError (1, 2, error);
     cout << "VR (jj, loose dEta): " << value << "+-" << error << endl;
 
     value = VBF_Mjj_dEta_3JV_pred->IntegralAndError (2, 6, error);
@@ -2492,28 +2493,28 @@ double Prediction::CalcDeltaEta() {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::Soft3rd() {
-    bool result = (JetPt->at(2) > 25. && JetPt->at(2) < 50. && fabs(JetEta->at(2)) < 4.5);
+    bool result = (JetPt->at(2) > 25. && JetPt->at(2) < 50. && fabs(JetEta->at(2)) < 5.0);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::Veto3rd() {
-    bool result = (JetPt->at(2) < 25. || fabs(JetEta->at(2)) > 4.5);
+    bool result = (JetPt->at(2) < 25. || fabs(JetEta->at(2)) > 5.0);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::Veto4th() {
-    bool result = (JetPt->at(3) < 25. || fabs(JetEta->at(3)) > 4.5);
+    bool result = (JetPt->at(3) < 25. || fabs(JetEta->at(3)) > 5.0);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
 bool Prediction::MjjJetSel() {
-    bool result = (JetPt->at(0) > 80. && JetPt->at(1) > 50. && fabs(JetEta->at(0)) < 4.5 && fabs(JetEta->at(1)) < 4.5 && (JetEta->at(0)*JetEta->at(1)) < 0.);
+    bool result = (JetPt->at(0) > 80. && JetPt->at(1) > 50. && fabs(JetEta->at(0)) < 5.0 && fabs(JetEta->at(1)) < 5.0 && (JetEta->at(0)*JetEta->at(1)) < 0.);
     return result;
 }
 ////////////////////////////////////////////////////////////////////////////////////////

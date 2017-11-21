@@ -393,8 +393,9 @@ void SmearFunction::CalculateSmearFunctions() {
                     }
 
                     //// Scale tails
-                    double LowerTailScale = GetLowerTailScaling(PtBinEdges_.at(i_Pt), EtaBinEdges_.at(i_eta));
-                    double UpperTailScale = GetUpperTailScaling(PtBinEdges_.at(i_Pt), EtaBinEdges_.at(i_eta));
+                    double pT = PtBinEdges_.at(i_Pt)/cosh(EtaBinEdges_.at(i_eta));
+                    double LowerTailScale = GetLowerTailScaling(pT, EtaBinEdges_.at(i_eta));
+                    double UpperTailScale = GetUpperTailScaling(pT, EtaBinEdges_.at(i_eta));
                     //cout << "absolute scaling factor: " << TailScale << endl;
                     if (absoluteTailScaling_) {
                         double RMS = smearFunc.at(i_flav).at(i_eta).at(i_Pt)->GetRMS();

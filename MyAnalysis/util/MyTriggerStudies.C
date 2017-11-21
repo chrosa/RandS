@@ -35,14 +35,14 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    outputfile = new TFile("TriggerStudiesOutput_data.root","RECREATE");
+    outputfile = new TFile("TriggerStudiesOutput_jj_data.root","RECREATE");
 
     m_jvtcut = 0.59;
     m_lumi = 36100.;
     isData = true;
-    double MHTmax = 200;
-    int MHTbins = 50;
-    double HTmax = 2000;
+    double MHTmax = 300;
+    int MHTbins = 30;
+    double HTmax = 1000;
     double HTbins = 40;
 
     ////Book histograms
@@ -292,51 +292,77 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
     double PtPho = 0;
     if (NPhotons > 0) PtPho = recoPhotons.at(0).Pt();
 
+    MyJet* firstJet = 0;
+    MyJet* secondJet = 0;
+    MyJet* thirdJet = 0;
+    MyJet* fourthJet = 0;
+    double HT = 0;
+    double HTnoJVT = 0;
+    TLorentzVector MHT(0., 0., 0., 0.);
+    TLorentzVector MHTnoJVT(0., 0., 0., 0.);
+    for ( auto& jet : recoJets) {
+		if (jet.Pt() < 20.) continue;
+		MHTnoJVT -= jet;
+		HTnoJVT += jet.Pt();
+        if (!(jet.IsNoPU(m_jvtcut) || jet.Pt() > 60. || fabs(jet.Eta()) > 2.4 )) continue;
+        HT += jet.Pt();
+        MHT -= jet;
+        if (firstJet == 0) {
+            firstJet = &jet;
+            //std::cout << "1: " << firstJet->Pt() << ", " << firstJet->Eta() << ", " << firstJet->Phi()<< std::endl;
+        } else if (secondJet == 0) {
+            secondJet = &jet;
+            //std::cout << "2: " << secondJet->Pt() << ", " << secondJet->Eta() << ", " << secondJet->Phi()<< std::endl;
+        } else if (thirdJet == 0) {
+            thirdJet = &jet;
+            //std::cout << "3: " << thirdJet->Pt() << ", " << thirdJet->Eta() << ", " << thirdJet->Phi()<< std::endl;
+        } else if (fourthJet == 0) {
+            fourthJet = &jet;
+            //std::cout << "4: " << fourthJet->Pt() << ", " << fourthJet->Eta() << ", " << fourthJet->Phi()<< std::endl;
+        } else {
+            break;
+        }
+    }
+
     TLorentzVector MET;
     MET.SetPtEtaPhiM(*MET_pt, 0, *MET_phi, 0);
+    TLorentzVector METsoft;
+    METsoft.SetPtEtaPhiM(*METtrack_pt, 0, *METtrack_phi, 0);;
 
-    TLorentzVector MHT(0.,0.,0.,0.);
-    TLorentzVector NoJVTMHT(0.,0.,0.,0.);
-    double HT = 0;
-    double NoJVTHT = 0;
-
-    int JetCount = 0;
-    int NoJVTJetCount = 0;
-
-    for ( auto& jet : recoJets) {
-
-        if (jet.Pt() < 25.) continue;
-
-        if (jet.IsGood()) {
-            ++NoJVTJetCount;
-            NoJVTMHT -= jet;
-            NoJVTHT += jet.Pt();
+    double dPhijj = 0.;
+    if (secondJet) dPhijj = fabs(firstJet->DeltaPhi(*secondJet));
+    double dEtajj = 0.;
+    if (secondJet) dEtajj = fabs(firstJet->Eta() - secondJet->Eta());
+    bool opphemijj = false;
+    if (secondJet) opphemijj = (firstJet->Eta() * secondJet->Eta() < 0);
+    bool soft3rd = false;
+    if (thirdJet && !fourthJet) {
+        if (thirdJet->Pt() > 25. && thirdJet->Pt() < 50.) {
+            soft3rd = true;
         }
-        if (jet.IsGood() && (jet.Pt() > 60. || jet.IsNoPU(m_jvtcut) || fabs(jet.Eta()) > 2.4)) {
-            ++JetCount;
-            MHT-=jet;
-            HT += jet.Pt();
-        }
-
     }
-
-    if (JetCount == 2) {
-        h_MHT2jet_all->Fill(NoJVTMHT.Pt());
-        h_MHT2jetvsHT_all->Fill(NoJVTMHT.Pt(),NoJVTHT);
+    double Mjj = 0;
+    if (secondJet) Mjj = (*firstJet + *secondJet).M();
+    
+	if (secondJet && dEtajj > 4.8) {
+	//if (secondJet && !thirdJet) {
+        h_MHT2jet_all->Fill(MHTnoJVT.Pt());
+        h_MHT2jetvsHT_all->Fill(MHTnoJVT.Pt(),HTnoJVT);
         if (*xe90triggered || *xe110triggered) {
-            h_MHT2jet_triggered->Fill(NoJVTMHT.Pt());
-            h_MHT2jetvsHT_triggered->Fill(NoJVTMHT.Pt(),NoJVTHT);
+            h_MHT2jet_triggered->Fill(MHTnoJVT.Pt());
+            h_MHT2jetvsHT_triggered->Fill(MHTnoJVT.Pt(),HTnoJVT);
         }
     } else {
-        h_MHT_all->Fill(NoJVTMHT.Pt());
-        h_MHTvsHT_all->Fill(NoJVTMHT.Pt(),NoJVTHT);
+        h_MHT_all->Fill(MHTnoJVT.Pt());
+        h_MHTvsHT_all->Fill(MHTnoJVT.Pt(),HTnoJVT);
         if (*xe90triggered || *xe110triggered) {
-            h_MHT_triggered->Fill(NoJVTMHT.Pt());
-            h_MHTvsHT_triggered->Fill(NoJVTMHT.Pt(),NoJVTHT);
+            h_MHT_triggered->Fill(MHTnoJVT.Pt());
+            h_MHTvsHT_triggered->Fill(MHTnoJVT.Pt(),HTnoJVT);
         }
     }
 
-    if (JetCount == 2) {
+	if (secondJet && dEtajj > 4.8) {
+	//if (secondJet && !thirdJet) {
         h_MET2jet_all->Fill(MET.Pt());
         h_MET2jetvsHT_all->Fill(MET.Pt(),HT);
         if (*xe90triggered || *xe110triggered) {
