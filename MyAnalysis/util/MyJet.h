@@ -27,6 +27,10 @@ class MyJet: public TLorentzVector {
             trackWidth = 0;
             sumpt = 0;
             OR = true;
+			vtx = 0;
+			FracSamplingMax = 0.5;
+			HECFrac = 0.5;
+			EMFrac = 0.5;
         };
         virtual ~MyJet();
 
@@ -56,14 +60,6 @@ class MyJet: public TLorentzVector {
 
         bool IsNoPU(double cut) {
             return (jvt > cut);
-        };
-
-        bool IsFPU(double cut) {
-            return (fjvt < cut);
-        };
-
-        bool IsNoFPU(double cut) {
-            return (fjvt > cut);
         };
 
         void SetNTracks(unsigned short n) {
@@ -130,6 +126,38 @@ class MyJet: public TLorentzVector {
             return !isTau;
         };
 
+		int GetVtx() {
+			return vtx;
+		};
+		
+		void SetVtx(int i) {
+			vtx = i;
+		};
+
+		float GetFracSamplingMax(){
+			return FracSamplingMax;
+		};
+		
+		void SetFracSamplingMax(double f){
+			FracSamplingMax = f;
+		};
+
+		float GetHECFrac(){
+			return HECFrac;
+		};
+		
+		void SetHECFrac(double f){
+			HECFrac = f;
+		};
+
+		float GetEMFrac(){
+			return EMFrac;
+		};
+
+		void SetEMFrac(double f){
+			EMFrac = f;
+		};
+
     private:
 
         bool btag;
@@ -142,6 +170,11 @@ class MyJet: public TLorentzVector {
         float sumpt;
         float trackWidth;
         unsigned short ntracks;
+		int vtx;
+		float FracSamplingMax;
+		float HECFrac;
+		float EMFrac;
+
         
 };
 

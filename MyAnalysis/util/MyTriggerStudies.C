@@ -115,12 +115,12 @@ void MyTriggerStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v1]
+    // [v3]
     AvailableEvents[361022] = 1993647;
-    AvailableEvents[361023] = 7724495;
-    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361023] = 7884494;
+    AvailableEvents[361024] = 7889800;
     AvailableEvents[361025] = 7977600;
-    AvailableEvents[361026] = 1833400;
+    AvailableEvents[361026] = 1893400;
 
 }
 
@@ -348,14 +348,14 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
 	//if (secondJet && !thirdJet) {
         h_MHT2jet_all->Fill(MHTnoJVT.Pt());
         h_MHT2jetvsHT_all->Fill(MHTnoJVT.Pt(),HTnoJVT);
-        if (*xe90triggered || *xe110triggered) {
+        if (*xe70triggered || *xe90triggered || *xe110triggered) {
             h_MHT2jet_triggered->Fill(MHTnoJVT.Pt());
             h_MHT2jetvsHT_triggered->Fill(MHTnoJVT.Pt(),HTnoJVT);
         }
     } else {
         h_MHT_all->Fill(MHTnoJVT.Pt());
         h_MHTvsHT_all->Fill(MHTnoJVT.Pt(),HTnoJVT);
-        if (*xe90triggered || *xe110triggered) {
+        if (*xe70triggered || *xe90triggered || *xe110triggered) {
             h_MHT_triggered->Fill(MHTnoJVT.Pt());
             h_MHTvsHT_triggered->Fill(MHTnoJVT.Pt(),HTnoJVT);
         }
@@ -365,14 +365,14 @@ Bool_t MyTriggerStudies::Process(Long64_t entry)
 	//if (secondJet && !thirdJet) {
         h_MET2jet_all->Fill(MET.Pt());
         h_MET2jetvsHT_all->Fill(MET.Pt(),HT);
-        if (*xe90triggered || *xe110triggered) {
+        if (*xe70triggered || *xe90triggered || *xe110triggered) {
             h_MET2jet_triggered->Fill(MET.Pt());
             h_MET2jetvsHT_triggered->Fill(MET.Pt(),HT);
         }
     } else {
         h_MET_all->Fill(MET.Pt());
         h_METvsHT_all->Fill(MET.Pt(),HT);
-        if (*xe90triggered || *xe110triggered) {
+        if (*xe70triggered || *xe90triggered || *xe110triggered) {
             h_MET_triggered->Fill(MET.Pt());
             h_METvsHT_triggered->Fill(MET.Pt(),HT);
         }

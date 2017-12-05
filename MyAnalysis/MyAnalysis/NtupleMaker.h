@@ -68,8 +68,13 @@ class NtupleMaker : public EL::Algorithm
             bool fjvt;
             float tw;
             int ntracks;
+            int vtx;
             float sumpt;
             bool OR;
+			float FracSamplingMax;
+			float HECFrac;
+			float EMFrac;
+
         } myJet;
 
         typedef struct myPhoton {
@@ -117,6 +122,8 @@ class NtupleMaker : public EL::Algorithm
 		UInt_t dsid_;  //!
 		UInt_t evtno_;  //!
 		bool pvtx_;  //!
+		bool j400triggered_;  //!
+		bool xe70triggered_;  //!
 		bool xe90triggered_;  //!
 		bool xe110triggered_;  //!
 
@@ -138,13 +145,21 @@ class NtupleMaker : public EL::Algorithm
 		std::vector<bool> * JetGood_n = &JetGood_; //!
         std::vector<bool>  JetPassOR_; //!
 		std::vector<bool> * JetPassOR_n = &JetPassOR_; //!
+        std::vector<UShort_t>  HighestJVFVtx_; //!
+		std::vector<UShort_t> * HighestJVFVtx_n = &HighestJVFVtx_; //!
         std::vector<UShort_t>  JetNTracks_; //!
 		std::vector<UShort_t> * JetNTracks_n = &JetNTracks_; //!
         std::vector<Float_t>  JetSumPtTracks_; //!
 		std::vector<Float_t> * JetSumPtTracks_n = &JetSumPtTracks_; //!
         std::vector<Float_t>  JetTrackWidth_; //!
 		std::vector<Float_t> * JetTrackWidth_n = &JetTrackWidth_; //!
-		
+        std::vector<Float_t>  FracSamplingMax_; //!
+		std::vector<Float_t> * FracSamplingMax_n = &FracSamplingMax_; //!
+        std::vector<Float_t>  HECFrac_; //!
+		std::vector<Float_t> * HECFrac_n = &HECFrac_; //!
+        std::vector<Float_t>  EMFrac_; //!
+		std::vector<Float_t> * EMFrac_n = &EMFrac_; //!
+
         std::vector<Float_t>  GenJetPt_; //!
 		std::vector<Float_t> * GenJetPt_n = &GenJetPt_; //!
         std::vector<Float_t>  GenJetEta_; //!

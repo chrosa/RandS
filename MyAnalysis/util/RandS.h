@@ -114,6 +114,7 @@ class RandS : public TSelector {
         int NJetsSeedMax_;
         bool doSmearing_;
         bool doJVT_;
+        bool changeJVT_;
         bool fixJVTjets_;
         double JVTeta_;
         bool doMETmu_;
@@ -150,6 +151,7 @@ class RandS : public TSelector {
         TTreeReaderValue<UInt_t> DatasetID = {fReader, "DatasetID"};
         TTreeReaderValue<UInt_t> EventNo = {fReader, "EventNo"};
         TTreeReaderValue<Bool_t> PrimaryVtx = {fReader, "PrimaryVtx"};
+        TTreeReaderValue<Bool_t> xe70triggered = {fReader, "xe70triggered"};
         TTreeReaderValue<Bool_t> xe90triggered = {fReader, "xe90triggered"};
         TTreeReaderValue<Bool_t> xe110triggered = {fReader, "xe110triggered"};
         TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};
@@ -164,6 +166,7 @@ class RandS : public TSelector {
         TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
         TTreeReaderValue<std::vector<bool>> JetPassOR = {fReader, "JetPassOR"};
+        TTreeReaderValue<std::vector<UShort_t>> HighestJVFVtx = {fReader, "HighestJVFVtx"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
         TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};
@@ -260,16 +263,10 @@ class RandS : public TSelector {
         int calcNJets(std::vector<MyJet>&, const bool&);
         int calcNBJets(std::vector<MyJet>&, const bool&);
         bool calcMinDeltaPhi(std::vector<MyJet>&, TLorentzVector&);
-        void calcPredictions(std::vector<MyJet>&, TLorentzVector&, const int&, const float&);
+        void calcPredictions(std::vector<MyJet>&, TLorentzVector&, TLorentzVector&, const int&, const float&);
         void calcLeadingJetPredictions(std::vector<MyJet>&, TLorentzVector&);
         bool calcJJ(std::vector<MyJet>&, float&, float&, float&, float&, float&, float&);
-        double calcMjj(std::vector<MyJet>&);
-        double calcMHTjj(std::vector<MyJet>&);
-        double calcDPhijj(std::vector<MyJet>&);
-        double calcDEtajj(std::vector<MyJet>&);
-        double calcJet3Pt(std::vector<MyJet>&);
         bool calcMjjSeed(std::vector<MyJet>&, const float&, const float&, const float&);
-        bool RebPossible(std::vector<MyJet>&, TLorentzVector&);
 
         bool RebalanceJets_KinFitter(std::vector<MyJet>&, std::vector<MyJet>&, std::vector<MyJet>&, TLorentzVector&);
         void SmearingJets(std::vector<MyJet>&, TLorentzVector&, const float&);
@@ -308,8 +305,10 @@ class RandS : public TSelector {
         Float_t HT_pred;
         Float_t MHT_pred;
         Float_t MET_pred;
+        Float_t METnoJVT_pred;
         Float_t MHTphi_pred;
         Float_t METphi_pred;
+        Float_t METnoJVTphi_pred;
         Float_t METsig_seed;
         Float_t MHTsig_seed;
         Float_t METsoft_seed;

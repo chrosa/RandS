@@ -5,6 +5,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/afs/desy.de/user/c/csander/xxl-af-cms/t
 source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
 cd /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8
 lsetup rcsetup
-cd /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftPhiSmear_noAngSmear_smear15_N20_v3/517
+cd /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527
 ln -s /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TKinFitter/libkinfitter.so .
 /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/RunRandS.x

@@ -76,6 +76,7 @@ class MyTriggerStudies : public TSelector {
         TTreeReaderValue<Float_t> Weight = {fReader, "Weight"};
         TTreeReaderValue<UInt_t> DatasetID = {fReader, "DatasetID"};
         TTreeReaderValue<Bool_t> PrimaryVtx = {fReader, "PrimaryVtx"};
+        TTreeReaderValue<Bool_t> xe70triggered = {fReader, "xe70triggered"};
         TTreeReaderValue<Bool_t> xe90triggered = {fReader, "xe90triggered"};
         TTreeReaderValue<Bool_t> xe110triggered = {fReader, "xe110triggered"};
         TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};

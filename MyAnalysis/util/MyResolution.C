@@ -46,7 +46,7 @@ void MyResolution::Begin(TTree * /*tree*/)
     m_RelRecoActivityVeto = 0.05;
     //m_RelRecoActivityVeto = 999.;
     m_jvtcut = 0.59;
-    m_lumi = 32900.;
+    m_lumi = 36100.;
     PtBinEdges.push_back(0);
     PtBinEdges.push_back(10);
     PtBinEdges.push_back(20);
@@ -237,12 +237,12 @@ void MyResolution::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v1]
+    // [v3]
     AvailableEvents[361022] = 1993647;
-    AvailableEvents[361023] = 7724495;
-    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361023] = 7884494;
+    AvailableEvents[361024] = 7889800;
     AvailableEvents[361025] = 7977600;
-    AvailableEvents[361026] = 1833400;
+    AvailableEvents[361026] = 1893400;
 
 }
 

@@ -1,0 +1,13 @@
+executable          = /nfs/dust/atlas/user/csander/RandS/Output/DUMMY/run.sh
+# # switch to either transfer the executable per job to the node
+# # or from the shared storage for all jobs (don't touch during your job upstart!)
+transfer_executable = False
+universe            = vanilla
+input               = /nfs/dust/atlas/user/csander/RandS/Output/DUMMY/mypayload.data
+output              = /nfs/dust/atlas/user/csander/RandS/Output/DUMMY/mypayload.out
+error               = /nfs/dust/atlas/user/csander/RandS/Output/DUMMY/mypayload.error
+log                 = /nfs/dust/atlas/user/csander/RandS/Output/DUMMY/mypayload.log
+should_transfer_files   = No
+# # when_to_transfer_output = ON_EXIT
+requirements            = OpSysAndVer == "SL6"
+queue

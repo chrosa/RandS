@@ -221,12 +221,12 @@ void MyMETStudies::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v1]
+    // [v3]
     AvailableEvents[361022] = 1993647;
-    AvailableEvents[361023] = 7724495;
-    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361023] = 7884494;
+    AvailableEvents[361024] = 7889800;
     AvailableEvents[361025] = 7977600;
-    AvailableEvents[361026] = 1833400;
+    AvailableEvents[361026] = 1893400;
 
 }
 

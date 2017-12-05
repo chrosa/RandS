@@ -68,6 +68,14 @@ class MyABCDStudies : public TSelector {
         TH1F* h_Jet3_DeltaPhi;
         
         TH1F* h_MET;
+        TH1F* h_MET_PVbest;
+        TH1F* h_MET_noJVT;
+        TH1F* h_MET_fJVT;
+
+        TH2F* h_MET_vs_METPVbest;
+        TH2F* h_MET_vs_METnoJVT;
+        TH2F* h_MET_vs_METfJVT;
+
         TH1F* h_METsig;
         TH1F* h_MHTsig;
         TH1F* h_METsoft;
@@ -221,6 +229,7 @@ class MyABCDStudies : public TSelector {
         TTreeReaderValue<UInt_t> DatasetID = {fReader, "DatasetID"};
         TTreeReaderValue<UInt_t> EventNo = {fReader, "EventNo"};
         TTreeReaderValue<Bool_t> PrimaryVtx = {fReader, "PrimaryVtx"};
+        TTreeReaderValue<Bool_t> xe70triggered = {fReader, "xe70triggered"};
         TTreeReaderValue<Bool_t> xe90triggered = {fReader, "xe90triggered"};
         TTreeReaderValue<Bool_t> xe110triggered = {fReader, "xe110triggered"};
         TTreeReaderValue<std::vector<Float_t>> JetPt = {fReader, "JetPt"};
@@ -235,6 +244,7 @@ class MyABCDStudies : public TSelector {
         TTreeReaderValue<std::vector<UShort_t>> JetNTracks = {fReader, "JetNTracks"};
         TTreeReaderValue<std::vector<bool>> JetGood = {fReader, "JetGood"};
         TTreeReaderValue<std::vector<bool>> JetPassOR = {fReader, "JetPassOR"};
+        TTreeReaderValue<std::vector<UShort_t>> HighestJVFVtx = {fReader, "HighestJVFVtx"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPt = {fReader, "GenJetPt"};
         TTreeReaderValue<std::vector<Float_t>> GenJetEta = {fReader, "GenJetEta"};
         TTreeReaderValue<std::vector<Float_t>> GenJetPhi = {fReader, "GenJetPhi"};

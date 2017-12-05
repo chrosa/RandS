@@ -6,10 +6,10 @@ void NtupleMakerNafSubmit( const std::string& submitDir ) {
     // Construct the samples to run on:
     SH::SampleHandler sh;
 
-	//SH::readFileList (sh, "sample", "filelist_input_Wtau.txt");
+	SH::readFileList (sh, "sample", "filelist_input_Wtau.txt");
 	//SH::readFileList (sh, "sample", "filelist_input_pythia.txt");
 	//SH::readFileList (sh, "sample", "filelist_input_data2015.txt");
-	SH::readFileList (sh, "sample", "filelist_input_data2016.txt");
+	//SH::readFileList (sh, "sample", "filelist_input_data2016.txt");
     
     // Set the name of the input TTree. It's always "CollectionTree"
     // for xAOD files.
@@ -23,7 +23,7 @@ void NtupleMakerNafSubmit( const std::string& submitDir ) {
     job.sampleHandler( sh );
     job.options()->setString (EL::Job::optXaodAccessMode, EL::Job::optXaodAccessMode_athena);
     job.options()->setDouble (EL::Job::optMaxEvents, -1);
-    job.options()->setDouble(EL::Job::optFilesPerWorker, 10); // 10 for data // 3 for MC
+    job.options()->setDouble(EL::Job::optFilesPerWorker, 3); // 10 for data // 3 for MC
 	job.options()->setString(EL::Job::optSubmitFlags, "-o /nfs/dust/atlas/user/csander/logs -e /nfs/dust/atlas/user/csander/logs -S /bin/bash -l h_rt=24:00:00 -l h_vmem=4000M -l distro=sld6");
 
 

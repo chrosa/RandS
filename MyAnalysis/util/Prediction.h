@@ -33,8 +33,10 @@ class Prediction {
         Float_t HT;
         Float_t MHT;
         Float_t MET;
+        Float_t METnoJVT;
         Float_t MHTphi;
         Float_t METphi;
+        Float_t METnoJVTphi;
         Float_t METsig;
         Float_t MHTsig;
         Float_t METsoft;
@@ -88,6 +90,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_presel_pred_raw;
         TH2F* VBF_PTjj_presel_pred_raw;
         TH2F* VBF_MET_presel_pred_raw;
+        TH2F* VBF_METnoJVT_presel_pred_raw;
         TH2F* VBF_METsoft_presel_pred_raw;
         TH2F* VBF_METsig_presel_pred_raw;
         TH2F* VBF_MHTsig_presel_pred_raw;
@@ -106,6 +109,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_presel_4JV_dPhiSide_pred_raw;
         TH2F* VBF_PTjj_presel_4JV_dPhiSide_pred_raw;
         TH2F* VBF_MET_presel_4JV_dPhiSide_pred_raw;
+        TH2F* VBF_METnoJVT_presel_4JV_dPhiSide_pred_raw;
         TH2F* VBF_METsoft_presel_4JV_dPhiSide_pred_raw;
         TH2F* VBF_METsig_presel_4JV_dPhiSide_pred_raw;
         TH2F* VBF_MHTsig_presel_4JV_dPhiSide_pred_raw;
@@ -124,6 +128,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_dEta_pred_raw;
         TH2F* VBF_PTjj_dEta_pred_raw;
         TH2F* VBF_MET_dEta_pred_raw;
+        TH2F* VBF_METnoJVT_dEta_pred_raw;
         TH2F* VBF_METsoft_dEta_pred_raw;
         TH2F* VBF_METsig_dEta_pred_raw;
         TH2F* VBF_MHTsig_dEta_pred_raw;
@@ -142,6 +147,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_jj_pred_raw;
         TH2F* VBF_PTjj_jj_pred_raw;
         TH2F* VBF_MET_jj_pred_raw;
+        TH2F* VBF_METnoJVT_jj_pred_raw;
         TH2F* VBF_METsoft_jj_pred_raw;
         TH2F* VBF_METsig_jj_pred_raw;
         TH2F* VBF_MHTsig_jj_pred_raw;
@@ -160,6 +166,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_dEta_3JV_pred_raw;
         TH2F* VBF_PTjj_dEta_3JV_pred_raw;
         TH2F* VBF_MET_dEta_3JV_pred_raw;
+        TH2F* VBF_METnoJVT_dEta_3JV_pred_raw;
         TH2F* VBF_METsoft_dEta_3JV_pred_raw;
         TH2F* VBF_METsig_dEta_3JV_pred_raw;
         TH2F* VBF_MHTsig_dEta_3JV_pred_raw;
@@ -178,6 +185,7 @@ class Prediction {
         TH2F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred_raw;
         TH2F* VBF_PTjj_dEta_3JV_dPhiPTjj_pred_raw;
         TH2F* VBF_MET_dEta_3JV_dPhiPTjj_pred_raw;
+        TH2F* VBF_METnoJVT_dEta_3JV_dPhiPTjj_pred_raw;
         TH2F* VBF_METsoft_dEta_3JV_dPhiPTjj_pred_raw;
         TH2F* VBF_METsig_dEta_3JV_dPhiPTjj_pred_raw;
         TH2F* VBF_MHTsig_dEta_3JV_dPhiPTjj_pred_raw;
@@ -358,6 +366,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_presel_pred;
         TH1F* VBF_PTjj_presel_pred;
         TH1F* VBF_MET_presel_pred;
+        TH1F* VBF_METnoJVT_presel_pred;
         TH1F* VBF_METsoft_presel_pred;
         TH1F* VBF_METsig_presel_pred;
         TH1F* VBF_MHTsig_presel_pred;
@@ -376,6 +385,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_presel_4JV_dPhiSide_pred;
         TH1F* VBF_PTjj_presel_4JV_dPhiSide_pred;
         TH1F* VBF_MET_presel_4JV_dPhiSide_pred;
+        TH1F* VBF_METnoJVT_presel_4JV_dPhiSide_pred;
         TH1F* VBF_METsoft_presel_4JV_dPhiSide_pred;
         TH1F* VBF_METsig_presel_4JV_dPhiSide_pred;
         TH1F* VBF_MHTsig_presel_4JV_dPhiSide_pred;
@@ -394,6 +404,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_pred;
         TH1F* VBF_PTjj_dEta_pred;
         TH1F* VBF_MET_dEta_pred;
+        TH1F* VBF_METnoJVT_dEta_pred;
         TH1F* VBF_METsoft_dEta_pred;
         TH1F* VBF_METsig_dEta_pred;
         TH1F* VBF_MHTsig_dEta_pred;
@@ -412,6 +423,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_jj_pred;
         TH1F* VBF_PTjj_jj_pred;
         TH1F* VBF_MET_jj_pred;
+        TH1F* VBF_METnoJVT_jj_pred;
         TH1F* VBF_METsoft_jj_pred;
         TH1F* VBF_METsig_jj_pred;
         TH1F* VBF_MHTsig_jj_pred;
@@ -430,6 +442,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_3JV_pred;
         TH1F* VBF_PTjj_dEta_3JV_pred;
         TH1F* VBF_MET_dEta_3JV_pred;
+        TH1F* VBF_METnoJVT_dEta_3JV_pred;
         TH1F* VBF_METsoft_dEta_3JV_pred;
         TH1F* VBF_METsig_dEta_3JV_pred;
         TH1F* VBF_MHTsig_dEta_3JV_pred;
@@ -448,6 +461,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_pred;
         TH1F* VBF_PTjj_dEta_3JV_dPhiPTjj_pred;
         TH1F* VBF_MET_dEta_3JV_dPhiPTjj_pred;
+        TH1F* VBF_METnoJVT_dEta_3JV_dPhiPTjj_pred;
         TH1F* VBF_METsoft_dEta_3JV_dPhiPTjj_pred;
         TH1F* VBF_METsig_dEta_3JV_dPhiPTjj_pred;
         TH1F* VBF_MHTsig_dEta_3JV_dPhiPTjj_pred;
@@ -631,6 +645,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_presel_sel;
         TH1F* VBF_PTjj_presel_sel;
         TH1F* VBF_MET_presel_sel;
+        TH1F* VBF_METnoJVT_presel_sel;
         TH1F* VBF_METsoft_presel_sel;
         TH1F* VBF_METsig_presel_sel;
         TH1F* VBF_MHTsig_presel_sel;
@@ -649,6 +664,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_presel_4JV_dPhiSide_sel;
         TH1F* VBF_PTjj_presel_4JV_dPhiSide_sel;
         TH1F* VBF_MET_presel_4JV_dPhiSide_sel;
+        TH1F* VBF_METnoJVT_presel_4JV_dPhiSide_sel;
         TH1F* VBF_METsoft_presel_4JV_dPhiSide_sel;
         TH1F* VBF_METsig_presel_4JV_dPhiSide_sel;
         TH1F* VBF_MHTsig_presel_4JV_dPhiSide_sel;
@@ -667,6 +683,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_sel;
         TH1F* VBF_PTjj_dEta_sel;
         TH1F* VBF_MET_dEta_sel;
+        TH1F* VBF_METnoJVT_dEta_sel;
         TH1F* VBF_METsoft_dEta_sel;
         TH1F* VBF_METsig_dEta_sel;
         TH1F* VBF_MHTsig_dEta_sel;
@@ -685,6 +702,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_jj_sel;
         TH1F* VBF_PTjj_jj_sel;
         TH1F* VBF_MET_jj_sel;
+        TH1F* VBF_METnoJVT_jj_sel;
         TH1F* VBF_METsoft_jj_sel;
         TH1F* VBF_METsig_jj_sel;
         TH1F* VBF_MHTsig_jj_sel;
@@ -703,6 +721,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_3JV_sel;
         TH1F* VBF_PTjj_dEta_3JV_sel;
         TH1F* VBF_MET_dEta_3JV_sel;
+        TH1F* VBF_METnoJVT_dEta_3JV_sel;
         TH1F* VBF_METsoft_dEta_3JV_sel;
         TH1F* VBF_METsig_dEta_3JV_sel;
         TH1F* VBF_MHTsig_dEta_3JV_sel;
@@ -721,6 +740,7 @@ class Prediction {
         TH1F* VBF_Jet3Eta_dEta_3JV_dPhiPTjj_sel;
         TH1F* VBF_PTjj_dEta_3JV_dPhiPTjj_sel;
         TH1F* VBF_MET_dEta_3JV_dPhiPTjj_sel;
+        TH1F* VBF_METnoJVT_dEta_3JV_dPhiPTjj_sel;
         TH1F* VBF_METsoft_dEta_3JV_dPhiPTjj_sel;
         TH1F* VBF_METsig_dEta_3JV_dPhiPTjj_sel;
         TH1F* VBF_MHTsig_dEta_3JV_dPhiPTjj_sel;

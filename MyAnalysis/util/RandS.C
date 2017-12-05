@@ -40,7 +40,7 @@ void RandS::Begin(TTree * /*tree*/)
     isMC_ = false;
     jvtcut_= 0.59; //// 0.59 (medium)
     lumi_ = 36100.;
-    smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v2.root";
+    smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v3.root";
     //inputhistPtHF_ = "h_tot_JetAll_ResPt";
     //inputhistEtaHF_ = "h_tot_JetAll_ResEta";
     //inputhistPhiHF_ = "h_tot_JetAll_ResPhi";
@@ -62,27 +62,26 @@ void RandS::Begin(TTree * /*tree*/)
     inputhistResMuHF_ = "h_b_JetAll_ResMu";
     inputhistResMuLF_ = "h_nob_JetAll_ResMu";
     // Reminder here E is used instead pT for binning (variabel name not changed yet, maybe later)
-    //PtBinEdges_ = {0,20,30,40,50,70,90,110,140,170,200,240,280,330,380,440,500,570,640,720,810,910,1020,1140,1270,1410,1660,1820,1990,2170,2360,2560,3000,9999};
     PtBinEdges_ = {0,10,20,30,40,50,70,100,140,190,250,320,400,490,590,700,820,950,1090,1240,1400,1570,1750,1940,2140,2350,2600,3000};
-    //PtBinEdges_ = {0,20,40,70,140,250,400,590,820,1090,1400,1750,2140,2600};
     EtaBinEdges_ = {0.0,0.7,1.3,1.8,2.5,3.2,5.0};
     ResBinEdges_ = {0.0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0};
-    rebalancedJetPt_ = 15.;
+    rebalancedJetPt_ = 20.;
     rebalancedNJet_ = 99; // Number of leading jets used in rebalancing
     rebalanceMode_ = "METsoft"; // "METsoft" (should be best), "MHTall", "MHThigh"
     smearCollection_ = "Reco"; // "Gen" for truth jet smearing only; "Reco" for full R+S
-    smearedJetPt_ = 15.;
-    smearedJetEta_ = 5.0;
+    smearedJetPt_ = 0.;
+    smearedJetEta_ = 99.0;
     smearedNJet_ = 99; // Number of leading jets used in smearing
     doSmearing_ = true; // only "false" for test purposes
     doJVT_ = true; // if "false" decide on used jets prior to rebalancing
+    changeJVT_ = true; // if "true" change jvt information of jets according to modified sumPt of vertices
     fixJVTjets_ = false; // if "true" jvt jets will not be changed in rebalancing process
-    JVTeta_ = 5.; // default is 2.4
+    JVTeta_ = 2.4; // default is 2.4
     JetEffEmulation_ = false;
     doMETmu_ = false;
     PtBinEdges_scaling_ = {0.,3000.};
     EtaBinEdges_scaling_ = {0.,5.};
-    AdditionalSmearing_ = {1.0};
+    AdditionalSmearing_ = {1.1};
     LowerTailScaling_ = {1.0};
     UpperTailScaling_ = {1.0};
     //PtBinEdges_scaling_ = {0.,150.,250.,400.,700.,3000.};
@@ -102,7 +101,7 @@ void RandS::Begin(TTree * /*tree*/)
     useTrueMETsoftForRebalance_ = false; // only possible on simulated events, for testing purposes (best performance)
     useTriggerTurnOn_ = true; //save event weight from trigger turn on
     METsoftResolutionFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/METsoft_resolutions_new.root";
-    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_incl_data.root";
+    triggerTurnOnFile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/TriggerStudiesOutput_incl_data_v3.root";
     controlPlots_ = false;
     debug_ = 0;
     outputfile_ = "RandS.root";
@@ -124,17 +123,16 @@ void RandS::Begin(TTree * /*tree*/)
     BJetsPt_ = 25.;
     BJetsEta_ = 2.4;
     JetsPt_ = 25.;
-    JetsEta_ = 5.0;
+    JetsEta_ = 4.5;
     JetsHTPt_ = 20.;
-    JetsHTEta_ = 5.0;
+    JetsHTEta_ = 4.5;
     JetsMHTPt_ = 25.;
-    JetsMHTEta_ = 5.0;
+    JetsMHTEta_ = 4.5;
     JetDeltaMin_ = {0.5,0.5,0.3};
     MjjFirstPt_ = 80.;
     MjjSecondPt_ = 50.;
     dPhiSave_ = 2.7;
     dEtaSave_ = 2.5;
-    //dEtaSave_ = 0.;
     jet3PtSave_ = 50.;
 
     smearFunc_ = new SmearFunction(smearingfile_,
@@ -167,7 +165,6 @@ void RandS::Begin(TTree * /*tree*/)
         h_MHTvsHT_all  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MHT2jetvsHT_all");
         h_MHTvsHT_triggered  =  (TH2F*) f_triggerTurnOn->FindObjectAny("h_MHT2jetvsHT_triggered");
         h_MHTvsHT_eff = new TH2F(*h_MHTvsHT_triggered);
-        //cout << "Pointers (all, triggered, eff): " << h_MHTvsHT_all << ", " << h_MHTvsHT_triggered << ", " << h_MHTvsHT_eff << endl;
         h_MHTvsHT_eff->Divide(h_MHTvsHT_all);
     }
 
@@ -193,6 +190,8 @@ void RandS::Begin(TTree * /*tree*/)
     PredictionTree->Branch("MHTphi", &MHTphi_pred);
     PredictionTree->Branch("MET", &MET_pred);
     PredictionTree->Branch("METphi", &METphi_pred);
+    PredictionTree->Branch("METnoJVT", &METnoJVT_pred);
+    PredictionTree->Branch("METnoJVTphi", &METphi_pred);
     PredictionTree->Branch("METsig", &METsig_seed);
     PredictionTree->Branch("MHTsig", &MHTsig_seed);
     PredictionTree->Branch("METsoft", &METsoft_seed);
@@ -211,22 +210,12 @@ void RandS::Begin(TTree * /*tree*/)
 
     //// Not very elegant! TODO: Store this info in and read from file
 
-    // [v1]
+    // [v3]
     AvailableEvents[361022] = 1993647;
-    AvailableEvents[361023] = 7724495;
-    AvailableEvents[361024] = 7890000;
+    AvailableEvents[361023] = 7884494;
+    AvailableEvents[361024] = 7889800;
     AvailableEvents[361025] = 7977600;
-    AvailableEvents[361026] = 1833400;
-
-    AvailableEvents[364184] = 22856611;
-    AvailableEvents[364185] = 9379984;
-    AvailableEvents[364186] = 16307429;
-    AvailableEvents[364187] = 14554282;
-    AvailableEvents[364188] = 9845431;
-    AvailableEvents[364189] = 8995506;
-    AvailableEvents[364190] = 9716288;
-    AvailableEvents[364191] = 7364236;
-    AvailableEvents[364192] = 24232000;
+    AvailableEvents[361026] = 1893400;
 
 
     if (controlPlots_) {
@@ -292,7 +281,6 @@ Bool_t RandS::Process(Long64_t entry)
     }
 
     if (isinf(*Weight)) return 0;
-    //std::cout << "Weight: " << *Weight << std::endl;
     float eventWeight = *Weight;
     if (isMC_) eventWeight *= lumi_ / AvailableEvents[*DatasetID];
 
@@ -304,7 +292,6 @@ Bool_t RandS::Process(Long64_t entry)
     std::vector<MyPhoton> Photons_rec;
 
     int NJets = JetPt->size();
-    //std::cout << "Njets: " << NJets << std::endl;
 
     for (int i = 0; i < NJets; ++i) {
         bool OR = JetPassOR->at(i);
@@ -313,16 +300,17 @@ Bool_t RandS::Process(Long64_t entry)
         float phi = JetPhi->at(i);
         float m = JetM->at(i);
         float jvt = JetJVT->at(i);
-        if (fabs(eta) > 2.4) jvt = 1.;
-        if (pt > 60.) jvt = 1.;
+        if (fabs(eta) > JVTeta_) jvt = 1.;
+        if (pt > 60. && !changeJVT_) jvt = 1.;
         if (smearCollection_ == "Gen") jvt = 1.;
         bool fjvt = JetFJVT->at(i);
-        if (smearCollection_ == "Gen") fjvt = true;
+        if (smearCollection_ == "Gen") fjvt = false;
         float sumpt = JetSumPtTracks->at(i);
         float tw = JetTrackWidth->at(i);
         unsigned short ntracks = JetNTracks->at(i);
         bool btag = JetBtag->at(i);
         bool good = JetGood->at(i);
+        unsigned short vtx = HighestJVFVtx->at(i);
 
         MyJet jet(pt, eta, phi,m);
         jet.SetJVT(jvt);
@@ -333,13 +321,15 @@ Bool_t RandS::Process(Long64_t entry)
         jet.SetBTag(btag);
         jet.SetJetID(good);
         jet.SetPassOR(OR);
+        jet.SetVtx(vtx);
 
         //// To avoid that after R+S bad jets may end up in MHT ...
         if (jet.Pt() > 20. && jet.IsBad()) {
-            //std::cout << "Reject event because of bad jet!" << std::endl;
+            std::cout << "Reject event because of bad jet!" << std::endl;
             return 1;
         }
 
+        /*
         if (jet.Pt() > 20. && jet.Pt() < 60. && fabs(jet.Eta()) < 2.4) {
             if (jet.IsBad() && jet.IsNoPU(jvtcut_)) {
                 //std::cout << "Reject event because of bad central jet!" << std::endl;
@@ -358,10 +348,11 @@ Bool_t RandS::Process(Long64_t entry)
                 return 1;
             }
         }
+        */
 
         // Keep all good jets (important for rebalancing, and not critical since also PU events should be balanced in pT)
         if (doJVT_) {
-            if (jet.IsGood()) Jets_rec.push_back(jet);
+            if (jet.IsGood() && jet.Pt() > 20.) Jets_rec.push_back(jet);
         } else { // Keep only signal jets and don't worry about jvt any further
             if (jet.IsGood() && jet.Pt() > 20. && fabs(jet.Eta()) < JetsEta_ && (jet.Pt() > 60. || jet.IsNoPU(jvtcut_) || fabs(jet.Eta()) > 2.4) ) {
                 jet.SetJVT(1.);
@@ -375,7 +366,6 @@ Bool_t RandS::Process(Long64_t entry)
 
 
     int NGenJets = GenJetPt->size();
-    //std::cout << "NGenjets: " << NGenJets << std::endl;
 
     for (int i = 0; i < NGenJets; ++i) {
         float pt = GenJetPt->at(i);
@@ -394,7 +384,6 @@ Bool_t RandS::Process(Long64_t entry)
     //// Muons ////////////////
 
     int NMuons = MuonPt->size();
-    //std::cout << "NMuons: " << NMuons << std::endl;
 
     for (int i = 0; i < NMuons; ++i) {
         bool OR = MuonPassOR->at(i);
@@ -406,23 +395,15 @@ Bool_t RandS::Process(Long64_t entry)
         int q = MuonCharge->at(i);
 
         if (bad) {
-            //std::cout << "Reject event because of bad muon!" << std::endl;
+            std::cout << "Reject event because of bad muon!" << std::endl;
             return 1;
         }
 
         if (signal) {
-            //std::cout << "Reject event because of isolated muon!" << std::endl;
+            std::cout << "Reject event because of isolated muon!" << std::endl;
             return 1;
 
         }
-
-        /*
-                if (OR) {
-                    //std::cout << "Reject event because of baseline muon!" << std::endl;
-                    lv = true;
-                    if (!cutFlowStudies) return 1;
-                }
-        */
 
         MyMuon muon(pt, eta, phi);
         muon.SetIsSignal(signal);
@@ -437,7 +418,6 @@ Bool_t RandS::Process(Long64_t entry)
     //// Electrons ////////////////
 
     int NElectrons = ElePt->size();
-    //std::cout << "NElectrons: " << NElectrons << std::endl;
 
     for (int i = 0; i < NElectrons; ++i) {
         bool OR = ElePassOR->at(i);
@@ -448,17 +428,9 @@ Bool_t RandS::Process(Long64_t entry)
         int q = EleCharge->at(i);
 
         if (signal) {
-            //std::cout << "Reject event because of isolated electon!" << std::endl;
+            std::cout << "Reject event because of isolated electon!" << std::endl;
             return 1;
         }
-
-        /*
-                if (OR) {
-                    //std::cout << "Reject event because of baseline electon!" << std::endl;
-                    lv = true;
-                    if (!cutFlowStudies) return 1;
-                }
-        */
 
         MyElectron electron(pt, eta, phi);
         electron.SetIsSignal(signal);
@@ -472,7 +444,6 @@ Bool_t RandS::Process(Long64_t entry)
     //// Taus ////////////////
 
     int NTaus = TauPt->size();
-    //std::cout << "NTaus: " << NTaus << std::endl;
 
     for (int i = 0; i < NTaus; ++i) {
         bool OR = TauPassOR->at(i);
@@ -493,7 +464,6 @@ Bool_t RandS::Process(Long64_t entry)
     //// Photons ////////////////
 
     int NPhotons = PhotonPt->size();
-    //std::cout << "NPhoton: " << NPhotons << std::endl;
     for (int i = 0; i < NPhotons; ++i) {
         bool OR = PhotonPassOR->at(i);
         bool signal = PhotonIsSignal->at(i);
@@ -527,7 +497,6 @@ Bool_t RandS::Process(Long64_t entry)
     METtrack.SetPtEtaPhiM(*METtrack_pt, 0, *METtrack_phi, 0);
     METsoft_seed = METtrack.Pt();
 
-
     TLorentzVector METpho;
     METpho.SetPtEtaPhiM(*METgamma_pt, 0, *METgamma_phi, 0);
 
@@ -537,10 +506,9 @@ Bool_t RandS::Process(Long64_t entry)
     TLorentzVector METjet;
     METjet.SetPtEtaPhiM(*METjet_pt, 0, *METjet_phi, 0);
 
-    //// if you want to compare to MET without muon term
-    //MET = MET - METmu;
-
     TLorentzVector METsoft = METtrack;
+    
+    TLorentzVector METnoJVT = MET - METjet + recoMHTreb;
 
     float HTSeedJVT = calcHT(Jets_rec, true);
     float HTSeednoJVT = calcHT(Jets_rec, false);
@@ -551,7 +519,7 @@ Bool_t RandS::Process(Long64_t entry)
     if (HTSeednoJVT > 0) MHTSig = (recoMHTall.Pt()/sqrt(HTSeednoJVT));
     MHTsig_seed = MHTSig;
 
-    calcPredictions(Jets_rec, MET, -2, eventWeight);
+    calcPredictions(Jets_rec, MET, METnoJVT, -2, eventWeight);
 
     TLorentzVector genMET;
     genMET.SetPtEtaPhiM(*GenMET_pt, 0, *GenMET_phi, 0);
@@ -568,98 +536,92 @@ Bool_t RandS::Process(Long64_t entry)
 
     //// Save reco event information
     //// This is the MC expectation, which is compared to the data driven prediction in a closure test
-    float mjj = 0; //calcMjj(Jets_rec);
-    float MHTjj =  0; //calcMHTjj(Jets_rec);
-    float dPhijj = 0; //calcDPhijj(Jets_rec);
-    float dEtajj = 0; //calcDEtajj(Jets_rec);
-    float jet3Pt = 0; //calcJet3Pt(Jets_rec);
+    float mjj = 0;
+    float MHTjj =  0;
+    float dPhijj = 0;
+    float dEtajj = 0;
+    float jet3Pt = 0;
     float jetEtaMax = 0;
 
     calcJJ(Jets_rec, MHTjj, mjj, dPhijj, dEtajj, jet3Pt, jetEtaMax);
 
     int Nreco = Njets_pred;
 
-    if ( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && dEtajj > dEtaSave_ && jet3Pt < jet3PtSave_ ) {
+    if (debug_ > 0 && MET_pred > 50. && dPhijj < 2.7 && dEtajj > 2.5 && jet3Pt < 50. && jetEtaMax > 2.5) {
 
-        if (debug_ > 0 && dPhijj < 1.8 && dEtajj > 2.5 && jet3Pt < 25. && jetEtaMax > 2.5) {
+        cout << "---------------------" << endl;
+        cout << "RunNumber, Event:    " << *DatasetID << ", " << *EventNo << endl;
+        cout << "Weight:              " << eventWeight << endl;
+        cout << "MET triggered:       " << (*xe90triggered || *xe110triggered) << endl;
+        cout << "MET significance:    " << METSig << endl;
+        cout << "MHT significance:    " << MHTSig << endl;
+        cout << "HTSeedJVT:           " << HTSeedJVT << endl;
+        cout << "HTSeednoJVT:         " << HTSeednoJVT << endl;
+        cout << "recoMHTall (pt,phi): " << recoMHTall.Pt() << ", " << recoMHTall.Phi() << endl;
+        cout << "recoMHTreb (pt,phi): " << recoMHTreb.Pt() << ", " << recoMHTreb.Phi() << endl;
+        cout << "MET (pt,phi):        " << MET.Pt() << ", " << MET.Phi() << endl;
+        cout << "METjet (pt,phi):     " << METjet.Pt() << ", " << METjet.Phi() << endl;
+        cout << "METpho (pt,phi):     " << METpho.Pt() << ", " << METpho.Phi() << endl;
+        cout << "METmu (pt,phi):      " << METmu.Pt() << ", " << METmu.Phi() << endl;
+        cout << "METtrack (pt,phi):   " << METtrack.Pt() << ", " << METtrack.Phi() << endl;
+        cout << "MHTjj:               " << MHTjj<< endl;
+        cout << "mjj:                 " << mjj<< endl;
+        cout << "dPhijj:              " << dPhijj<< endl;
+        cout << "dEtajj:              " << dEtajj<< endl;
+        cout << "jet3Pt:              " << jet3Pt<< endl;
 
-            cout << "---------------------" << endl;
-            cout << "Weight:              " << eventWeight << endl;
-            cout << "MET triggered:       " << (*xe90triggered || *xe110triggered) << endl;
-            cout << "MET significance:    " << METSig << endl;
-            cout << "MHT significance:    " << MHTSig << endl;
-            cout << "HTSeedJVT:           " << HTSeedJVT << endl;
-            cout << "HTSeednoJVT:         " << HTSeednoJVT << endl;
-            cout << "recoMHTall (pt,phi): " << recoMHTall.Pt() << ", " << recoMHTall.Phi() << endl;
-            cout << "recoMHTreb (pt,phi): " << recoMHTreb.Pt() << ", " << recoMHTreb.Phi() << endl;
-            cout << "MET (pt,phi):        " << MET.Pt() << ", " << MET.Phi() << endl;
-            cout << "METjet (pt,phi):     " << METjet.Pt() << ", " << METjet.Phi() << endl;
-            cout << "METpho (pt,phi):     " << METpho.Pt() << ", " << METpho.Phi() << endl;
-            cout << "METmu (pt,phi):      " << METmu.Pt() << ", " << METmu.Phi() << endl;
-            cout << "METtrack (pt,phi):   " << METtrack.Pt() << ", " << METtrack.Phi() << endl;
-            cout << "MHTjj:               " << MHTjj<< endl;
-            cout << "mjj:                 " << mjj<< endl;
-            cout << "dPhijj:              " << dPhijj<< endl;
-            cout << "dEtajj:              " << dEtajj<< endl;
-            cout << "jet3Pt:              " << jet3Pt<< endl;
-
-            if (isMC_) {
-                int ii = 0;
-                TLorentzVector vhigh(0,0,0,0);
-                TLorentzVector vlow(0,0,0,0);
-                for (vector<MyJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
-                    if (it->Pt() < 25.) vlow += (*it);
-                    cout << ii << "th gen jet (pt, eta, phi, flav, good): " <<
-                         it->Pt() << ", " <<
-                         it->Eta() << ", " <<
-                         it->Phi() << ", " <<
-                         it->IsB() << ", " <<
-                         std::endl;
-                    if (it->Pt() > 25.) vhigh += (*it);
-                    ++ii;
-                }
-                //std::cout << "gen JetVecHigh (pt, phi): " << vhigh.Pt() << ", " << vhigh.Phi() << std::endl;
-                //std::cout << "gen JetVecLow  (pt, phi): " << vlow.Pt() << ", " << vlow.Phi() << std::endl;
-            }
-
+        if (isMC_) {
             int ii = 0;
-            TLorentzVector vhigh1(0,0,0,0);
-            TLorentzVector vlow1(0,0,0,0);
-            for (vector<MyJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-                if (it->Pt() < 25.) vlow1 += (*it);
-                cout << ii << "th reco jet (pt, eta, phi, flav, good, PU, fjvt): " <<
+            TLorentzVector vhigh(0,0,0,0);
+            TLorentzVector vlow(0,0,0,0);
+            for (vector<MyJet>::iterator it = Jets_gen.begin(); it != Jets_gen.end(); ++it) {
+                if (it->Pt() < 25.) vlow += (*it);
+                cout << ii << "th gen jet (pt, eta, phi, flav, good): " <<
                      it->Pt() << ", " <<
                      it->Eta() << ", " <<
                      it->Phi() << ", " <<
                      it->IsB() << ", " <<
-                     it->IsPU(jvtcut_) << ", " <<
-                     !(it->IsFJVT()) <<
                      std::endl;
-                if (it->Pt() > 25.) vhigh1 += (*it);
+                if (it->Pt() > 25.) vhigh += (*it);
                 ++ii;
             }
-
-            //std::cout << "reco JetVecHigh (pt, phi): " << vhigh1.Pt() << ", " << vhigh1.Phi() << std::endl;
-            //std::cout << "reco JetVecLow  (pt, phi): " << vlow1.Pt() << ", " << vlow1.Phi() << std::endl;
-
+            //std::cout << "gen JetVecHigh (pt, phi): " << vhigh.Pt() << ", " << vhigh.Phi() << std::endl;
+            //std::cout << "gen JetVecLow  (pt, phi): " << vlow.Pt() << ", " << vlow.Phi() << std::endl;
         }
 
-        if ( *xe90triggered || *xe110triggered) {
+        int ii = 0;
+        TLorentzVector vhigh1(0,0,0,0);
+        TLorentzVector vlow1(0,0,0,0);
+        for (vector<MyJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
+            if (it->Pt() < 25.) vlow1 += (*it);
+            cout << ii << "th reco jet (pt, eta, phi, trackPt, flav, PU, fjvt, vtx): " <<
+                 it->Pt() << ", " <<
+                 it->Eta() << ", " <<
+                 it->Phi() << ", " <<
+                 it->GetSumPtTracks() << ", " <<
+                 it->IsB() << ", " <<
+                 it->IsPU(jvtcut_) << ", " <<
+                 !(it->IsFJVT()) << ", " <<
+                 it->GetVtx() <<
+                 std::endl;
+            if (it->Pt() > 25.) vhigh1 += (*it);
+            ++ii;
+        }
+        //std::cout << "reco JetVecHigh (pt, phi): " << vhigh1.Pt() << ", " << vhigh1.Phi() << std::endl;
+        //std::cout << "reco JetVecLow  (pt, phi): " << vlow1.Pt() << ", " << vlow1.Phi() << std::endl;
+
+    }
+
+    if ( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && dEtajj > dEtaSave_ && jet3Pt < jet3PtSave_ ) {
+
+        if ( *xe70triggered || *xe90triggered || *xe110triggered) {
             triggerWeight = 1.;
         } else {
             triggerWeight = 0.;
         }
-        /*
-        if (useTriggerTurnOn_) {
-            Int_t binx = h_MHTvsHT_eff->GetXaxis()->FindFixBin(MET_pred);
-            Int_t biny = h_MHTvsHT_eff->GetYaxis()->FindFixBin(HT_pred);
-            triggerWeight = h_MHTvsHT_eff->GetBinContent(binx, biny);
-        } else {
-            triggerWeight = 1.;
-        }
-        */
         PredictionTree->Fill();
     }
+
     //// clean variables in tree
     weight = 0.;
     Ntries_pred = 0.;
@@ -680,7 +642,6 @@ Bool_t RandS::Process(Long64_t entry)
     float dphi_max = 2.8;
     float mjj_min = 0.;
     bool MjjSeed = calcMjjSeed(Jets_rec, deta_min, dphi_max, mjj_min);
-    //cout << "MjjSeed: " << MjjSeed << endl;
 
     int NJetSeed = 0;
     if (fixJVTjets_) {
@@ -688,19 +649,10 @@ Bool_t RandS::Process(Long64_t entry)
     } else {
         NJetSeed = calcNJets(Jets_rec, false);
     }
-    //cout << "NJetSeed: " << NJetSeed << endl;
-
-    bool IsSeed = true;
-    //if ((METjet+METpho-recoMHTreb).Pt() > 10.) IsSeed = false;
-    //if (METpho.Pt() > 0.) IsSeed = false;
-    //if (NJetSeed > 1) IsSeed = RebPossible(Jets_rec, recoMHTall);
-    //cout << "IsSeed: " << IsSeed << endl;
 
     //// Seed event selection (CAREFUL!!!)
 
-    if (doSmearing_ && IsSeed && HTSeednoJVT > HTSeedMin_ && HTSeednoJVT < HTSeedMax_ && NJetSeed >= NJetsSeedMin_ && NJetSeed <= NJetsSeedMax_&& MjjSeed ) {
-
-        //cout << "Will be rebalanced" << endl;
+    if (doSmearing_ && HTSeednoJVT > HTSeedMin_ && HTSeednoJVT < HTSeedMax_ && NJetSeed >= NJetsSeedMin_ && NJetSeed <= NJetsSeedMax_&& MjjSeed ) {
 
         if (smearCollection_ == "Reco") {
 
@@ -708,19 +660,18 @@ Bool_t RandS::Process(Long64_t entry)
             double METsoftSmeared_Phi = METsoft.Phi();
             if (useMETsoftResolution_) {
                 //// Smear soft MET
-                //int yBin = h_METsoft_Pt->GetYaxis()->FindBin(recoMHTreb.Pt());
-                //if (yBin > h_METsoft_Pt->GetYaxis()->GetNbins()) yBin = h_METsoft_Pt->GetYaxis()->GetNbins();
-                //METsoftSmeared_Pt = h_METsoft_Pt_px.at(yBin-1)->GetRandom();
-
                 int yBin = h_METsoft_Phi->GetYaxis()->FindBin(METsoftSmeared_Pt);
                 if (yBin > h_METsoft_Phi->GetYaxis()->GetNbins()) yBin = h_METsoft_Phi->GetYaxis()->GetNbins();
                 double dPhi = h_METsoft_Phi_px.at(yBin-1)->GetRandom();
                 METsoftSmeared_Phi = MET.Phi() + dPhi;
+
+                //yBin = h_METsoft_Pt->GetYaxis()->FindBin(recoMHTreb.Pt());
+                //if (yBin > h_METsoft_Pt->GetYaxis()->GetNbins()) yBin = h_METsoft_Pt->GetYaxis()->GetNbins();
+                //METsoftSmeared_Pt = h_METsoft_Pt_px.at(yBin-1)->GetRandom();
             }
 
             TLorentzVector vMETsoft_smeared(0,0,0,0);
             vMETsoft_smeared.SetPtEtaPhiM(METsoftSmeared_Pt, 0., METsoftSmeared_Phi, 0.);
-            if (debug_ > 999) cout << "METsoft smeared (pt,phi)   : " << vMETsoft_smeared.Pt() << ", " << vMETsoft_smeared.Phi() << endl;
 
             if (!useTrueMETsoftForRebalance_) {
                 isRebalanced = RebalanceJets_KinFitter(Jets_rec, Jets_gen, Jets_reb, vMETsoft_smeared);
@@ -830,7 +781,7 @@ Bool_t RandS::Process(Long64_t entry)
 
             //// comment in, if you want to save truth event information
             //triggerWeight = 1.;
-            //calcPredictions(Jets_gen, genMET, -1, eventWeight);
+            //calcPredictions(Jets_gen, genMET, genMET, -1, eventWeight);
             //PredictionTree->Fill();
             //// clean variables in tree
             //weight = 0.;
@@ -849,7 +800,7 @@ Bool_t RandS::Process(Long64_t entry)
 
             //// comment in, if you want to save rebalanced event information
             //TLorentzVector MET_reb(0., 0., 0., 0.);
-            //calcPredictions(Jets_reb, MET_reb, 0, eventWeight);
+            //calcPredictions(Jets_reb, MET_reb, MET_reb, 0, eventWeight);
             //PredictionTree->Fill();
             //// clean variables in tree
             //weight = 0.;
@@ -1049,141 +1000,6 @@ double RandS::calcHT(std::vector<MyJet>& Jets, const bool& dojvt) {
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-double RandS::calcMjj(std::vector<MyJet>& Jets) {
-    double Mjj = 0;
-    bool first = false;
-    bool second = false;
-    MyJet* firstJet = 0;
-    MyJet* secondJet = 0;
-    for (vector<MyJet>::iterator it = Jets.begin(); ( it != Jets.end() && !second ); ++it) {
-        if (it->IsGood() && ( !doJVT_ || (it->Pt() > 60. || it->Pt() < 20. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > JVTeta_))) {
-            if (!first && it->Pt() > MjjFirstPt_) {
-                firstJet = &(*it);
-                first = true;
-            } else if (first && !second && it->Pt() > MjjSecondPt_) {
-                secondJet = &(*it);
-                second = true;
-                break;
-            }
-        }
-    }
-    if (second) {
-        Mjj = ((*firstJet) + (*secondJet)).M();
-    }
-    return Mjj;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-double RandS::calcMHTjj(std::vector<MyJet>& Jets) {
-    double MHTjj = 0;
-    bool first = false;
-    bool second = false;
-    MyJet* firstJet = 0;
-    MyJet* secondJet = 0;
-    for (vector<MyJet>::iterator it = Jets.begin(); ( it != Jets.end() && !second ); ++it) {
-        if (it->IsGood() && ( !doJVT_ || (it->Pt() > 60. || it->Pt() < 20. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > JVTeta_))) {
-            if (!first && it->Pt() > MjjFirstPt_) {
-                firstJet = &(*it);
-                first = true;
-            } else if (first && !second && it->Pt() > MjjSecondPt_) {
-                secondJet = &(*it);
-                second = true;
-                break;
-            }
-        }
-    }
-    if (second) {
-        MHTjj = ((*firstJet) + (*secondJet)).Pt();
-    }
-    return MHTjj;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-double RandS::calcDPhijj(std::vector<MyJet>& Jets) {
-    double dPhi = TMath::Pi();
-    bool first = false;
-    bool second = false;
-    MyJet* firstJet = 0;
-    MyJet* secondJet = 0;
-    for (vector<MyJet>::iterator it = Jets.begin(); ( it != Jets.end() && !second ); ++it) {
-        if (it->IsGood() && ( !doJVT_ || (it->Pt() > 60. || it->Pt() < 20. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > JVTeta_))) {
-            if (!first && it->Pt() > MjjFirstPt_) {
-                firstJet = &(*it);
-                first = true;
-            } else if (first && !second && it->Pt() > MjjSecondPt_) {
-                secondJet = &(*it);
-                second = true;
-                break;
-            }
-        }
-    }
-    if (second) {
-        dPhi = fabs((*firstJet).DeltaPhi(*secondJet));
-    }
-    return dPhi;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-double RandS::calcDEtajj(std::vector<MyJet>& Jets) {
-    double dEta = 0.;
-    bool first = false;
-    bool second = false;
-    MyJet* firstJet = 0;
-    MyJet* secondJet = 0;
-    for (vector<MyJet>::iterator it = Jets.begin(); ( it != Jets.end() && !second ); ++it) {
-        if (it->IsGood() && ( !doJVT_ || (it->Pt() > 60. || it->Pt() < 20. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > JVTeta_))) {
-            if (!first && it->Pt() > MjjFirstPt_) {
-                firstJet = &(*it);
-                first = true;
-            } else if (first && !second && it->Pt() > MjjSecondPt_) {
-                secondJet = &(*it);
-                second = true;
-                break;
-            }
-        }
-    }
-    if (second) {
-        dEta = fabs((*firstJet).Eta()-(*secondJet).Eta());
-    }
-    return dEta;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-double RandS::calcJet3Pt(std::vector<MyJet>& Jets) {
-    double Pt3 = 0;
-    bool first = false;
-    bool second = false;
-    bool third = false;
-    MyJet* firstJet = 0;
-    MyJet* secondJet = 0;
-    MyJet* thirdJet = 0;
-    for (vector<MyJet>::iterator it = Jets.begin(); ( it != Jets.end() && !third); ++it) {
-        if (it->IsGood() && ( !doJVT_ || (it->Pt() > 60. || it->Pt() < 20. || it->IsNoPU(jvtcut_) || fabs(it->Eta()) > JVTeta_))) {
-            if (!first) {
-                firstJet = &(*it);
-                first = true;
-            } else if (first && !second) {
-                secondJet = &(*it);
-                second = true;
-            } else if (first && second && !third) {
-                thirdJet = &(*it);
-                third = true;
-                break;
-            }
-        }
-    }
-    if (third) {
-        Pt3 = (*thirdJet).Pt();
-    }
-    return Pt3;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
 bool RandS::calcJJ(std::vector<MyJet>& Jets, float& MHTjj, float& Mjj, float& dPhijj, float& dEtajj, float& pT3, float& jetEtaMax) {
     MHTjj = 0;
     Mjj = 0;
@@ -1282,35 +1098,8 @@ TLorentzVector RandS::calcMHT(std::vector<MyJet>& Jets, const double& ptmin, con
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-// check if rebalancing is possible
-bool RandS::RebPossible(std::vector<MyJet> &Jets_rec, TLorentzVector& vMET) {
-    bool result = false;
-
-    for (vector<MyJet>::iterator it = Jets_rec.begin(); it != Jets_rec.end(); ++it) {
-
-        if ( it->IsBad() || it->Pt() < rebalancedJetPt_ || it->Pt() < vMET.Pt()/3.) continue;
-
-        double dPhi1 = fabs(it->DeltaPhi(vMET));
-
-        for (vector<MyJet>::iterator jt = Jets_rec.begin(); jt != Jets_rec.end(); ++jt) {
-
-            if ( jt->IsBad() || jt->Pt() < rebalancedJetPt_ || jt->Pt() < vMET.Pt()/3. || (*it) == (*jt) ) continue;
-
-            double dPhi2 = fabs(jt->DeltaPhi(vMET));
-
-            if ( (dPhi1 + dPhi2) > TMath::Pi() ) return true;
-
-        }
-
-    }
-
-    return result;
-}
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
 // rebalance the events using a kinematic fit and transverse momentum balance
-bool RandS::RebalanceJets_KinFitter(std::vector<MyJet> &Jets_rec,   std::vector<MyJet> &Jets_gen, std::vector<MyJet> &Jets_reb, TLorentzVector& vMETsoft) {
+bool RandS::RebalanceJets_KinFitter(std::vector<MyJet> &Jets_rec, std::vector<MyJet> &Jets_gen, std::vector<MyJet> &Jets_reb, TLorentzVector& vMETsoft) {
 
     bool result = true;
 
@@ -1444,7 +1233,13 @@ bool RandS::RebalanceJets_KinFitter(std::vector<MyJet> &Jets_rec,   std::vector<
     for (unsigned int i = 0; i < measured.size(); ++i) {
         // create new rebalanced Jet
         MyJet rebalancedJet = *JetMap[i];
+        float scale = 1.;
+        float sumPtTracks = rebalancedJet.GetSumPtTracks();
+        if (fitted.at(i)->getCurr4Vec()->Pt() > 0.) {
+            scale = rebalancedJet.Pt() / fitted.at(i)->getCurr4Vec()->Pt();
+        }
         rebalancedJet.SetPtEtaPhiM(fitted.at(i)->getCurr4Vec()->Pt(), fitted.at(i)->getCurr4Vec()->Eta(), fitted.at(i)->getCurr4Vec()->Phi(), fitted.at(i)->getCurr4Vec()->M());
+        rebalancedJet.SetSumPtTracks(scale * sumPtTracks);
         Jets_reb.push_back(rebalancedJet);
 
         /*
@@ -1534,9 +1329,16 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                         MyJet smearedJet;
                         smearedJet.SetPtEtaPhiM(newPt, newEta, newPhi, newMass);
                         smearedJet.SetBTag(it->IsB());
-                        smearedJet.SetJVT(it->GetJVT());
-                        smearedJet.SetFJVT(it->IsFJVT());
                         smearedJet.SetJetID(true);
+                        smearedJet.SetNTracks(it->GetNTracks());
+                        smearedJet.SetTrackWidth(it->GetTrackWidth());
+                        smearedJet.SetSumPtTracks(scale*it->GetSumPtTracks()); // scale sum pT to study if PV is changing
+                        smearedJet.SetVtx(it->GetVtx());
+                        smearedJet.SetFracSamplingMax(it->GetFracSamplingMax());
+                        smearedJet.SetHECFrac(it->GetHECFrac());
+                        smearedJet.SetEMFrac(it->GetEMFrac());
+                        smearedJet.SetFJVT(it->IsFJVT());
+                        smearedJet.SetJVT(it->GetJVT());
                         Jets_smeared.push_back(smearedJet);
                         ++i_jet;
                     } else {
@@ -1548,12 +1350,65 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
             GreaterByPt<MyJet> ptComparator_;
             std::sort(Jets_smeared.begin(), Jets_smeared.end(), ptComparator_);
 
+            //// check which jets belong to highest sumPt vertex and assign jvt accordingly
+            unsigned short newVtx = 0;
+			float SumPtMax = 0;
+
+            if (changeJVT_) {
+
+                /*
+                //// Use highest sum pT vertex from tracks for definition of PV
+                std::map<unsigned short, float> SumPtMap;
+                for (vector<MyJet>::iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
+                    if (fabs(it->Eta()) < 2.4) SumPtMap[it->GetVtx()] += it->GetSumPtTracks();
+                }
+                //// Check for highest sum pT vertex
+                for(auto const &mt : SumPtMap) {
+                    if (mt.second > SumPtMax) {
+                        SumPtMax = mt.second;
+                        newVtx = mt.first;
+                    }
+                }
+                */
+                
+                //// Use highest sum pT vertex from jets for definition of PV
+				std::map<unsigned short, float> SumPtMap;
+                for (vector<MyJet>::iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
+                    if (fabs(it->Eta()) < 2.4) SumPtMap[it->GetVtx()] += it->Pt();
+                }
+                //// Check for highest sum pT vertex
+                for(auto const &mt : SumPtMap) {
+                    if (mt.second > SumPtMax) {
+                        SumPtMax = mt.second;
+                        newVtx = mt.first;
+                    }
+                }
+
+                //// change jvt according to choice of PV
+                for (vector<MyJet>::iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
+                    if (it->GetVtx() == newVtx || fabs(it->Eta()) > 2.4 || it->Pt() > 60.) {
+                        it->SetJVT(1.);
+                    } else {
+                        it->SetJVT(0.);
+                    }
+                    if (it->GetVtx() != newVtx && fabs(it->Eta()) > 2.4) {
+                        it->SetFJVT(false);
+                    }
+                }
+
+            }
+
             TLorentzVector vMETpred = calcMHT(Jets_smeared, 0., JetsMHTEta_, doJVT_ );
             TLorentzVector vMHTnoJVTpred = calcMHT(Jets_smeared, 0., JetsMHTEta_, false );
+            TLorentzVector vMETnoJVTpred = vMHTnoJVTpred;
             float HTnoJVTpred = calcHT(Jets_smeared, false );
 
-            if (rebalanceMode_ == "METsoft") vMETpred += vMETsoft;
+            if (rebalanceMode_ == "METsoft") {
+				vMETpred += vMETsoft;
+				vMETnoJVTpred += vMETsoft;
+			}
             vMETpred += METmu_sim;
+            vMETnoJVTpred += METmu_sim;
             /*
             if (vMETpred.Pt() > 100. && (vMETpred-METmu_sim).Pt() < 100.) {
             	if ( vMETpred.Pt() > (vMETpred-METmu_sim).Pt() ) std::cout << "larger:  MET, METsoft, METmu, METnomu: " << vMETpred.Pt() << ", " <<  vMETsoft.Pt() << ", " << METmu_sim.Pt() << ", " << (vMETpred-METmu_sim).Pt() << std::endl;
@@ -1564,7 +1419,7 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
             	if ( vMETpred.Pt() < (vMETpred-METmu_sim).Pt() ) std::cout << "smaller: MET, METsoft, METmu, METnomu: " << vMETpred.Pt() << ", " <<  vMETsoft.Pt() << ", " << METmu_sim.Pt() << ", " << (vMETpred-METmu_sim).Pt() << std::endl;
             }
             */
-            calcPredictions(Jets_smeared, vMETpred, i, eventWeight);
+            calcPredictions(Jets_smeared, vMETpred, vMETnoJVTpred, i, eventWeight);
 
             float mjj = 0; //calcMjj(Jets_smeared);
             float MHTjj = 0; // calcMHTjj(Jets_smeared);
@@ -1577,19 +1432,21 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
             if( HT_pred > HTSave_ && ( MET_pred > METSave_ || MHT_pred > MHTSave_ || MHTjj > MHTjjSave_ ) && Njets_pred >= NJetsSave_ && mjj > MjjSave_ && dPhijj < dPhiSave_ && dEtajj > dEtaSave_ && jet3Pt < jet3PtSave_) {
 
                 if (debug_ > 999 && MET_pred > METSave_ && mjj > MjjSave_ && dPhijj < 1.8 && jet3Pt < 25. ) {
-                    cout << "ALARM ! " << endl;
+                    cout << "ALARM !!! " << endl;
                     int ii = 0;
                     TLorentzVector vhigh(0,0,0,0);
                     TLorentzVector vlow(0,0,0,0);
                     for (vector<MyJet>::iterator it = Jets.begin(); it != Jets.end(); ++it) {
                         if (it->Pt() < 25.) vlow += (*it);
-                        cout << ii << "th rebalanced jet (pt, eta, phi, flav, PU, fjvt): " <<
+                        cout << ii << "th rebalanced jet (pt, eta, phi, trackPt, flav, PU, fjvt, vtx): " <<
                              it->Pt() << ", " <<
                              it->Eta() << ", " <<
                              it->Phi() << ", " <<
+                             it->GetSumPtTracks() << ", " <<
                              it->IsB() << ", " <<
                              it->IsPU(jvtcut_) << ", " <<
-                             !(it->IsFJVT()) <<
+                             !(it->IsFJVT()) << ", " <<
+                             it->GetVtx() <<
                              std::endl;
                         if (it->Pt() > 25.) vhigh += (*it);
                         ++ii;
@@ -1602,22 +1459,25 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
                     TLorentzVector vlow1(0,0,0,0);
                     for (vector<MyJet>::iterator it = Jets_smeared.begin(); it != Jets_smeared.end(); ++it) {
                         if (it->Pt() < 25.) vlow1 += (*it);
-                        cout << ii << "th smeared jet (pt, eta, phi, flav, PU, fjvt): " <<
+                        cout << ii << "th smeared jet (pt, eta, phi, trackPt, flav, PU, fjvt, vtx): " <<
                              it->Pt() << ", " <<
                              it->Eta() << ", " <<
                              it->Phi() << ", " <<
+                             it->GetSumPtTracks() << ", " <<
                              it->IsB() << ", " <<
                              it->IsPU(jvtcut_) << ", " <<
-                             !(it->IsFJVT()) <<
+                             !(it->IsFJVT()) << ", " <<
+                             it->GetVtx() <<
                              std::endl;
                         if (it->Pt() > 25.) vhigh1 += (*it);
                         ++ii;
                     }
                     std::cout << "smeared JetVecHigh (pt, phi): " << vhigh1.Pt() << ", " << vhigh1.Phi() << std::endl;
                     std::cout << "smeared JetVecLow  (pt, phi): " << vlow1.Pt() << ", " << vlow1.Phi() << std::endl;
-                    cout << "MET_pred, MHTjj: " << MET_pred << ", " << MHTjj << endl;
-                    cout << "vMHTnoJVTpred, HTnoJVTpred: " << vMHTnoJVTpred.Pt() << ", " << HTnoJVTpred << endl;
-                    cout << "dPhijj, dEtajj, Mjj: " << dPhijj << ", " << dEtajj << ", " << mjj << endl;
+                    std::cout << "MET_pred, MHTjj: " << MET_pred << ", " << MHTjj << std::endl;
+                    std::cout << "vMETnoJVTpred, HTnoJVTpred: " << vMETnoJVTpred.Pt() << ", " << HTnoJVTpred << std::endl;
+                    std::cout << "dPhijj, dEtajj, Mjj: " << dPhijj << ", " << dEtajj << ", " << mjj << std::endl;
+                    std::cout << "Vtx, SumPt: " << newVtx << ", " << SumPtMax << std::endl;
                 } //end of debug
 
                 if (useTriggerTurnOn_) {
@@ -1653,7 +1513,7 @@ void RandS::SmearingJets(std::vector<MyJet> &Jets, TLorentzVector& vMETsoft, con
 //--------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, const int& i, const float& w) {
+void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, TLorentzVector& vMETnoJVT, const int& i, const float& w) {
 
     int NJets = calcNJets(Jets, doJVT_ );
     int NBJets = calcNBJets(Jets, doJVT_ );
@@ -1661,8 +1521,10 @@ void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, cons
     TLorentzVector vMHT = calcMHT(Jets, JetsMHTPt_, JetsMHTEta_, doJVT_ );
     double MHT = vMHT.Pt();
     double MET = vMET.Pt();
+    double METnoJVT = vMETnoJVT.Pt();
     double MHTphi = vMHT.Phi();
     double METphi = vMET.Phi();
+    double METnoJVTphi = vMETnoJVT.Phi();
 
     weight = w;
     Ntries_pred = i;
@@ -1673,6 +1535,8 @@ void RandS::calcPredictions(std::vector<MyJet>& Jets, TLorentzVector& vMET, cons
     MHTphi_pred = MHTphi;
     MET_pred = MET;
     METphi_pred = METphi;
+    METnoJVT_pred = METnoJVT;
+    METnoJVTphi_pred = METnoJVTphi;
     calcLeadingJetPredictions(Jets, vMET);
 
     return;

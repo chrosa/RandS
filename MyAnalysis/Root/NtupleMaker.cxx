@@ -65,7 +65,7 @@ NtupleMaker :: NtupleMaker ()
 {
     debug_ = 1;
     outputfile_ = "NtupleMaker.root";
-    calculateTrueMET_ = true;
+    calculateTrueMET_ = false;
     rebalancedJetPt_ = 20000.;
     AddMuToJets_ = true;
 
@@ -126,6 +126,8 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("DatasetID",&dsid_);
     EventTree->Branch("EventNo",&evtno_);
     EventTree->Branch("PrimaryVtx",&pvtx_);
+    EventTree->Branch("j400triggered",&j400triggered_);
+    EventTree->Branch("xe70triggered",&xe70triggered_);
     EventTree->Branch("xe90triggered",&xe90triggered_);
     EventTree->Branch("xe110triggered",&xe110triggered_);
 
@@ -141,6 +143,10 @@ EL::StatusCode NtupleMaker :: histInitialize ()
     EventTree->Branch("JetNTracks", "std::vector<UShort_t>", &JetNTracks_n);
     EventTree->Branch("JetSumPtTracks", "std::vector<Float_t>", &JetSumPtTracks_n);
     EventTree->Branch("JetTrackWidth", "std::vector<Float_t>", &JetTrackWidth_n);
+    EventTree->Branch("HighestJVFVtx", "std::vector<UShort_t>", &HighestJVFVtx_n);
+    EventTree->Branch("FracSamplingMax", "std::vector<Float_t>", &FracSamplingMax_n);
+    EventTree->Branch("HECFrac", "std::vector<Float_t>", &HECFrac_n);
+    EventTree->Branch("EMFrac", "std::vector<Float_t>", &EMFrac_n);
 
     EventTree->Branch("GenJetPt","std::vector<Float_t>", &GenJetPt_n);
     EventTree->Branch("GenJetEta","std::vector<Float_t>", &GenJetEta_n);
@@ -393,36 +399,36 @@ EL::StatusCode NtupleMaker :: execute ()
         auto chainGroup = objTool->GetTrigChainGroup("HLT_j.*");
         std::map<int, std::string> PresenTriggers;
         for (auto &trig : chainGroup->getListOfTriggers()) {
-            std::string thisTrig = trig;
-            if (thisTrig.length() < 9) {
-                //Info( "execute()", thisTrig.c_str() );
-                //// Extract threshold
-                std::string str_thres = thisTrig.substr(5);
-                //std::cout << str_thres << " to " << atoi(str_thres.c_str()) << std::endl;
-                PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
-            }
+        std::string thisTrig = trig;
+        if (thisTrig.length() < 9) {
+        //Info( "execute()", thisTrig.c_str() );
+        //// Extract threshold
+        std::string str_thres = thisTrig.substr(5);
+        //std::cout << str_thres << " to " << atoi(str_thres.c_str()) << std::endl;
+        PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
         }
-		//std::sort(PresenTriggers.begin(), PresenTriggers.end());
-		*/
-						
-		std::string chainGroup[20] = {"HLT_j460","HLT_j440","HLT_j420","HLT_j400","HLT_j380","HLT_j360","HLT_j320","HLT_j300","HLT_j260","HLT_j200","HLT_j175","HLT_j150","HLT_j110","HLT_j100","HLT_j85","HLT_j60","HLT_j55","HLT_j35","HLT_j25","HLT_j15"};
-		std::map<int, std::string> PresenTriggers;
-		for (int i = 0; i < 20; ++i) {
-			std::string thisTrig = chainGroup[i];
-			//Info( "execute()", thisTrig.c_str() );
-			//// Extract threshold
-			std::string str_thres = thisTrig.substr(5);
-			//std::cout << str_thres << " to " << atoi(str_thres.c_str()) << std::endl;
-			PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
-		}
-				
+        }
+        //std::sort(PresenTriggers.begin(), PresenTriggers.end());
+        */
+
+        std::string chainGroup[20] = {"HLT_j460","HLT_j440","HLT_j420","HLT_j400","HLT_j380","HLT_j360","HLT_j320","HLT_j300","HLT_j260","HLT_j200","HLT_j175","HLT_j150","HLT_j110","HLT_j100","HLT_j85","HLT_j60","HLT_j55","HLT_j35","HLT_j25","HLT_j15"};
+        std::map<int, std::string> PresenTriggers;
+        for (int i = 0; i < 20; ++i) {
+            std::string thisTrig = chainGroup[i];
+            //Info( "execute()", thisTrig.c_str() );
+            //// Extract threshold
+            std::string str_thres = thisTrig.substr(5);
+            //std::cout << str_thres << " to " << atoi(str_thres.c_str()) << std::endl;
+            PresenTriggers[atoi(str_thres.c_str())] = thisTrig;
+        }
+
         std::vector<std::string> single_jet_triggers;
         std::vector<double> single_jet_theshold;
         for (std::map<int, std::string>::iterator it = PresenTriggers.begin(); it != PresenTriggers.end(); it++) {
             single_jet_triggers.push_back(it->second);
             single_jet_theshold.push_back(int(it->first));
         }
-		
+
         //// calculate the prescale weight from single jet triggers
 
         std::vector<bool > triggersPass;
@@ -431,9 +437,14 @@ EL::StatusCode NtupleMaker :: execute ()
             triggersPass.push_back(objTool->IsTrigPassed(sjt));
         }
 
+        xe70triggered_ = false;
         xe90triggered_ = false;
         xe110triggered_ = false;
-        if (dsid_ <= 304008) {
+        j400triggered_ = objTool->IsTrigPassed("HLT_noalg_J400");
+        if (dsid_ <= 284484) {
+            xe70triggered_ = objTool->IsTrigPassed("HLT_xe70_mht");
+        }
+        if (dsid_ <= 304008 && dsid_ > 297447) {
             xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
         }
         if (dsid_ > 304008) {
@@ -447,31 +458,31 @@ EL::StatusCode NtupleMaker :: execute ()
             Error("execute()", Form("failed to retrieve %s", mc_name.Data()));
 
         double HLTjetPt = 0;
-        double HLTjetEta = 0;
-        double HLTjetPhi = 0;
+        //double HLTjetEta = 0;
+        //double HLTjetPhi = 0;
         if (hlt_jet->size() > 0) {
-			//HLTjetPt = hlt_jet->at(0)->pt()/1000.;
-			//HLTjetEta = hlt_jet->at(0)->eta();
-			//HLTjetPhi = hlt_jet->at(0)->phi();
-			for  (int i = 0; i < hlt_jet->size(); ++i) {
-				if (hlt_jet->at(i)->pt()/1000. > HLTjetPt) {
-					HLTjetPt = hlt_jet->at(i)->pt()/1000.;
-					HLTjetEta = hlt_jet->at(i)->eta();
-					HLTjetPhi = hlt_jet->at(i)->phi();
-					//Info( "execute()", "Leading jet pT: %.1f ", HLTjetPt);
-					//Info( "execute()", "Leading jet eta: %.1f ", HLTjetEta);
-					//Info( "execute()", "Leading jet phi: %.1f ", HLTjetPhi);
-				}
-			}
-		} else {
+            //HLTjetPt = hlt_jet->at(0)->pt()/1000.;
+            //HLTjetEta = hlt_jet->at(0)->eta();
+            //HLTjetPhi = hlt_jet->at(0)->phi();
+            for  (int i = 0; i < hlt_jet->size(); ++i) {
+                if (hlt_jet->at(i)->pt()/1000. > HLTjetPt) {
+                    HLTjetPt = hlt_jet->at(i)->pt()/1000.;
+                    //HLTjetEta = hlt_jet->at(i)->eta();
+                    //HLTjetPhi = hlt_jet->at(i)->phi();
+                    //Info( "execute()", "Leading jet pT: %.1f ", HLTjetPt);
+                    //Info( "execute()", "Leading jet eta: %.1f ", HLTjetEta);
+                    //Info( "execute()", "Leading jet phi: %.1f ", HLTjetPhi);
+                }
+            }
+        } else {
             Info( "execute()", "No trigger object (jet) available" );
-            return EL::StatusCode::SUCCESS;			
-		}
+            return EL::StatusCode::SUCCESS;
+        }
 
         int i_highest_fire = -1;
         for (int i  = triggersPass.size()-1; i >= 0; i--) {
             if (triggersPass.at(i)) {
-				//std::cout << "fire i: " << i << std::endl;
+                //std::cout << "fire i: " << i << std::endl;
                 i_highest_fire = i;
                 break;
             }
@@ -480,7 +491,7 @@ EL::StatusCode NtupleMaker :: execute ()
         int i_highest_threshold = -1;
         for (int i  = single_jet_theshold.size()-1; i >= 0; i--) {
             if (float(single_jet_theshold.at(i)) <= HLTjetPt) {
-				//std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
+                //std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
                 i_highest_threshold = i;
                 break;
             }
@@ -492,30 +503,32 @@ EL::StatusCode NtupleMaker :: execute ()
             //Info( "execute()", "No relevant single jet trigger has fired" );
             return EL::StatusCode::SUCCESS;
         } else {
-			for (int i = 0; i <= i_highest_threshold; i++) {
-				//std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
-				auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i));
-				for (auto &trig : chainGroup->getListOfTriggers()) {
-					auto cg = objTool->GetTrigChainGroup(trig);
-					std::string thisTrig = trig;
-					//Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
-					double ps = cg->getPrescale();
-					if (ps > 0) {
-						combined_PS *= (1. - 1./ps);
-					}
-				}
+            for (int i = 0; i <= i_highest_threshold; i++) {
+                //std::cout << "threshold " << i << " : " << single_jet_theshold.at(i) << std::endl;
+                auto chainGroup = objTool->GetTrigChainGroup(single_jet_triggers.at(i));
+                for (auto &trig : chainGroup->getListOfTriggers()) {
+                    auto cg = objTool->GetTrigChainGroup(trig);
+                    std::string thisTrig = trig;
+                    //Info( "execute()", "%30s chain passed(1)/failed(0): %d ; total chain prescale (L1*HLT): %.1f", thisTrig.c_str(), cg->isPassed(), cg->getPrescale() );
+                    double ps = cg->getPrescale();
+                    if (ps > 0) {
+                        combined_PS *= (1. - 1./ps);
+                    }
+                }
             }
-			eventWeight = 1. / (1. - combined_PS);
-		}
-		//std::cout << "Effective prescale: " << eventWeight << std::endl;
-		
+            eventWeight = 1. / (1. - combined_PS);
+        }
+        //std::cout << "Effective prescale: " << eventWeight << std::endl;
+
         // end if not MC
 
     } else {
 
         // it's MC!
+        xe70triggered_ = objTool->IsTrigPassed("HLT_xe70_mht");
         xe90triggered_ = objTool->IsTrigPassed("HLT_xe90_mht_L1XE50");
         xe110triggered_ = objTool->IsTrigPassed("HLT_xe110_mht_L1XE60");
+        j400triggered_ = objTool->IsTrigPassed("HLT_noalg_J400");
 
     }
 
@@ -557,9 +570,9 @@ EL::StatusCode NtupleMaker :: execute ()
     EL_RETURN_CHECK("execute()", objTool->GetMuons(muons_nominal, muons_nominal_aux) );
 
     // Taus
-    //xAOD::TauJetContainer* taus_nominal(0);
-    //xAOD::ShallowAuxContainer* taus_nominal_aux(0);
-    //EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal, taus_nominal_aux) );
+    xAOD::TauJetContainer* taus_nominal(0);
+    xAOD::ShallowAuxContainer* taus_nominal_aux(0);
+    EL_RETURN_CHECK("execute()", objTool->GetTaus(taus_nominal, taus_nominal_aux) );
 
     // Jets
     xAOD::JetContainer* jets_nominal(0);
@@ -577,7 +590,7 @@ EL::StatusCode NtupleMaker :: execute ()
     xAOD::PhotonContainer* photons(photons_nominal);
     xAOD::MuonContainer* muons(muons_nominal);
     xAOD::JetContainer* jets(jets_nominal);
-    //xAOD::TauJetContainer* taus(taus_nominal);
+    xAOD::TauJetContainer* taus(taus_nominal);
     xAOD::MissingETContainer* mettst(mettst_nominal);
     // Aux containers too
     //xAOD::MissingETAuxContainer* mettst_aux(mettst_nominal_aux);
@@ -620,14 +633,14 @@ EL::StatusCode NtupleMaker :: execute ()
             MuonPassOR_n->push_back(passOR);
         }
         if (debug_ > 10) std::cout << "muon (pT, eta, phi, isSignal, IsBad, Charge, PassOR): " <<
-                  newMuon.momentum.Pt()/1000. << ", " <<
-                  newMuon.momentum.Eta() << ", " <<
-                  newMuon.momentum.Phi() << ", " <<
-                  newMuon.isSignal << ", " <<
-                  newMuon.isBad << ", " <<
-                  mu->charge() << ", " <<
-                  passOR << ", " <<
-                  std::endl;
+                                       newMuon.momentum.Pt()/1000. << ", " <<
+                                       newMuon.momentum.Eta() << ", " <<
+                                       newMuon.momentum.Phi() << ", " <<
+                                       newMuon.isSignal << ", " <<
+                                       newMuon.isBad << ", " <<
+                                       mu->charge() << ", " <<
+                                       passOR << ", " <<
+                                       std::endl;
     }
 
 
@@ -657,16 +670,15 @@ EL::StatusCode NtupleMaker :: execute ()
         EleCharge_n->push_back(ele->charge());
         ElePassOR_n->push_back(passOR);
         if (debug_ > 10)  std::cout << "electron (pT, eta, phi, isSignal, Charge, PassOR): " <<
-                  newElectron.momentum.Pt()/1000. << ", " <<
-                  newElectron.momentum.Eta() << ", " <<
-                  newElectron.momentum.Phi() << ", " <<
-                  newElectron.isSignal << ", " <<
-                  ele->charge() << ", " <<
-                  passOR << ", " <<
-                  std::endl;
+                                        newElectron.momentum.Pt()/1000. << ", " <<
+                                        newElectron.momentum.Eta() << ", " <<
+                                        newElectron.momentum.Phi() << ", " <<
+                                        newElectron.isSignal << ", " <<
+                                        ele->charge() << ", " <<
+                                        passOR << ", " <<
+                                        std::endl;
     }
 
-    /*
     //// tau vector
     //std::vector<myTau> Taus;
     float tau_ptcut = 20000;
@@ -691,15 +703,14 @@ EL::StatusCode NtupleMaker :: execute ()
         TauCharge_n->push_back(tau->charge());
         TauPassOR_n->push_back(passOR);
         if (debug_ > 10)  std::cout << "tau (pT, eta, phi, isSignal, Charge, PassOR): " <<
-                  newTau.momentum.Pt()/1000. << ", " <<
-                  newTau.momentum.Eta() << ", " <<
-                  newTau.momentum.Phi() << ", " <<
-                  newTau.isSignal << ", " <<
-                  tau->charge() << ", " <<
-                  passOR << ", " <<
-                  std::endl;
+                                        newTau.momentum.Pt()/1000. << ", " <<
+                                        newTau.momentum.Eta() << ", " <<
+                                        newTau.momentum.Phi() << ", " <<
+                                        newTau.isSignal << ", " <<
+                                        tau->charge() << ", " <<
+                                        passOR << ", " <<
+                                        std::endl;
     }
-	*/
 
     //// photon vector
     //std::vector<myPhoton> Photons;
@@ -723,12 +734,12 @@ EL::StatusCode NtupleMaker :: execute ()
         PhotonIsSignal_n->push_back(isSignal);
         PhotonPassOR_n->push_back(passOR);
         if (debug_ > 10)  std::cout << "photon (pT, eta, phi, isSignal, PassOR): " <<
-                  newPhoton.momentum.Pt()/1000. << ", " <<
-                  newPhoton.momentum.Eta() << ", " <<
-                  newPhoton.momentum.Phi() << ", " <<
-                  newPhoton.isSignal << ", " <<
-                  passOR << ", " <<
-                  std::endl;
+                                        newPhoton.momentum.Pt()/1000. << ", " <<
+                                        newPhoton.momentum.Eta() << ", " <<
+                                        newPhoton.momentum.Phi() << ", " <<
+                                        newPhoton.isSignal << ", " <<
+                                        passOR << ", " <<
+                                        std::endl;
 
     }
 
@@ -835,16 +846,6 @@ EL::StatusCode NtupleMaker :: execute ()
         } else {
             newJet.fjvt = false;
         }
-        //std::vector<float> JVFLoose_vec;
-        //JVFLoose_vec = jet->getAttribute<std::vector<float>>("JVFLoose");
-        //xAOD::Vertex HighestJVFLooseVtx = jet->getAttribute<xAOD::Vertex>("HighestJVFLooseVtx");
-        //float fjvt;
-        //if (JVFLoose_vec.size() > 0) {
-        //    fjvt = JVFLoose_vec[HighestJVFLooseVtx.index()];
-        //} else {
-        //    fjvt = 0.;
-        //}
-        //newJet.fjvt = fjvt;
 
         // number of charged tracks within a jet
         std::vector<int> numtrk_vec;
@@ -858,13 +859,26 @@ EL::StatusCode NtupleMaker :: execute ()
         std::vector<float> trkwidth_vec;
         trkwidth_vec = jet->getAttribute<std::vector<float>>("TrackWidthPt1000");
 
+        // which vertex
+        const xAOD::Vertex* HighestJVFVtx = jet->getAssociatedObject<xAOD::Vertex>("HighestJVFVtx");
+        int vtx = HighestJVFVtx->index();
+
+        // FracSamplingMax
+        newJet.FracSamplingMax = jet->getAttribute<float>("FracSamplingMax");
+
+        // HECFrac
+        newJet.HECFrac = jet->getAttribute<float>("HECFrac");
+
+        // EMFrac
+        newJet.EMFrac = jet->getAttribute<float>("EMFrac");
+
         float sumpttrk;
         float trkwidth;
         int numtrk;
         if (sumpttrk_vec.size() > 0 && objTool->GetPrimVtx()) {
-            sumpttrk = sumpttrk_vec[objTool->GetPrimVtx()->index()];
-            numtrk = numtrk_vec[objTool->GetPrimVtx()->index()];
-            trkwidth = trkwidth_vec[objTool->GetPrimVtx()->index()];
+            sumpttrk = sumpttrk_vec[HighestJVFVtx->index()];
+            numtrk = numtrk_vec[HighestJVFVtx->index()];
+            trkwidth = trkwidth_vec[HighestJVFVtx->index()];
         } else {
             sumpttrk = 0;
             numtrk = 0;
@@ -874,6 +888,7 @@ EL::StatusCode NtupleMaker :: execute ()
         newJet.ntracks = numtrk;
         newJet.sumpt = sumpttrk;
         newJet.tw = trkwidth;
+        newJet.vtx = vtx;
         newJet.good = true;
         if (objTool->IsBadJet(*jet)) newJet.good = false;
         Jets_rec.push_back(newJet);
@@ -893,16 +908,21 @@ EL::StatusCode NtupleMaker :: execute ()
         JetNTracks_n->push_back(it->ntracks);
         JetSumPtTracks_n->push_back(it->sumpt);
         JetTrackWidth_n->push_back(it->tw);
+        HighestJVFVtx_n->push_back(it->vtx);
+        FracSamplingMax_n->push_back(it->FracSamplingMax);
+		HECFrac_n->push_back(it->HECFrac);
+		EMFrac_n->push_back(it->EMFrac);
+
         if (it->good && ( it->momentum.Pt()>60000. || fabs(it->momentum.Eta()) > 2.4 || it->jvt > 0.59 ) ) MHTtotal -= it->momentum;
         if (debug_ > 10)  std::cout << "jet (pT, eta, phi, good, BTag, JVT, PassOR): " <<
-                  it->momentum.Pt()/1000. << ", " <<
-                  it->momentum.Eta() << ", " <<
-                  it->momentum.Phi() << ", " <<
-                  it->good << ", " <<
-                  it->btag << ", " <<
-                  it->jvt << ", " <<
-                  it->OR << ", " <<
-                  std::endl;
+                                        it->momentum.Pt()/1000. << ", " <<
+                                        it->momentum.Eta() << ", " <<
+                                        it->momentum.Phi() << ", " <<
+                                        it->good << ", " <<
+                                        it->btag << ", " <<
+                                        it->jvt << ", " <<
+                                        it->OR << ", " <<
+                                        std::endl;
 
     }
 
@@ -1004,6 +1024,11 @@ EL::StatusCode NtupleMaker :: execute ()
     JetNTracks_n->clear();
     JetSumPtTracks_n->clear();
     JetTrackWidth_n->clear();
+    HighestJVFVtx_n->clear();
+	FracSamplingMax_n->clear();
+	HECFrac_n->clear();
+	EMFrac_n->clear();
+
 
     ElePt_n->clear();
     EleEta_n->clear();
