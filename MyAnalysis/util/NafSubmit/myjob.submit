@@ -1,12 +1,12 @@
-executable          = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527/run.sh
+executable          = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_mc_Wtau_METsoftSmeared_noAngSmear_N20_v4b/47/run.sh
 # # switch to either transfer the executable per job to the node
 # # or from the shared storage for all jobs (don't touch during your job upstart!)
 transfer_executable = False
 universe            = vanilla
-input               = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527/mypayload.data
-output              = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527/mypayload.out
-error               = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527/mypayload.error
-log                 = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_data_METsoftSmeared_noAngSmear_N20_JERUP_v4b/527/mypayload.log
+input               = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_mc_Wtau_METsoftSmeared_noAngSmear_N20_v4b/47/mypayload.data
+output              = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_mc_Wtau_METsoftSmeared_noAngSmear_N20_v4b/47/mypayload.out
+error               = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_mc_Wtau_METsoftSmeared_noAngSmear_N20_v4b/47/mypayload.error
+log                 = /nfs/dust/atlas/user/csander/RandS/Output/MyTest_mc_Wtau_METsoftSmeared_noAngSmear_N20_v4b/47/mypayload.log
 should_transfer_files   = No
 # # when_to_transfer_output = ON_EXIT
 requirements            = OpSysAndVer == "SL6"

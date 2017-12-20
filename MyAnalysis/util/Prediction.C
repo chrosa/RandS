@@ -68,23 +68,23 @@ Prediction::Prediction(TChain& QCDPrediction, TString postfix)
     double DPhiSR = 1.8;
     double DPhiCRMax = 2.7;
     double DPhiCRMin = 1.8;
-    double MjjCut = 1000.;
-    double METCut = 180.;
-    double METnoJVTCut = 150.;
-    double highMETCut = 9999.;
+    double MjjCut = 600.;
+    double METCut = 100.;
+    double METnoJVTCut = 0.;
+    double highMETCut = 120.;
     
-    //double MHTSigSeedMax = 5.;
+    double MHTSigSeedMax = 5.;
     //double METSigSeedMax = 999999.;
     //double METSoftSeedMax = 30.;
 
-    double MHTSigSeedMax = 999999.;
+    //double MHTSigSeedMax = 999999.;
     double METSigSeedMax = 999999.;
     double METSoftSeedMax = 999999.;
 
     bool blindSR = false;
     bool VBF = true;
     bool HTMHT = false;
-    bool doTW = true;
+    bool doTW = false;
 
     // define prediction histograms
     // preselection

@@ -185,7 +185,7 @@ int plotABCDStudies() {
     ////////////////////////////////////////
 
     TFile *f = new TFile("ABCDStudiesOutput_mc.root", "READ", "", 0);
-    TFile *f2 = new TFile("ABCDStudiesOutput_data.root", "READ", "", 0);
+    TFile *f2 = new TFile("ABCDStudiesOutput_signal.root", "READ", "", 0);
 
     vector<TH1F*> h;
     vector<string> t;
@@ -193,6 +193,7 @@ int plotABCDStudies() {
     vector<string> y;
 
 	string SelTitle = "Jet1 p_{T} > 80 GeV, Jet2 p_{T} > 50 GeV, Jet3 p_{T} < 25 GeV";
+	string HistTitle = "#bf{#it{ATLAS}} simulation internal, #sqrt{s} = 13 TeV";
 
     h_Jet1_Pt  =  (TH1F*) f->FindObjectAny("h_Jet1_Pt");
     h.push_back(h_Jet1_Pt);
@@ -270,7 +271,7 @@ int plotABCDStudies() {
     h.push_back(h_MET);
     t.push_back(SelTitle);
     x.push_back("MET (GeV)");
-    y.push_back("Events");
+    y.push_back("a.u.");
 
     TH1F* h_MET2  =  (TH1F*) f2->FindObjectAny("h_MET");
 
@@ -280,14 +281,14 @@ int plotABCDStudies() {
 	h_MET->SetMarkerSize(0.9);
 	h_MET->SetMarkerColor(kBlack);
 	h_MET->SetXTitle("MET (GeV)");
-	h_MET->SetYTitle("Events");
+	h_MET->SetYTitle("a.u.");
 	//h_DeltaPhijj->SetMinimum(1.);
 
 	h_MET2->SetMarkerStyle(20);
 	h_MET2->SetMarkerSize(0.9);
 	h_MET2->SetMarkerColor(kRed);
 	h_MET2->SetXTitle("MET (GeV)");
-	h_MET2->SetYTitle("Events");
+	h_MET2->SetYTitle("a.u.");
 	//h_MET2->SetMinimum(1.);
 
 	TCanvas *j = new TCanvas("c", "c", 800, 600);
@@ -299,18 +300,36 @@ int plotABCDStudies() {
 	h_MET2->Scale(1./h_MET2->Integral());
 	h_MET2->Draw("same");
 
-	TPaveText* jt = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	jt->SetBorderSize(0);
-	jt->SetFillStyle(0);
-	jt->SetTextAlign(12);
-	jt->SetTextFont(42);
-	jt->SetTextSize(0.04);
-	jt->AddText(SelTitle.c_str());
-	jt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	//jt->AddText("Simulation, #sqrt{s} = 13 TeV");
-	jt->Draw();
+	TPaveText* title = new TPaveText(0.1, 0.92, 0.95, 0.87, "NDC");
+	title->SetBorderSize(0);
+	title->SetFillStyle(0);
+	title->SetTextAlign(12);
+	title->SetTextFont(42);
+	title->SetTextSize(0.04);
+	title->AddText(HistTitle.c_str());
+	//title->AddText(SelTitle.c_str());
+	title->Draw();
+	
+	auto obre = new TLegend(0.6,0.8,0.8,0.7);
+	obre->AddEntry(h_MET2,"signal","p");
+	obre->AddEntry(h_MET,"multijet","p");
+
+	auto obli = new TLegend(0.2,0.8,0.4,0.7);
+	obli->AddEntry(h_MET2,"signal","p");
+	obli->AddEntry(h_MET,"multijet","p");
+
+	auto unre = new TLegend(0.6,0.3,0.8,0.2);
+	unre->AddEntry(h_MET2,"signal","p");
+	unre->AddEntry(h_MET,"multijet","p");
+
+	auto unli = new TLegend(0.2,0.3,0.4,0.2);
+	unli->AddEntry(h_MET2,"signal","p");
+	unli->AddEntry(h_MET,"multijet","p");
+
+	obre->Draw();
 
 	j->SaveAs("MET.pdf");
+	j->SaveAs("MET.root");
 
 	//// end overlay plotting MET
 
@@ -349,15 +368,8 @@ int plotABCDStudies() {
 	h_METsig2->Draw();
 	h_METsig->Draw("same");
 
-	TPaveText* pt = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	pt->SetBorderSize(0);
-	pt->SetFillStyle(0);
-	pt->SetTextAlign(12);
-	pt->SetTextFont(42);
-	pt->SetTextSize(0.04);
-	pt->AddText(SelTitle2.c_str());
-	pt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	pt->Draw();
+	title->Draw();
+	obli->Draw();
 
 	c->SaveAs("METsig.pdf");
 
@@ -393,15 +405,8 @@ int plotABCDStudies() {
 	h_MHTsig2->Draw();
 	h_MHTsig->Draw("same");
 
-	TPaveText* pt2 = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	pt2->SetBorderSize(0);
-	pt2->SetFillStyle(0);
-	pt2->SetTextAlign(12);
-	pt2->SetTextFont(42);
-	pt2->SetTextSize(0.04);
-	pt2->AddText(SelTitle2.c_str());
-	pt2->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	pt2->Draw();
+	title->Draw();
+	obli->Draw();
 
 	c2->SaveAs("MHTsig.pdf");
 
@@ -437,16 +442,8 @@ int plotABCDStudies() {
 	h_METsoft2->Draw();
 	h_METsoft->Draw("same");
 
-	TPaveText* bt = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	bt->SetBorderSize(0);
-	bt->SetFillStyle(0);
-	bt->SetTextAlign(12);
-	bt->SetTextFont(42);
-	bt->SetTextSize(0.04);
-	bt->AddText(SelTitle2.c_str());
-	bt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	//bt->AddText("Simulation, #sqrt{s} = 13 TeV");
-	bt->Draw();
+	title->Draw();
+	obre->Draw();
 
 	d->SaveAs("METsoft.pdf");
 
@@ -456,7 +453,7 @@ int plotABCDStudies() {
     h.push_back(h_DeltaPhijj);
     t.push_back(SelTitle);
     x.push_back("#Delta#phi(jj)");
-    y.push_back("Events");
+    y.push_back("a.u.");
 
     TH1F* h_DeltaPhijj2  =  (TH1F*) f2->FindObjectAny("h_DeltaPhijj");
 
@@ -466,14 +463,14 @@ int plotABCDStudies() {
 	h_DeltaPhijj->SetMarkerSize(0.9);
 	h_DeltaPhijj->SetMarkerColor(kBlack);
 	h_DeltaPhijj->SetXTitle("#Delta#phi(jj)");
-	h_DeltaPhijj->SetYTitle("Events");
+	h_DeltaPhijj->SetYTitle("a.u.");
 	//h_DeltaPhijj->SetMinimum(1.);
 
 	h_DeltaPhijj2->SetMarkerStyle(20);
 	h_DeltaPhijj2->SetMarkerSize(0.9);
 	h_DeltaPhijj2->SetMarkerColor(kRed);
 	h_DeltaPhijj2->SetXTitle("#Delta#phi(jj)");
-	h_DeltaPhijj2->SetYTitle("Events");
+	h_DeltaPhijj2->SetYTitle("a.u.");
 	//h_DeltaPhijj2->SetMinimum(1.);
 
 	TCanvas *i = new TCanvas("c", "c", 800, 600);
@@ -485,18 +482,11 @@ int plotABCDStudies() {
 	h_DeltaPhijj2->Scale(1./h_DeltaPhijj2->Integral());
 	h_DeltaPhijj2->Draw("same");
 
-	TPaveText* it = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	it->SetBorderSize(0);
-	it->SetFillStyle(0);
-	it->SetTextAlign(12);
-	it->SetTextFont(42);
-	it->SetTextSize(0.04);
-	it->AddText(SelTitle.c_str());
-	it->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	//it->AddText("Simulation, #sqrt{s} = 13 TeV");
-	it->Draw();
+	title->Draw();
+	unre->Draw();
 
 	i->SaveAs("dPhijj.pdf");
+	i->SaveAs("dPhijj.root");
 
 	//// end overlay plotting DeltaPhijj
 
@@ -504,7 +494,7 @@ int plotABCDStudies() {
     h.push_back(h_DeltaEtajj);
     t.push_back(SelTitle);
     x.push_back("#Delta#eta(jj)");
-    y.push_back("Events");
+    y.push_back("a.u.");
 
     TH1F* h_DeltaEtajj2  =  (TH1F*) f2->FindObjectAny("h_DeltaEtajj");
 
@@ -514,14 +504,14 @@ int plotABCDStudies() {
 	h_DeltaEtajj->SetMarkerSize(0.9);
 	h_DeltaEtajj->SetMarkerColor(kBlack);
 	h_DeltaEtajj->SetXTitle("#Delta#eta(jj)");
-	h_DeltaEtajj->SetYTitle("Events");
+	h_DeltaEtajj->SetYTitle("a.u.");
 	//h_DeltaEtajj->SetMinimum(1.);
 
 	h_DeltaEtajj2->SetMarkerStyle(20);
 	h_DeltaEtajj2->SetMarkerSize(0.9);
 	h_DeltaEtajj2->SetMarkerColor(kRed);
 	h_DeltaEtajj2->SetXTitle("#Delta#eta(jj)");
-	h_DeltaEtajj2->SetYTitle("Events");
+	h_DeltaEtajj2->SetYTitle("a.u.");
 	//h_DeltaEtajj2->SetMinimum(1.);
 
 	TCanvas *e = new TCanvas("c", "c", 800, 600);
@@ -533,18 +523,11 @@ int plotABCDStudies() {
 	h_DeltaEtajj2->Scale(1./h_DeltaEtajj2->Integral());
 	h_DeltaEtajj2->Draw("same");
 
-	TPaveText* et = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	et->SetBorderSize(0);
-	et->SetFillStyle(0);
-	et->SetTextAlign(12);
-	et->SetTextFont(42);
-	et->SetTextSize(0.04);
-	et->AddText(SelTitle.c_str());
-	et->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	//et->AddText("Simulation, #sqrt{s} = 13 TeV");
-	et->Draw();
+	title->Draw();
+	unli->Draw();
 
 	e->SaveAs("DeltaEtajj.pdf");
+	e->SaveAs("DeltaEtajj.root");
 
 	//// end overlay plotting dEta
 
@@ -552,7 +535,7 @@ int plotABCDStudies() {
     h.push_back(h_Mjj);
     t.push_back(SelTitle);
     x.push_back("M(jj) (GeV)");
-    y.push_back("Events");
+    y.push_back("a.u.");
 
     TH1F* h_Mjj2  =  (TH1F*) f2->FindObjectAny("h_Mjj");
 
@@ -562,14 +545,14 @@ int plotABCDStudies() {
 	h_Mjj->SetMarkerSize(0.9);
 	h_Mjj->SetMarkerColor(kBlack);
 	h_Mjj->SetXTitle("M(jj) (GeV)");
-	h_Mjj->SetYTitle("Events");
+	h_Mjj->SetYTitle("a.u.");
 	//h_Mjj->SetMinimum(1.);
 
 	h_Mjj2->SetMarkerStyle(20);
 	h_Mjj2->SetMarkerSize(0.9);
 	h_Mjj2->SetMarkerColor(kRed);
 	h_Mjj2->SetXTitle("M(jj) (GeV)");
-	h_Mjj2->SetYTitle("Events");
+	h_Mjj2->SetYTitle("a.u.");
 	//h_Mjj2->SetMinimum(1.);
 
 	TCanvas *g = new TCanvas("c", "c", 800, 600);
@@ -581,18 +564,12 @@ int plotABCDStudies() {
 	h_Mjj2->Scale(1./h_Mjj2->Integral());
 	h_Mjj2->Draw("same");
 
-	TPaveText* gt = new TPaveText(0.1, 0.98, 0.95, 0.87, "NDC");
-	gt->SetBorderSize(0);
-	gt->SetFillStyle(0);
-	gt->SetTextAlign(12);
-	gt->SetTextFont(42);
-	gt->SetTextSize(0.04);
-	gt->AddText(SelTitle.c_str());
-	gt->AddText("Data, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV");
-	//gt->AddText("Simulation, #sqrt{s} = 13 TeV");
+	title->Draw();
 	gt->Draw();
+	unli->Draw();
 
 	g->SaveAs("Mjj.pdf");
+	g->SaveAs("Mjj.root");
 
 	//// end overlay plotting Mjj
 

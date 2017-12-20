@@ -13,14 +13,14 @@ def submit_job(index, jobDir):
 	system("cd /afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/NafSubmit")
 
 #filelist = open("../filelist_mc_Wtau_v1.txt")
-#filelist = open("../filelist_mc_v3.txt")
-filelist = open("../filelist_data_v3.txt")
+filelist = open("../filelist_mc_v3.txt")
+#filelist = open("../filelist_data_v3.txt")
 line = "init"
-jobDir = "MyTest_data_METsoftSmeared_noAngSmear_N20_v4c"
+jobDir = "MyTest_mc_METsoftSmeared_noAngSmear_N20_v4b"
 #500k for sim
 #2.5M for data
 #2.5M for Wtau
-Nevts_max = 500000
+Nevts_max = 100000
 
 system("mkdir /nfs/dust/atlas/user/csander/RandS/Output/"+jobDir)
 # loop over ntuple files

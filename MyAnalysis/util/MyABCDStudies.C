@@ -605,7 +605,7 @@ Bool_t MyABCDStudies::Process(Long64_t entry)
         h_MHTsig->Fill(MHTnoJVT.Pt()/sqrt(HTnoJVT), eventWeight);
         h_METsoft->Fill(METsoft.Pt(), eventWeight);
 
-        if (dPhijj < 0.5 && dEtajj > 4.0 && tjv && Mjj < 1000.) {
+        if (tjv) {
 
             h_MET->Fill(MET.Pt(), eventWeight);
             h_MET_noJVT->Fill(METnoJVT.Pt(), eventWeight);

@@ -1,4 +1,1 @@
-/nfs/dust/atlas/user/csander/samples/mc15_13TeV/AOD.07964408._000001.pool.root.1
-/nfs/dust/atlas/user/csander/samples/mc15_13TeV/AOD.07916747._000001.pool.root.1
-/nfs/dust/atlas/user/csander/samples/mc15_13TeV/AOD.07916755._000001.pool.root.1
-/nfs/dust/atlas/user/csander/samples/mc15_13TeV/AOD.07916764._000001.pool.root.1
+/nfs/dust/atlas/user/csander/samples/VBFH125_ZZ4nu_MET125/DAOD_SUSY11.output.pool.root

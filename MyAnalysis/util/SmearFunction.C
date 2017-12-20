@@ -451,18 +451,18 @@ void SmearFunction::CalculateSmearFunctions() {
     gStyle->SetCanvasBorderMode(0);
     gStyle->SetFrameBorderMode(0);
     gStyle->SetOptStat(0);
-    gStyle->SetStatBorderSize(2);
+    gStyle->SetStatBorderSize(1);
     gStyle->SetOptTitle(1);
     gStyle->SetPadTickX(1);
     gStyle->SetPadTickY(1);
-    gStyle->SetPadBorderSize(2);
+    gStyle->SetPadBorderSize(1);
     gStyle->SetPalette(51, 0);
-    gStyle->SetPadBottomMargin(0.25);
+    gStyle->SetPadBottomMargin(0.10);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadLeftMargin(0.2);
+    gStyle->SetPadLeftMargin(0.15);
     gStyle->SetPadRightMargin(0.05);
-    gStyle->SetTitleOffset(1.2, "X");
-    gStyle->SetTitleOffset(1.6, "Y");
+    gStyle->SetTitleOffset(1.5, "X");
+    gStyle->SetTitleOffset(1.5, "Y");
     gStyle->SetTitleOffset(1.0, "Z");
     gStyle->SetLabelSize(0.05, "X");
     gStyle->SetLabelSize(0.05, "Y");
@@ -475,9 +475,10 @@ void SmearFunction::CalculateSmearFunctions() {
     gStyle->SetTitleSize(0.05, "Z");
     gStyle->SetTitleColor(1);
     gStyle->SetTitleFillColor(0);
+    gStyle->SetTitleFont(42);
     gStyle->SetTitleFontSize(0.06);
     gStyle->SetTitleY(0.99);
-    gStyle->SetTitleX(0.15);
+    gStyle->SetTitleX(0.12);
     gStyle->SetTitleBorderSize(0);
     gStyle->SetLineWidth(2);
     gStyle->SetHistLineWidth(2);
@@ -491,14 +492,23 @@ void SmearFunction::CalculateSmearFunctions() {
     c->cd();
     c->Print(psfile + ".pdf(");
     for (unsigned int i_flav = 0; i_flav < 2; ++i_flav) {
-        for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
-            for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+        for (unsigned int i_eta = 0; i_eta < EtaBinEdges_.size() - 1; ++i_eta) {
+			for (unsigned int i_Pt = 0; i_Pt < PtBinEdges_.size() - 1; ++i_Pt) {
                 char cname[100];
                 sprintf(cname, "c_Pt%i_Eta%i_JetFlavor%i", i_Pt, i_eta, i_flav);
                 c->SetName(cname);
+                char hname[200];
+                string jetfl = "not b-tagged";
+                if (i_flav == 1) jetfl = "b-tagged";
+                sprintf(hname, "%3.1f<|#eta|<%3.1f, %i GeV<E<%i GeV, %s", EtaBinEdges_.at(i_eta), EtaBinEdges_.at(i_eta+1), int(PtBinEdges_.at(i_Pt)), int(PtBinEdges_.at(i_Pt+1)), jetfl.c_str());                
                 c->SetLogy();
-                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitle(cname);
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetYTitle("a.u.");
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetXTitle("p_T^{reco}/p_T^{truth}");
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitleOffset(1.2,"x");
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitleOffset(1.5,"y");
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitle(hname);
                 smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kBlack);
+                smearFunc.at(i_flav).at(i_eta).at(i_Pt)->SetTitleFont(42,"xyz");
                 smearFunc_Core.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kGreen);
                 smearFunc_LowerTail.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kRed);
                 smearFunc_UpperTail.at(i_flav).at(i_eta).at(i_Pt)->SetLineColor(kMagenta);

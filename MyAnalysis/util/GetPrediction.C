@@ -102,14 +102,24 @@ TCanvas* DrawComparison(TH1F* prediction, TH1F* selection, TString Title, TStrin
     leg1->AddEntry(selection, titleSelection, "lep");
     leg1->Draw("same");
 
-    TPaveText* pt = new TPaveText(0.11, 0.98, 0.95, 0.86, "NDC");
+    TPaveText* pt = new TPaveText(0.11, 0.94, 0.95, 0.86, "NDC");
     pt->SetBorderSize(0);
     pt->SetFillStyle(0);
     pt->SetTextAlign(12);
     pt->SetTextSize(0.045);
-    pt->AddText(Title);
+    pt->SetTextFont(42);
+    //pt->AddText(Title);
     pt->AddText(LumiTitle);
     pt->Draw();
+
+	TPaveText* pt2 = new TPaveText(0.17, 0.84, 0.5, 0.73, "NDC");
+    pt2->SetBorderSize(0);
+    pt2->SetFillStyle(0);
+    pt2->SetTextAlign(11);
+    pt2->SetTextSize(0.045);
+    pt2->SetTextFont(62);
+    pt2->AddText(Title);
+    pt2->Draw();
 
     c->cd();
     TPad *pad2 = new TPad("pad2a", "pad2a", 0, 0, 1, 0.35);
@@ -226,6 +236,7 @@ int main()
 
     ifstream myfile1 ("filelist_RnS_data_all.txt");
     //ifstream myfile1 ("filelist_RnS_mc_all.txt");
+    //ifstream myfile1 ("filelist_RnS_mc_Wtau_all.txt");
     //ifstream myfile1 ("filelist_RnS.txt");
 
     if (myfile1.is_open()) {
@@ -249,7 +260,7 @@ int main()
     bool VBF = true;
     bool VBFSR = false;
     bool HTMHT = false;
-    TString postfix = "_MyTest_data_METsoftSmeared_noAngSmear_MHTsig4_METsoft30_N20_SRtw_v4a"; //CRlm: MET < 120; SRtw with trigger weight
+    TString postfix = "_MyTest_data_METsoftSmeared_noAngSmear_MHTsig5_N20_CRlm_v4"; //CRlm: MET < 120; SRtw with trigger weight
     //TString postfix = "_test_mc";
 
     pred_ = new Prediction(*prediction, postfix);
@@ -257,8 +268,8 @@ int main()
     cout << "after prediction in main" << endl;
 
     TString LumiTitle;
-    if( isData ) LumiTitle = "ATLAS internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
-    else LumiTitle = "Simulation, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
+    if( isData ) LumiTitle = "#bf{#it{ATLAS}} internal, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
+    else LumiTitle = "#bf{#it{ATLAS}} internal simulation, L = 36.1 fb^{  -1}, #sqrt{s} = 13 TeV";
 
     vector<TString> xTitle_presel;
     xTitle_presel.push_back("H_{T} (GeV)");
@@ -712,9 +723,11 @@ int main()
     if (VBF) {
 
         if (VBFSR) {
-            Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
+			Title = "CR loose";
+            //Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         } else {
-            Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
+			Title = "CRlow loose";
+            //Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<2.7, #Delta#eta>2.5, p_{T}(j3)<50 GeV";
         }
 
         if( hist_type_VBF_presel.size() != xTitle_VBF_presel.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;
@@ -725,9 +738,11 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=3, M_{jj}>1.0 TeV, MET>150 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+			Title = "CR #Delta#phi sideband";
+            //Title = "N_{j}=3, M_{jj}>1.0 TeV, MET>150 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
         } else {
-            Title = "N_{j}=3, M_{jj}>0.6 TeV, MET>100 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
+			Title = "CRlow #Delta#phi sideband";
+            //Title = "N_{j}=3, M_{jj}>0.6 TeV, MET>100 GeV, 1.8<#Delta#phi<2.7, #Delta#eta>3.0, p_{T}(j3)<50 GeV";
         }
 
         if( hist_type_VBF_presel_4JV_dPhiSide.size() != xTitle_VBF_presel_4JV_dPhiSide.size() ) cout << "Error: Missing xTitles VBF_presel!!" << endl;
@@ -738,9 +753,11 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
+			Title = "CR loose 3JV";
+            //Title = "N_{j}>=3, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
         } else {
-            Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
+			Title = "CRlow loose 3JV";
+            //Title = "N_{j}>=3, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<50 GeV";
         }
 
         if( hist_type_VBF_dEta.size() != xTitle_VBF_dEta.size() ) cout << "Error: Missing xTitles VBF_dEta!!" << endl;
@@ -751,9 +768,11 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
+			Title = "SR no #Delta#phi(MET,j)";
+            //Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
         } else {
-            Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
+			Title = "SRlow no #Delta#phi(MET,j)";
+            //Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, p_{T}(j3)<25 GeV";
         }
 
         if( hist_type_VBF_dEta_3JV.size() != xTitle_VBF_dEta_3JV.size() ) cout << "Error: Missing xTitles VBF_dEta_3JV!!" << endl;
@@ -764,9 +783,11 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=2, M_{jj}<1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
+			Title = "CR jj";
+            //Title = "N_{j}=2, M_{jj}<1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
         } else {
-            Title = "N_{j}=2, M_{jj}<0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
+			Title = "CRlow jj";
+            //Title = "N_{j}=2, M_{jj}<0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>2.5, p_{T}(j3)<25 GeV";
         }
 
         if( hist_type_VBF_jj.size() != xTitle_VBF_jj.size() ) cout << "Error: Missing xTitles VBF_jj!!" << endl;
@@ -777,9 +798,11 @@ int main()
         }
 
         if (VBFSR) {
-            Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
+			Title = "SR";
+            //Title = "N_{j}=2, M_{jj}>1.0 TeV, MET>150 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
         } else {
-            Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
+			Title = "SRlow";
+            //Title = "N_{j}=2, M_{jj}>0.6 TeV, MET>100 GeV, #Delta#phi<1.8, #Delta#eta>4.8, #Delta#phi(MET,j)>1.0, p_{T}(j3)<25 GeV";
         }
 
         if( hist_type_VBF_dEta_3JV_dPhiPTjj.size() != xTitle_VBF_dEta_3JV_dPhiPTjj.size() ) cout << "Error: Missing xTitles VBF_dEta_3JV_dPhiPTjj!!" << endl;

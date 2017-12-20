@@ -37,7 +37,7 @@ void RandS::Begin(TTree * /*tree*/)
 
     TString option = GetOption();
 
-    isMC_ = false;
+    isMC_ = true;
     jvtcut_= 0.59; //// 0.59 (medium)
     lumi_ = 36100.;
     smearingfile_ = "/afs/desy.de/user/c/csander/xxl-af-cms/testarea/2.4.8/MyAnalysis/util/resolutions_GenJetMuNu_RecoNoMu_E_OR_v3.root";
@@ -81,7 +81,7 @@ void RandS::Begin(TTree * /*tree*/)
     doMETmu_ = false;
     PtBinEdges_scaling_ = {0.,3000.};
     EtaBinEdges_scaling_ = {0.,5.};
-    AdditionalSmearing_ = {1.1};
+    AdditionalSmearing_ = {1.0};
     LowerTailScaling_ = {1.0};
     UpperTailScaling_ = {1.0};
     //PtBinEdges_scaling_ = {0.,150.,250.,400.,700.,3000.};
@@ -217,6 +217,15 @@ void RandS::Begin(TTree * /*tree*/)
     AvailableEvents[361025] = 7977600;
     AvailableEvents[361026] = 1893400;
 
+    AvailableEvents[364184] = 22607544;
+    AvailableEvents[364185] = 8923675;
+    AvailableEvents[364186] = 16080569;
+    AvailableEvents[364187] = 14554278;
+    AvailableEvents[364188] = 9635705;
+    AvailableEvents[364189] = 8576511;
+    AvailableEvents[364190] = 9896252;
+    AvailableEvents[364191] = 7184249;
+    AvailableEvents[364192] = 24231999;
 
     if (controlPlots_) {
 
